@@ -5,6 +5,9 @@ using UnityEngine.InputSystem;
 
 public class SimpleControll : MonoBehaviour
 {
+    private int _id;
+    public string shaderVariableName = "_DistanceToCamera";
+    private Vector3 _distanceObjectToCamera;
     [Header("Move Speed")] 
     [SerializeField] private float speed;
     [SerializeField] private float Maxspeed;
@@ -55,6 +58,7 @@ public class SimpleControll : MonoBehaviour
         _ControllerAnimator = GetComponent<Animator>();
         _XAxis = Animator.StringToHash("XAxis");
         _YAxis = Animator.StringToHash("YAxis");
+        _id = Shader.PropertyToID(shaderVariableName);
     }
     
     private void FixedUpdate()
@@ -68,6 +72,8 @@ public class SimpleControll : MonoBehaviour
         ApplyGravity();
         Rotation();
         ApplyMove();
+        _distanceObjectToCamera = Camera.main.transform.position - this.transform.position;
+        Shader.SetGlobalFloat(_id, _distanceObjectToCamera.magnitude);
     }
 
     private void OnEnable()
