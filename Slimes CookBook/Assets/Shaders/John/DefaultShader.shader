@@ -4,13 +4,19 @@ Shader "Custom/DefaultShader"
 	{
 		 _BaseMap("Base Texture", 2D) = "white" {}
 		 _BaseColor("Example Colour", Color) = (0, 0.66, 0.73, 1)
+		 _BaseColor2("Example Colour", Color) = (0, 0.66, 0.73, 1)
 		 _Smoothness("Smoothness", Float) = 0.5
 
 		 [Header(Dissolve)]
 		_DissolveTex("Dissolve Texture", 2D) = "black" {}
-		_DissolveAmount("Dissolve Amount", Range(-1, 1)) = 0
-		 _Center("Dissolve Center", Vector) = (0,0,0,0)
+		_DissolveAmount("Dissolve Amount", Range(0 , 1)) = 0
+		 _Cutoff("Dissolve _Cutoff", Float) = 1
 		_DistaceMultiplier("DistaceMultiplier", Float) = 1
+		_DistanceToCamera("_DistanceToCamera", Float) = 1
+		_Height("_Height", Float) = 1
+		_Widht("_Widht", Float) = 1
+		_Radius("_Radius", Float) = 1
+		_PlayerPos("_PlayerPos", Vector) = (0,0,0,0)
 
 		[Header(Glow)]
 		[HDR]_GlowColor("Color", Color) = (1, 1, 1, 1)
@@ -37,6 +43,7 @@ Shader "Custom/DefaultShader"
 					float4 _BaseMap_ST;
 					float4 _DissolveTex_ST;
 					float4 _BaseColor;
+					float4 _BaseColor2;
 					float _BumpScale;
 					float4 _EmissionColor;
 					float _Smoothness;
@@ -44,10 +51,14 @@ Shader "Custom/DefaultShader"
 					float _DissolveAmount;
 					float _DistaceMultiplier;
 					float _DistanceToCamera;
-					float4 _Center;
+					float _Height;
+					float _Radius;
+					float _Widht;
+					
 					float3 _GlowColor;
 					float _GlowRange;
 					float _GlowFalloff;
+					float2 _PlayerPos;
 					
 				CBUFFER_END
 				ENDHLSL
@@ -321,6 +332,14 @@ Shader "Custom/DefaultShader"
 								)
 						);
 					}
+					float2 Unity_Remap_float2(float2 In, float2 InMinMax, float2 OutMinMax)
+					{
+						return OutMinMax.x + (In - InMinMax.x) * (OutMinMax.y - OutMinMax.x) / (InMinMax.y - InMinMax.x);
+					}
+					float2 Unity_TilingAndOffset_float(float2 UV, float2 Tiling, float2 Offset)
+					{
+						return UV * Tiling + Offset;
+					}
 					Varyings vert(Attributes IN) {
 						Varyings OUT;
 
@@ -353,8 +372,8 @@ Shader "Custom/DefaultShader"
 						#ifdef REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR
 							OUT.shadowCoord = GetShadowCoord(positionInputs);
 						#endif
-							half3 viewDirW = GetWorldSpaceViewDir(positionInputs.positionWS);
-							OUT.viewDis = length(viewDirW);
+							
+							OUT.viewDis = ComputeScreenPos(positionInputs.positionCS);
 						return OUT;
 					}
 
@@ -396,18 +415,50 @@ Shader "Custom/DefaultShader"
 						// Note, we can just use SurfaceData surfaceData; here and not set it.
 						// However we then need to ensure all values in the struct are set before returning.
 						// By casting 0 to SurfaceData, we automatically set all the contents to 0.
-												
-						float dissolve = snoise(_DistaceMultiplier * IN.positionWS);
-						
-						dissolve = dissolve * 0.999;
-						float isVisible = dissolve - _DissolveAmount;
-						clip(isVisible);
-						
+						float pixelDepth = UNITY_Z_0_FAR_FROM_CLIPSPACE(IN.viewDis.z);
+						float aspectRatio = _ScreenParams.x / _ScreenParams.y;
+						float2 screenPos = IN.viewDis.xy / IN.viewDis.w;
 
-						half4 albedoAlpha = SampleAlbedoAlpha(IN.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));
+						float2 _Remap = Unity_Remap_float2(_PlayerPos,float2(0,0.5), float2(1, -1.5));
+						float _Pos = screenPos + _Remap;
+						float2 _Tilling = Unity_TilingAndOffset_float(screenPos, float2(1, 1), _Pos);
 
+						_Tilling *= float2(2, 2);
+						_Tilling -= float2(1, 1);
+
+						float _camera = (_Height / _Widht) * _Radius;
+						float2 _CamSize = float2(_camera, _Radius);
+
+						float2 _Final = _Tilling / _CamSize;
+						float lPos = length(_Final);
+						lPos = 1 - lPos;
+						lPos = saturate(lPos);
+						lPos = 1 - lPos;
+						lPos = smoothstep(0, _DistanceToCamera, lPos);
+						
+						screenPos.y += _Radius;
+											
+						float dissolveNoise = snoise(_DistaceMultiplier * IN.positionWS);
+						dissolveNoise = dissolveNoise * 0.999;
+						float dissolve = dissolveNoise - _DissolveAmount;
+
+						float2 _Noise = lPos * dissolveNoise;
+						_Noise = lPos + _Noise;
+						_Noise = clamp(_Noise, 0, 1);
+
+						float d = length((screenPos * 2 - 1) / float2( _Widht , _Height ));
+						
+						d = 1 - d;
+						float l = length(d - IN.positionWS.xyz);
+						float x = length(IN.positionWS);
+						float isVisible = saturate(_DistanceToCamera - d + dissolveNoise * saturate(_DistanceToCamera)) - _DissolveAmount;
+						clip(isVisible );
+						//clip(isVisible);* (lerp(_BaseColor, dissolveNoise, d))
+
+						half4 albedoAlpha = SampleAlbedoAlpha(IN.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)) ;
+						
 						surfaceData.alpha = Alpha(albedoAlpha.a, _BaseColor, _Cutoff);
-						surfaceData.albedo = albedoAlpha.rgb * _BaseColor.rgb * IN.color.rgb;
+						surfaceData.albedo = albedoAlpha.rgb  *  _BaseColor.rgb * IN.color.rgb;
 
 						// For the sake of simplicity I'm not supporting the metallic/specular map or occlusion map
 						// for an example of that see : https://github.com/Unity-Technologies/Graphics/blob/master/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl
@@ -416,8 +467,8 @@ Shader "Custom/DefaultShader"
 						surfaceData.normalTS = SampleNormal(IN.uv, TEXTURE2D_ARGS(_BumpMap, sampler_BumpMap), _BumpScale);
 						surfaceData.emission = SampleEmission(IN.uv, _EmissionColor.rgb, TEXTURE2D_ARGS(_EmissionMap, sampler_EmissionMap));
 						float isGlowing = smoothstep(_GlowRange + _GlowFalloff, _GlowRange, isVisible);
-						float3 glow = isGlowing * _GlowColor;
-						surfaceData.emission = surfaceData.emission + glow;
+						float3 glow = isGlowing * _GlowColor ;
+						surfaceData.emission = surfaceData.emission + (glow);
 						surfaceData.occlusion = 1;
 
 						return surfaceData;

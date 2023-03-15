@@ -21,7 +21,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Dissolve
-  m_Shader: {fileID: 4800000, guid: c853e686ac450514291b8ba5291a16ec, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 8bf9d983e6f989246961323777302920,
+    type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -101,12 +102,13 @@ Material:
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
-    - _Cutoff: 0
+    - _Cutoff: 1
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DissolveAmount: -1
+    - _DissolveAmount: 0.365
     - _DissolvePercentage: 0.53
-    - _DistaceMultiplier: 5
+    - _DistaceMultiplier: 6.63
+    - _DistanceToCamera: 3.26
     - _DstBlend: 0
     - _EnableAlphaTest: 0
     - _EnableBumpMap: 0
@@ -115,26 +117,36 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GlowFalloff: 0.015
-    - _GlowRange: 0.009
+    - _GlowFalloff: 0
+    - _GlowRange: 0.125
+    - _Height: 1
     - _Interpolation: 0.82
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
+    - _QueueControl: 0
     - _QueueOffset: 0
+    - _Radius: 1
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
+    - _Widht: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
+    - _scaleNoise: 41.37
+    - _size: 3.5
+    - _smooth: 1.09
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor2: {r: 0, g: 0.65999997, b: 0.73, a: 1}
     - _Center: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GlowColor: {r: 2.490566, g: 1.042942, b: 0.22321105, a: 1}
+    - _POS: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _PlayerPos: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

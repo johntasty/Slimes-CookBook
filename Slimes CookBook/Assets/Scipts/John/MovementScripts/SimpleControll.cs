@@ -6,8 +6,10 @@ using UnityEngine.InputSystem;
 public class SimpleControll : MonoBehaviour
 {
     private int _id;
-    public string shaderVariableName = "_DistanceToCamera";
+    public static int shaderVariableName = Shader.PropertyToID("_Height");
     private Vector3 _distanceObjectToCamera;
+    [SerializeField] Camera _PlayerCam;
+    [SerializeField] Material _Wall;
     [Header("Move Speed")] 
     [SerializeField] private float speed;
     [SerializeField] private float Maxspeed;
@@ -24,6 +26,7 @@ public class SimpleControll : MonoBehaviour
     [SerializeField] private float _JumpPower;
     [Header("Ground Layer")]
     [SerializeField] LayerMask groundLayer;
+    [SerializeField] LayerMask Mask;
     private bool grounded;
    
     [Header("Player Camera")]
@@ -58,13 +61,13 @@ public class SimpleControll : MonoBehaviour
         _ControllerAnimator = GetComponent<Animator>();
         _XAxis = Animator.StringToHash("XAxis");
         _YAxis = Animator.StringToHash("YAxis");
-        _id = Shader.PropertyToID(shaderVariableName);
+        //_id = Shader.PropertyToID(shaderVariableName);
     }
     
     private void FixedUpdate()
     {
         GroundCheck();
-       
+        RaySize();
 
     }
     private void LateUpdate()
@@ -72,10 +75,24 @@ public class SimpleControll : MonoBehaviour
         ApplyGravity();
         Rotation();
         ApplyMove();
-        _distanceObjectToCamera = Camera.main.transform.position - this.transform.position;
-        Shader.SetGlobalFloat(_id, _distanceObjectToCamera.magnitude);
-    }
+        var view = _PlayerCam.WorldToViewportPoint(this.transform.position);
+        //_distanceObjectToCamera = _PlayerCam.transform.position - this.transform.position;
+        //_Wall.SetVector(shaderVariableName, view);
 
+    }
+    void RaySize()
+    {
+        var dir = _PlayerCam.transform.position - this.transform.position;
+        var ray = new Ray(this.transform.position, dir.normalized);
+        if(Physics.Raycast(ray, 3000, Mask))
+        {
+            _Wall.SetFloat("_Height", 0.5f);
+        }
+        else
+        {
+            _Wall.SetFloat("_Height", 0f);
+        }
+    }
     private void OnEnable()
     {
         playerInput.Enable();
