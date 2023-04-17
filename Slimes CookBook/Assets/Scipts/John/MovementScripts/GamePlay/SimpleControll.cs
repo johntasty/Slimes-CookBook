@@ -1,0 +1,134 @@
+using System;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using Mirror;
+public class SimpleControll : NetworkBehaviour
+{
+
+    [SerializeField] Camera _PlayerCam;
+
+    [Header("Attributes")]
+    [SerializeField] MovementAttributes SetInputs;
+    [SerializeField] bool SlimeMovement;
+
+    private MovementClass MovementFunctions;
+    private WallDissolve wallProperties;
+    public bool WallHug;
+    public bool GravityApply = true;
+  
+    public event Action<Vector2> Look;
+    public event Action<bool> Interact;
+
+    public override void OnStartAuthority()
+    {
+        if (!isLocalPlayer) return;
+        enabled = true;
+        SetAttributes();
+        if (SlimeMovement)
+        {
+            ObserverListener.Instance._Slime = GetComponent<SimpleControll>();
+            ObserverListener.Instance.WireUpSlime();
+            return;
+        }
+        ObserverListener.Instance._Wizard = GetComponent<SimpleControll>();
+        ObserverListener.Instance.WireUp();
+    }
+   
+    private void SetAttributes()
+    {
+        wallProperties = GetComponent<WallDissolve>();
+        wallProperties.enabled = true;
+        wallProperties.WallSetup();
+        GetComponent<PlayerInput>().enabled = true;
+        MovementFunctions = new MovementClass();
+
+        SlimesCookBook playerInput = new SlimesCookBook();
+        CharacterController character = GetComponent<CharacterController>();
+        MovementFunctions._Player = transform;
+
+        SetInputs.playerInput = playerInput;
+        SetInputs.playerChar = character;
+        if (SetInputs.HasAnimation) { 
+            SetInputs._ControllerAnimator = GetComponent<Animator>();
+            SetInputs._ControllerAnimator.enabled = true;
+            MovementFunctions.SetHashes("XAxis", "YAxis");           
+        }
+        
+        MovementFunctions.Setup(SetInputs);
+        MovementFunctions.EnableInputs();
+        SetInputs.playerInput.Enable();
+    }
+   
+    private void FixedUpdate()
+    {
+        if (!isLocalPlayer) return;
+        MovementFunctions.GroundChecker();
+        if (SlimeMovement)
+        {
+            MovementFunctions.WallCheck();
+        }
+        MovementFunctions.Gravity();
+        MovementFunctions.SlopeMatch();
+
+    }
+    
+    private void LateUpdate()
+    {
+        if (!isLocalPlayer) return;
+        wallProperties.WallDissolusion();
+        MovementFunctions.Rotation();
+        MovementFunctions.ApplyMovement();
+       
+    }
+
+    private void OnEnable()
+    {
+        if (!isLocalPlayer) return;
+        
+
+    }
+    private void OnDisable()
+    {
+        if (!isLocalPlayer) return;
+        SetInputs.playerInput.Disable();
+        
+    }
+
+    
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        if (!isLocalPlayer) return;
+        MovementFunctions.MovementInputs(context.ReadValue<Vector2>());
+               
+    }
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        if (!isLocalPlayer) return;
+        MovementFunctions.RotationInputs(context.ReadValue<Vector2>().normalized);
+
+    }
+
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        Interact?.Invoke(true);
+    }
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (!isLocalPlayer) return;
+        if (!context.started) return;
+        MovementFunctions.Jump();
+       // if (!grounded) return;       
+       //_Velocity += _JumpPower;
+       
+    }
+    void JumpNow()
+    {
+      //ToDo
+
+    }
+    void Peaked()
+    {
+        //ToDo
+    }
+
+}
