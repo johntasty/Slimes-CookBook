@@ -14,7 +14,7 @@ public class KeypadScreen : MonoBehaviour
     
     List<GameObject> displaySymbols = new List<GameObject>();
 
-    int[] codeSubmitions;
+    public int[] codeSubmitions;
     //just a work around cause am tired
     List<int> codeNumbers = new List<int>();
     public static event Action<int[]> OnDoorUnlock;
@@ -40,7 +40,7 @@ public class KeypadScreen : MonoBehaviour
     {
       
         if (displaySymbols.Count > DigitsNumber - 1) return;
-        GameObject symbol = Instantiate(symbols[obj], SymbolsScreen);
+        GameObject symbol = Instantiate(symbols[obj - 1], SymbolsScreen);
         symbol.SetActive(true);
         displaySymbols.Add(symbol);
         codeNumbers.Add(obj);

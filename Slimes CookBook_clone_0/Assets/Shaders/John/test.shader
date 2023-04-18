@@ -20,9 +20,6 @@ Shader "Unlit/test"
         TestDist("TestDist", Float) = 1.0
         _SpecPowerPreClamp("_SpecPowerPreClamp", Float) = 50.0
 
-        [ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1.0
-        [ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1.0
-
         _BumpScale("Scale", Float) = 1.0
         _StrenghLight("_StrenghLight", Float) = 1.0
         _BumpMap("Normal Map", 2D) = "bump" {}
@@ -128,11 +125,11 @@ Shader "Unlit/test"
             }
             half GetDist(half3 p)
             {
-                half3 pos = (p - _positions[0].xyz);
+                half3 pos = (p - (_positions[0].xyz));
                 half d = length(pos) - _SizeSphere;
                 for (int i = 1; i < _positions.Length; i++) {
-                    half3 pos2 = (p - _positions[i].xyz );
-                    half d2 = length(pos2) - _SizeSphere ;
+                    half3 pos2 = (p - (_positions[i].xyz));
+                    half d2 = length(pos2) - _SizeSphere;
                     d = unionSDF(d, d2, _SphereSmooth);
                 }
                 return d;
@@ -314,17 +311,13 @@ Shader "Unlit/test"
 
                
                            
-                if ( dO > _Max_Distance || dO >= depth) {
+                if ( dO > _Max_Distance || dO > depth) {
                     hit = false;
                     break;
                 }        
               
                 p = ro + rd * dO;
-                
-        
-                float d1 = _sphereFun.GetDist(p);
-
-                ds = d1;
+                ds = _sphereFun.GetDist(p);
                 dO += ds;
                 if (ds < _Accuracy) {
 
@@ -376,11 +369,9 @@ Shader "Unlit/test"
             half ds;
             half4 result;
             //float lenDis = length(fragmentEyeDepth - ro);
-            bool hit = _RayMarch(ro, rd, pos, ds, sceneEyeDepth);
+            bool hit = _RayMarch(ro, rd, pos, ds, len);
 
-            
-
-            if (hit) {   
+            if (hit) {
                 //result = half4(n, 1);
                 float3 normal = _sphereFun.Get_Norm(pos);
                 
@@ -388,9 +379,10 @@ Shader "Unlit/test"
                 result = half4(tes, 1);
                 return result;
             }
+            //else { discard; }
             
             clip(-1);
-            return half4(0, 0, 0, 1);//half4(color * (1.0 - result.w) + result.xyz * result.w, 1.0);
+            return half4(0,0,0,1);//half4(color * (1.0 - result.w) + result.xyz * result.w, 1.0);
             
         }
         ENDHLSL
@@ -405,9 +397,9 @@ Shader "Unlit/test"
                 Name "ForwardLit"
                 Tags { "LightMode" = "UniversalForward" }
                 Cull Off
-                ZWrite Off
+                ZWrite On
                 Blend Off
-                ZTest Always
+               
                 HLSLPROGRAM
                 // Signal this shader requires a compute buffer
                 #pragma prefer_hlslcc gles

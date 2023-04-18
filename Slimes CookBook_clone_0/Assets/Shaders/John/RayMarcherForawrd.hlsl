@@ -63,6 +63,7 @@ struct Varyings
     float4 positionCS               : SV_POSITION;
     half3 ro                        : TEXCOORD10;
     half3 hitPos                    : TEXCOORD11;
+    half4 screenPos : TEXCOORD12;
     UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
 };
@@ -197,11 +198,12 @@ Varyings LitPassVertex(Attributes input)
 
     output.ro = TransformWorldToObject(GetCameraPositionWS());
     output.hitPos = input.positionOS.xyz;
+    output.screenPos = ComputeScreenPos(vertexInput.positionCS);
     return output;
 }
 half GetDist(half3 p , half s)
 {
-    half d = length(p) - s/ _Size;
+    half d = length(p) - s;
    
     return d;
 }
@@ -223,7 +225,7 @@ float unionSDF(float distA, float distB, float k) {
 }
 half DistanceField(half3 _Pos) {
     
-    half sphere = GetDist(_Pos - _TargetPos.xyz / _Size, _Radius);
+    half sphere = GetDist(_Pos - _TargetPos.xyz, _Radius);
     /*for (int i = 1; i < _PositionArray.Length; i++) {
         half sphereAdd = GetDist(_Pos - _PositionArray[i].xyz / _Size, _Radius);
         sphere = unionSDF(sphere, sphereAdd, _SphereSmooth);
@@ -312,8 +314,10 @@ half4 LitPassFragment(Varyings input) : SV_Target
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-    float nonLinear = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, input.uv);
-
+   
+    float rawDepth = SampleSceneDepth(input.screenPos.xy / input.screenPos.w);   
+    float orthoLinearDepth = _ProjectionParams.x > 0 ? rawDepth : 1 - rawDepth;
+    float sceneEyeDepth = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepth);
     //color.rgb = MixFog(color.rgb, inputData.fogCoord);
     half2 uv = input.uv - 0.5;
     half3 ro = input.ro;
@@ -326,7 +330,7 @@ half4 LitPassFragment(Varyings input) : SV_Target
     half4 result;
     bool hit = _RayMarch(ro, rd, pos, ds);
 
-    if (hit) {
+    if (hit && sceneEyeDepth > ds) {
         n = Get_Norm(pos);
         half3 sh = _Shading(pos, n);
 
@@ -364,7 +368,7 @@ half4 LitPassFragment(Varyings input) : SV_Target
     color.rgb = MixFog(color.rgb, inputData.fogCoord);
     color.a = OutputAlpha(1, _Surface);
 
-    return color;
+    return result;
 }
 
 #endif

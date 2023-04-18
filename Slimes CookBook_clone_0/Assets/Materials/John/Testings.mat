@@ -80,7 +80,7 @@ Material:
     m_Ints: []
     m_Floats:
     - TestDist: 1
-    - _Accuracy: 0.0002
+    - _Accuracy: 0.0001
     - _AlphaClip: 0
     - _AmbientIntensity: 0.1
     - _AmbientStepSize: 0.2
@@ -111,18 +111,18 @@ Material:
     - _ShadowMin: 0.01
     - _ShadowPenumbra: 1.35
     - _Size: 1
-    - _SizeSphere: 0.15
+    - _SizeSphere: 0.5
     - _Smoothness: 0.928
     - _SmoothnessTextureChannel: 0
     - _SpecMultiply: 1.45
     - _SpecPower: 0.04
-    - _SpecPowerPreClamp: 0.3
+    - _SpecPowerPreClamp: 0.2
     - _SpecularHighlights: 1
-    - _SphereSmooth: 0.2
+    - _SphereSmooth: 0.4
     - _SrcBlend: 1
     - _StrenghLight: 1
     - _Surface: 0
-    - _TestFloat: 14.72
+    - _TestFloat: 13.22
     - _WorkflowMode: 1
     - _ZWrite: 1
     - _roughness: 0.454
