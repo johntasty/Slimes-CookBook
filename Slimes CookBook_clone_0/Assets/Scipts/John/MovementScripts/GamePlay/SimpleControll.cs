@@ -10,7 +10,8 @@ public class SimpleControll : NetworkBehaviour
     [Header("Attributes")]
     [SerializeField] MovementAttributes SetInputs;
     [SerializeField] bool SlimeMovement;
-
+    [SerializeField] Material SlimeMat = null;
+    static readonly int _SlimeHit = Shader.PropertyToID("_Collision");
     private MovementClass MovementFunctions;
     private WallDissolve wallProperties;
     public bool WallHug;
@@ -67,8 +68,9 @@ public class SimpleControll : NetworkBehaviour
         {
             MovementFunctions.WallCheck();
         }
+        SlimeMoush();
         MovementFunctions.Gravity();
-        MovementFunctions.SlopeMatch();
+        //MovementFunctions.SlopeMatch();
 
     }
     
@@ -129,6 +131,21 @@ public class SimpleControll : NetworkBehaviour
     void Peaked()
     {
         //ToDo
+    }
+    void SlimeMoush()
+    {
+        if (!SlimeMovement) return;
+
+        RaycastHit hit;
+        Debug.DrawRay(transform.position, -transform.up, Color.red);
+        if(Physics.Raycast(transform.position, -transform.up, out hit, SetInputs.groundLayer))
+        {
+            SlimeMat.SetVector(_SlimeHit, hit.point);
+        }
+        else
+        {
+            SlimeMat.SetVector(_SlimeHit, new Vector3(20,20,20));
+        }
     }
 
 }

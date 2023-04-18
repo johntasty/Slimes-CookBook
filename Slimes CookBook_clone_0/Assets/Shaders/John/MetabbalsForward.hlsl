@@ -158,16 +158,16 @@ Varyings LitPassVertex(Attributes input)
         dir = normalize(dir);
     }
 
-    if (dis < _SquishLimit) {
+    if (dis < _SquishAmount) {
 
         squish = 1;
-        squish = pow(squish, dis);
+       
     }
     else if (dis < _Distance + _SquishLimit) {
         
         squish = 1 - (_SquishAmount * dis);
     }
-   
+    squish = pow(squish, dis * _SquishScalar);
     float3 normal = mul(unity_ObjectToWorld, input.normalOS);
     normal.y = 0;
     
@@ -175,7 +175,7 @@ Varyings LitPassVertex(Attributes input)
         normal = normalize(normal);
     }
     
-    input.positionOS.xyz += normalize(normal + dir) * (squish);
+    input.positionOS.xyz += normal * (squish);
     
     VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
     half3 vertexLight = VertexLighting(vertexInput.positionWS, normalInput.normalWS);

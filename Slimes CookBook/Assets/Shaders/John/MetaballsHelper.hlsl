@@ -35,6 +35,7 @@ half _SquishLimit;
 half _Squish;
 half _SquishScalar;
 half _Distance;
+half _DistancePoint;
 half _Radius;
 half3 _Collision;
 half3 _Test;

@@ -22,13 +22,15 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Test
   m_Shader: {fileID: 4800000, guid: c63d56bba2b17e842b3e35fcef4618dd, type: 3}
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _EMISSION
   m_InvalidKeywords: []
-  m_LightmapFlags: 4
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap: {}
+  m_DoubleSidedGI: 1
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    RenderType: Opaque
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -100,13 +102,13 @@ Material:
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _Cull: 2
-    - _Cutoff: 0.12
+    - _Cull: 0
+    - _Cutoff: 0.103
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DissolveAmount: 1
     - _DistaceMultiplier: 0.05
-    - _Distance: 0.6
+    - _Distance: 0.2
     - _DistanceToCamera: 20
     - _DstBlend: 0
     - _EnableAlphaTest: 0
@@ -119,7 +121,7 @@ Material:
     - _GlowFalloff: 0.33
     - _GlowRange: 0.012
     - _Height: 0.35
-    - _Metallic: 0
+    - _Metallic: 0.331
     - _NoiseAmplitude: 1
     - _NoiseFrequency: 1
     - _Number: 2
@@ -129,13 +131,13 @@ Material:
     - _QueueOffset: 0
     - _Radius: 1
     - _ReceiveShadows: 1
-    - _Smoothness: 0.5
+    - _Smoothness: 0.846
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Squish: 1.88
-    - _SquishAmount: 1
-    - _SquishLimit: 0.08
-    - _SquishScalar: 0.44
+    - _Squish: 1.31
+    - _SquishAmount: 0.1
+    - _SquishLimit: 0.4
+    - _SquishScalar: 25
     - _Squishiness: 3.54
     - _SrcBlend: 1
     - _Surface: 0
@@ -143,16 +145,16 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.0990566, g: 1, b: 0.47643495, a: 1}
+    - _BaseColor: {r: 0.11328317, g: 0.46226418, b: 0.10684408, a: 1}
     - _BaseColor2: {r: 0, g: 0, b: 0, a: 1}
     - _CameraPos: {r: 0, g: 0, b: 0, a: 0}
-    - _Collision: {r: 0, g: 0, b: 0, a: 0}
+    - _Collision: {r: 0.4036913, g: -5.107778, b: 23.261301, a: 0}
     - _Collsion: {r: 0, g: 0, b: 0, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Color: {r: 0.113283135, g: 0.46226412, b: 0.106844045, a: 1}
+    - _EmissionColor: {r: 0.16016702, g: 0.5283019, b: 0.09220363, a: 1}
     - _GlowColor: {r: 0.3953241, g: 0.3641143, b: 0.34677556, a: 1}
     - _NoiseOffset: {r: 1, g: 1, b: 1, a: 1}
     - _PlayerPos: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _Test: {r: 62.96, g: 5, b: -45, a: 1}
+    - _Test: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

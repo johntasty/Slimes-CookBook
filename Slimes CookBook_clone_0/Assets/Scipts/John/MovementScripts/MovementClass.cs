@@ -52,7 +52,7 @@ using UnityEngine;
     #region Movement
     public void GroundChecker()
     {
-        grounded = Physics.CheckSphere(player.position, 0.3f, MovementVariables.groundLayer);
+        grounded = Physics.CheckSphere(player.position, 0.4f, MovementVariables.groundLayer);
     }
     public void Gravity()
     {
@@ -88,13 +88,16 @@ using UnityEngine;
         float accel = VectorMagnitude * MovementVariables.speed;
 
         Vector3 temp_movement = Quaternion.Euler(0f, _TargetAngle, 0f) * Vector3.forward;
-
         _VelocityVec = temp_movement * VectorMagnitude * MovementVariables.speed;
+        if (!grounded && WallHug)
+        {
+            _VelocityVec = temp_movement * VectorMagnitude * 1f;
+        }        
         _VelocityVec.y = _Velocity;
     }
     public void ApplyMovement()
     {
-        MovementVector();
+        MovementVector();        
         MovementVariables.playerChar.Move(_VelocityVec * Time.deltaTime);
         ApplyHashes();
     }
@@ -119,16 +122,23 @@ using UnityEngine;
     public void WallCheck()
     {
         
-        WallHug = Physics.CheckSphere(player.position, 0.3f, MovementVariables.WallLayer);
+        WallHug = Physics.CheckSphere(player.position, MovementVariables.radius, MovementVariables.WallLayer);
         //if (!WallHug) { tempGrav = MovementVariables._Gravity; }
         if (!grounded && WallHug)
         {            
-            _Velocity = Mathf.Clamp(_Velocity, 0, 0.5f);
+            _Velocity = Mathf.Clamp(_Velocity, 0, 0.8f);
 
             //Vector3 diff = player.position - hit.normal;
             //float angle = Mathf.Atan2(diff.x, diff.y) * Mathf.Rad2Deg;
             //Vector3 playRot = player.rotation.eulerAngles;           
             //player.rotation = Quaternion.Euler(angle * 5, playRot.y, playRot.z);
+        }
+    }
+    public void TriggerWallStick()
+    {
+        if (!grounded && WallHug)
+        {
+            _Velocity = Mathf.Clamp(_Velocity, 0, 0.5f);                       
         }
     }
     #endregion

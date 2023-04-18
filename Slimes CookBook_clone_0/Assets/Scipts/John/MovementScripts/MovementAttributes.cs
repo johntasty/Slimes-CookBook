@@ -30,7 +30,8 @@ public struct MovementAttributes
 
     [Header("Turn Speed")]
     public float turn;
-
+    [Header("Slime WallCheck Radius")]
+    public float radius;
     [Header("Animation")]
     public bool HasAnimation;
     [Header("Animator")]
