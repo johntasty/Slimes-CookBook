@@ -4,12 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
 using UnityEngine.InputSystem;
+using Steamworks;
+
 public class LobbyPlayer : NetworkRoomPlayer
 {
     private SlimesCookBook playerInput;
 
     public event System.Action<Color32> OnPlayerColorChanged;
-    public event System.Action<byte> OnPlayerNumberChanged;
+    public event System.Action<ulong> OnPlayerNumberChanged;
     public event System.Action<int> OnPlayerParentChanged;
     public event System.Action<bool> OnPlayerStateChanged;
 
@@ -26,7 +28,7 @@ public class LobbyPlayer : NetworkRoomPlayer
     #region SyncVars
 
     [SyncVar(hook = nameof(PlayerNumberChanged))]
-    public byte playerNumber = 0;
+    public ulong playerNumber = 0;
 
     [SyncVar(hook = nameof(PlayerColorChanged))]
     public Color32 playerColor = Color.white;
@@ -44,8 +46,9 @@ public class LobbyPlayer : NetworkRoomPlayer
     {
         return playerParent;
     }
-    void PlayerNumberChanged(byte _, byte newPlayerNumber)
-    {
+    void PlayerNumberChanged(ulong _, ulong newPlayerNumber)
+    {      
+
         OnPlayerNumberChanged?.Invoke(newPlayerNumber);
     }
 
@@ -89,12 +92,10 @@ public class LobbyPlayer : NetworkRoomPlayer
         readyToBegin = false;
     }
 
-    [ServerCallback]
-    internal static void ResetPlayerNumbers()
+    //[ServerCallback]
+    public void ResetPlayerNumbers(ulong steamId)
     {
-        byte playerNumber = 0;
-        foreach (LobbyPlayer player in playersList)
-            player.playerNumber = playerNumber++;
+        this.playerNumber = steamId;      
     }
    
     public override void OnStopServer()

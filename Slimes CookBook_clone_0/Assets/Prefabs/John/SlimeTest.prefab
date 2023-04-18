@@ -3048,7 +3048,7 @@ MonoBehaviour:
   Masks:
     serializedVersion: 2
     m_Bits: 2560
-  dissolveAmount: 1
+  dissolveAmount: 1.6
   LookAt: {fileID: 8115882633863840357}
   rendererCache: []
 --- !u!1 &4497498773151715803

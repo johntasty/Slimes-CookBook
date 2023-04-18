@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Steamworks;
+
 public class LobbyPlayerUi : MonoBehaviour
 {
 
@@ -26,9 +28,10 @@ public class LobbyPlayerUi : MonoBehaviour
     }
 
     // This value can change as clients leave and join
-    public void OnPlayerNumberChanged(byte newPlayerNumber)
+    public void OnPlayerNumberChanged(ulong newPlayerNumber)
     {
-        playerNameText.text = string.Format("Player {0:00}", newPlayerNumber);
+        var cSteam = new CSteamID(newPlayerNumber);
+        playerNameText.text = SteamFriends.GetFriendPersonaName(cSteam);
     }
 
     // Random color set by Player::OnStartServer

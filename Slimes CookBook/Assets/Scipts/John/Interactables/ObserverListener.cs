@@ -20,6 +20,7 @@ public class ObserverListener : MonoBehaviour
     }
     public event Action<bool> InteractWizard;
     public event Action<bool> InteractSlime;
+
     private void Awake()
     {
         Instance = this;
@@ -38,4 +39,5 @@ public class ObserverListener : MonoBehaviour
     {
         InteractWizard?.Invoke(obj);
     }
+    
 }

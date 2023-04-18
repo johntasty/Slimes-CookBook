@@ -2,6 +2,7 @@ using UnityEngine;
 using Mirror;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using Steamworks;
 
 /*
 	Documentation: https://mirror-networking.gitbook.io/docs/components/network-room-manager
@@ -115,14 +116,20 @@ public class RoomManagment : NetworkRoomManager
     /// </summary>
     /// <param name="conn">The connection the player object is for.</param>
     public override void OnRoomServerAddPlayer(NetworkConnectionToClient conn)
-    {
-
+    {        
         base.OnRoomServerAddPlayer(conn);
-       
+        
+
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         base.OnServerAddPlayer(conn);
+        CSteamID steamId = SteamMatchmaking.GetLobbyMemberByIndex(
+            SteamLobbyManagment.LobbyId,
+            numPlayers - 1);
+        conn.identity.GetComponent<LobbyPlayer>().ResetPlayerNumbers(steamId.m_SteamID);
+
+        //LobbyPlayer.ResetPlayerNumbers();
         foreach (NetworkRoomPlayer player in roomSlots)
             if (player != null)
             {

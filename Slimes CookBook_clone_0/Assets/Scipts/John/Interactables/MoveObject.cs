@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class MoveObject : MonoBehaviour
+using UnityEngine.EventSystems;
+public class MoveObject : MonoBehaviour, ISelectHandler
 {
     public static event Action<Vector3> OnHoleSelected;
+    public static event Action<Vector3> OnHoleHighLight;
     public static event Action<int> OnNumberSelected;
 
     public static event Action OnSubmit;
@@ -35,5 +36,10 @@ public class MoveObject : MonoBehaviour
     public void EnterCode()
     {
         OnSubmit?.Invoke();
+    }
+
+    public void OnSelect(BaseEventData eventData)
+    {
+        OnHoleHighLight?.Invoke(transform.position);
     }
 }

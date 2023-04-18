@@ -2906,7 +2906,7 @@ MonoBehaviour:
     m_ActionId: 3a7d5283-f944-47fb-8c5a-023bc7fa10dd
     m_ActionName: Player/NavigateLeft[/XInputControllerWindows/dpad/left]
   m_NeverAutoSwitchControlSchemes: 1
-  m_DefaultControlScheme: Keyboard&Mouse
+  m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 8115882632459622812}
@@ -3049,7 +3049,7 @@ MonoBehaviour:
   Masks:
     serializedVersion: 2
     m_Bits: 2560
-  dissolveAmount: 1
+  dissolveAmount: 1.6
   LookAt: {fileID: 8115882633863840357}
   rendererCache: []
 --- !u!1 &4497498773151715803
