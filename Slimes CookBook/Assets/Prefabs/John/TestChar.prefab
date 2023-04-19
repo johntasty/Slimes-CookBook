@@ -2906,7 +2906,7 @@ MonoBehaviour:
     m_ActionId: 3a7d5283-f944-47fb-8c5a-023bc7fa10dd
     m_ActionName: Player/NavigateLeft[/XInputControllerWindows/dpad/left]
   m_NeverAutoSwitchControlSchemes: 1
-  m_DefaultControlScheme: Keyboard&Mouse
+  m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 8115882632459622812}
@@ -2941,11 +2941,13 @@ MonoBehaviour:
     cam: {fileID: 8115882632459622815}
     playerChar: {fileID: 0}
     turn: 0.1
+    radius: 0
     HasAnimation: 1
     _ControllerAnimator: {fileID: 0}
     AnimationBlendSpd: 0.8
     AnimationBlendTurn: 0.2
   SlimeMovement: 0
+  SlimeMat: {fileID: 0}
   WallHug: 0
   GravityApply: 1
 --- !u!114 &8745349215365244477

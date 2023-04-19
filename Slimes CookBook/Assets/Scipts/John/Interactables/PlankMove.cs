@@ -59,7 +59,7 @@ public class PlankMove : NetworkBehaviour
             do
             {
                 timeElapsedBack += Time.deltaTime;
-                float normalizedTime = timeElapsedBack / 1;
+                float normalizedTime = timeElapsedBack / 2;
                 Quaternion StartRot = Quaternion.LookRotation(startDirection);         
                 Quaternion EndRot = Quaternion.LookRotation(endDirection);         
                 
@@ -75,18 +75,18 @@ public class PlankMove : NetworkBehaviour
                     Quaternion.Slerp(transform.rotation, EndRot, normalizedTime), 
                     normalizedTime);
                 yield return null;
-            } while (timeElapsedBack < 1);
+            } while (timeElapsedBack < 2);
         }
 
         float timeElapsed = 0;       
         do
         {
             timeElapsed += Time.deltaTime;
-            float normalizedTime = timeElapsed / 1.5f;
+            float normalizedTime = timeElapsed / 1;
            
             transform.position = Vector3.Lerp(transform.position, target, normalizedTime);
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, normalizedTime);
             yield return null;
-        } while (timeElapsed < 1.5f);
+        } while (timeElapsed < 1);
     }
 }

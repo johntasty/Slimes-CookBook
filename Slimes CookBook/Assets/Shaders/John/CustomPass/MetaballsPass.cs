@@ -13,16 +13,17 @@ public class MetaballsPass : ScriptableRendererFeature
         
         RenderTargetIdentifier colorBuffer, temporaryBuffer;
         private RenderTargetHandle tempTexture;
-        float m_Intensity;
-
+        float max_Distance;
+        Vector4 sphere;
         int temporaryBufferID = Shader.PropertyToID("_MainTex");
         // The profiler tag that will show up in the frame debugger.
         const string ProfilerTag = "ImageEffect";
-        public CustomRenderPass(Material material, int passIndex, float Intensity) : base()
+        public CustomRenderPass(Material material, int passIndex, float max_, Vector4 sph) : base()
         {
             this.materialPassIndex = passIndex;
             this._EffectMaterial = material;
-            this.m_Intensity = Intensity;
+            this.max_Distance = max_;
+            this.sphere = sph;
             tempTexture.Init("_TempTexture");
         }
               
@@ -33,14 +34,8 @@ public class MetaballsPass : ScriptableRendererFeature
         // The render pipeline will ensure target setup and clearing happens in a performant manner.
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            RenderTextureDescriptor cameraTextureDesc = renderingData.cameraData.cameraTargetDescriptor;
-            cameraTextureDesc.depthBufferBits = 32;
-
-            ConfigureInput(ScriptableRenderPassInput.Depth);
-            // Grab the color buffer from the renderer camera color target.
-            colorBuffer = renderingData.cameraData.renderer.cameraColorTarget;
-            cmd.GetTemporaryRT(temporaryBufferID, cameraTextureDesc, FilterMode.Bilinear);
-            temporaryBuffer = new RenderTargetIdentifier(temporaryBufferID);
+            
+            
         }
 
         // Here you can implement the rendering logic.
@@ -51,20 +46,57 @@ public class MetaballsPass : ScriptableRendererFeature
         {
             
             CommandBuffer cmd = CommandBufferPool.Get(ProfilerTag);
+
+            RenderTextureDescriptor cameraTextureDesc = renderingData.cameraData.cameraTargetDescriptor;
+            cameraTextureDesc.depthBufferBits = 0;
+
+            colorBuffer = renderingData.cameraData.renderer.cameraColorTarget;
+            temporaryBuffer = renderingData.cameraData.renderer.cameraColorTarget;
+            cmd.GetTemporaryRT(tempTexture.id, cameraTextureDesc, FilterMode.Bilinear);
+            //temporaryBuffer = new RenderTargetIdentifier(temporaryBufferID);
+
             using (new ProfilingScope(cmd, new ProfilingSampler(ProfilerTag)))
             {
                 // Blit from the color buffer to a temporary buffer and back. This is needed for a two-pass shader.
                 //_EffectMaterial.SetFloat("_Intensity", m_Intensity);
-                Blit(cmd, colorBuffer, temporaryBuffer, _EffectMaterial, materialPassIndex); // shader pass 0
-                Blit(cmd, temporaryBuffer, colorBuffer, _EffectMaterial, materialPassIndex); // shader pass 1
+
+                _EffectMaterial.SetMatrix("_FrustumCornersES", GetFrustumCorners(renderingData.cameraData.camera));
+                _EffectMaterial.SetMatrix("_CameraToWorld", renderingData.cameraData.camera.cameraToWorldMatrix);
+                _EffectMaterial.SetFloat("max_Distance", max_Distance);
+                _EffectMaterial.SetVector("Sphere1", sphere);
+
+                Blit(cmd, colorBuffer, tempTexture.Identifier(), _EffectMaterial, materialPassIndex); // shader pass 0
+               
+                Blit(cmd, tempTexture.Identifier(), temporaryBuffer); // shader pass 1
+                
+               
             }
 
-      
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
 
         }
+        private Matrix4x4 GetFrustumCorners(Camera cam)
+        {
+            Matrix4x4 frustrum = Matrix4x4.identity;
 
+            float fov = Mathf.Tan((cam.fieldOfView * 0.5f) * Mathf.Rad2Deg);
+
+            Vector3 goUp = Vector3.up * fov;
+            Vector3 goRight = Vector3.right * fov * cam.aspect;
+
+            Vector3 TL = (-Vector3.forward - goRight + goUp);
+            Vector3 TR = (-Vector3.forward + goRight + goUp);
+            Vector3 BR = (-Vector3.forward + goRight - goUp);
+            Vector3 BL = (-Vector3.forward - goRight - goUp);
+
+            frustrum.SetRow(0, TL);
+            frustrum.SetRow(1, TR);
+            frustrum.SetRow(2, BR);
+            frustrum.SetRow(3, BL);
+
+            return frustrum;
+        }
         // Cleanup any allocated resources that were created during the execution of this render pass.
         public override void OnCameraCleanup(CommandBuffer cmd)
         {
@@ -79,8 +111,9 @@ public class MetaballsPass : ScriptableRendererFeature
     [System.Serializable]
     public class Settings
     {
+        public float max_Distance;
         public Material material;
-        public float Intensity;
+        public Vector4 sphere;
         public int materialPassIndex = -1; // -1 means render all passes
         public RenderPassEvent renderEvent = RenderPassEvent.AfterRenderingOpaques;
     }
@@ -93,7 +126,7 @@ public class MetaballsPass : ScriptableRendererFeature
     /// <inheritdoc/>
     public override void Create()
     {        
-        m_ScriptablePass = new CustomRenderPass(settings.material, settings.materialPassIndex, settings.Intensity);
+        m_ScriptablePass = new CustomRenderPass(settings.material, settings.materialPassIndex, settings.max_Distance, settings.sphere);
 
         // Configures where the render pass should be injected.
         m_ScriptablePass.renderPassEvent = settings.renderEvent;

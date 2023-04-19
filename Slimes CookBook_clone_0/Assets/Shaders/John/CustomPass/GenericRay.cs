@@ -17,36 +17,33 @@ public class GenericRay : MonoBehaviour
         if (marcher == null) return;
        
         marcher.SetMatrix("_FrustumCornersES", GetFrustumCorners(_CurrentCamera));
-        CustomGraphicsBlit();
+        marcher.SetMatrix("_CameraInvViewMatrix", _CurrentCamera.cameraToWorldMatrix);
+        marcher.SetVector("_CamWorldPosition", _CurrentCamera.transform.position);
+       
         //marcher.SetMatrix("_CameraInvViewMatrix", _CurrentCamera.cameraToWorldMatrix);
         //marcher.SetVector("_CameraWS", _CurrentCamera.transform.position);
     }
 
     private Matrix4x4 GetFrustumCorners(Camera cam)
     {
-        float camFov = cam.fieldOfView;
-        float camAspect = cam.aspect;
+        Matrix4x4 frustrum = Matrix4x4.identity;
 
-        Matrix4x4 frustumCorners = Matrix4x4.identity;
+        float fov = Mathf.Tan((cam.fieldOfView * 0.5f) * Mathf.Rad2Deg);
 
-        float fovWHalf = camFov * 0.5f;
+        Vector3 goUp = Vector3.up * fov;
+        Vector3 goRight = Vector3.right * fov * cam.aspect;
 
-        float tan_fov = Mathf.Tan(fovWHalf * Mathf.Deg2Rad);
+        Vector3 TL = (-Vector3.forward - goRight + goUp);
+        Vector3 TR = (-Vector3.forward + goRight + goUp);
+        Vector3 BR = (-Vector3.forward + goRight - goUp);
+        Vector3 BL = (-Vector3.forward - goRight - goUp);
 
-        Vector3 toRight = Vector3.right * tan_fov * camAspect;
-        Vector3 toTop = Vector3.up * tan_fov;
+        frustrum.SetRow(0, TL);
+        frustrum.SetRow(1, TR);
+        frustrum.SetRow(2, BR);
+        frustrum.SetRow(3, BL);
 
-        Vector3 topLeft = (-Vector3.forward - toRight + toTop);
-        Vector3 topRight = (-Vector3.forward + toRight + toTop);
-        Vector3 bottomRight = (-Vector3.forward + toRight - toTop);
-        Vector3 bottomLeft = (-Vector3.forward - toRight - toTop);
-
-        frustumCorners.SetRow(0, topLeft);
-        frustumCorners.SetRow(1, topRight);
-        frustumCorners.SetRow(2, bottomRight);
-        frustumCorners.SetRow(3, bottomLeft);
-
-        return frustumCorners;
+        return frustrum;
     }
 
     static void CustomGraphicsBlit()
