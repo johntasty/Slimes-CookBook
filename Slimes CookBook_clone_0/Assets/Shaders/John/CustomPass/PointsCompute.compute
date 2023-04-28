@@ -1,0 +1,161 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+Texture2D<float4> Source;
+RWTexture2D<float4> Destination;
+
+float4x4 _CameraToWorld;
+float4x4 _CameraInverseProjection;
+
+float3 _Light;
+bool positionLight;
+
+static const float maxDst = 80;
+static const float epsilon = 0.001f;
+static const float shadowBias = epsilon * 50;
+
+struct Shape {
+
+    float3 position;
+};
+
+StructuredBuffer<Shape> shapes;
+
+int numShapes;
+float blendStrength;
+float size;
+
+struct Ray {
+    float3 origin;
+    float3 direction;
+};
+
+float SphereDist(float3 pos, float size) {
+
+    float d = length(pos) - size;
+    return d;
+}
+
+Ray CreateRay(float3 origin, float3 direction) {
+    Ray ray;
+    ray.origin = origin;
+    ray.direction = direction;
+    return ray;
+}
+
+Ray CreateCameraRay(float2 uv) {
+    float3 origin = mul(_CameraToWorld, float4(0, 0, 0, 1)).xyz;
+    float3 direction = mul(_CameraInverseProjection, float4(uv, 0, 1)).xyz;
+    direction = mul(_CameraToWorld, float4(direction, 0)).xyz;
+    direction = normalize(direction);
+    return CreateRay(origin, direction);
+}
+
+// polynomial smooth min (k = 0.1);
+// from https://www.iquilezles.org/www/articles/smin/smin.htm
+float unionSDF(float distA, float distB, float k) {
+    float h = max(k - abs(distA - distB), 0.0) / k;
+    return min(distA, distB) - h * h * k * (1.0 / 4.0);
+}
+
+float GetShapeDistance(Shape shape) {
+
+    float dis = SphereDist(shape.position, size);   
+    return dis;
+}
+
+float SceneInfo(float3 eye) {
+    float globalDst = maxDst;
+    
+    Shape shape = shapes[0];
+    float d1 = GetShapeDistance(shape);  
+
+    for (int i = 1; i < numShapes; i++) {
+       
+        Shape childShape = shapes[i];
+        float d2 = GetShapeDistance(childShape);
+
+        d1 = unionSDF(d1,d2, blendStrength);
+  
+    }
+  
+    return d1;
+}
+float3 Get_Norm(float3 p)
+{
+    float2 e = float2(0.001, 0);
+    float3 n = float3(
+        SceneInfo(p + e.xyy) - SceneInfo(p - e.xyy),
+        SceneInfo(p + e.yxy) - SceneInfo(p - e.yxy),
+        SceneInfo(p + e.yyx) - SceneInfo(p - e.yyx));
+    return normalize(n);
+}
+
+//float CalculateShadow(Ray ray, float dstToShadePoint) {
+//    float rayDst = 0;
+//    int marchSteps = 0;
+//    float shadowIntensity = .2;
+//    float brightness = 1;
+//
+//    while (rayDst < dstToShadePoint) {
+//        marchSteps++;
+//        float4 sceneInfo = SceneInfo(ray.origin);
+//        float dst = sceneInfo.w;
+//
+//        if (dst <= epsilon) {
+//            return shadowIntensity;
+//        }
+//
+//        brightness = min(brightness, dst * 200);
+//
+//        ray.origin += ray.direction * dst;
+//        rayDst += dst;
+//    }
+//    return shadowIntensity + (1 - shadowIntensity) * brightness;
+//}
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    Destination.GetDimensions(width, height);
+
+    Destination[id.xy] = Source[id.xy];
+
+    float2 uv = id.xy / float2(width, height) * 2 - 1;
+    float rayDst = 0;
+
+    Ray ray = CreateCameraRay(uv);
+    int marchSteps = 0;
+
+    while (rayDst < maxDst) {
+        marchSteps++;
+        float4 sceneInfo = SceneInfo(ray.origin);
+        float dst = sceneInfo.w;
+
+        if (dst <= epsilon) {
+            float3 pointOnSurface = ray.origin + ray.direction * dst;
+            float3 normal = Get_Norm(pointOnSurface - ray.direction * epsilon);
+            float3 lightDir = (positionLight) ? normalize(_Light - ray.origin) : -_Light;
+            float lighting = saturate(saturate(dot(normal, lightDir)));
+            float3 col = sceneInfo.xyz;
+
+            // Shadow
+            float3 offsetPos = pointOnSurface + normal * shadowBias;
+            float3 dirToLight = (positionLight) ? normalize(_Light - offsetPos) : -_Light;
+
+            ray.origin = offsetPos;
+            ray.direction = dirToLight;
+
+        /*    float dstToLight = (positionLight) ? distance(offsetPos, _Light) : maxDst;
+            float shadow = CalculateShadow(ray, dstToLight);*/
+
+            Destination[id.xy] = float4(col * lighting, 1);
+
+            break;
+        }
+
+        ray.origin += ray.direction * dst;
+        rayDst += dst;
+    }
+}

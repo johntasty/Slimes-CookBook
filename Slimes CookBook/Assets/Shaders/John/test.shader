@@ -396,9 +396,7 @@ Shader "Unlit/test"
             {
                 Name "ForwardLit"
                 Tags { "LightMode" = "UniversalForward" }
-                Cull Off
-                ZWrite On
-                Blend Off
+               
                
                 HLSLPROGRAM
                 // Signal this shader requires a compute buffer

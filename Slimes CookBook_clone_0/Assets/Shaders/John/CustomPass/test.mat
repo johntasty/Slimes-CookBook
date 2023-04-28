@@ -25,6 +25,9 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _DinstanceAccuracy: 0.001
+    - _Max_Distance: 100
+    - _Max_steps: 64
     m_Colors: []
   m_BuildTextureStacks: []

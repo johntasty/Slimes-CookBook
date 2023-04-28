@@ -7,8 +7,10 @@ public class BlitPass : ScriptableRendererFeature
     class CustomRenderPass : ScriptableRenderPass
     {
         public Material blitMaterial = null;
+        public ComputeShader raymarcher;
         public FilterMode filterMode { get; set; }
-        public Vector4 sphere { get; set; }
+
+        public FilteringSettings _filteringSettings { get; set; }
 
         private BlitSettings settings;
 
@@ -18,14 +20,18 @@ public class BlitPass : ScriptableRendererFeature
         RenderTargetHandle m_TemporaryColorTexture;
         RenderTargetHandle m_DestinationTexture;
         string m_ProfilerTag;
-
+        RTHandle colorText;
+        Camera _cam;
         public CustomRenderPass(RenderPassEvent renderPassEvent, BlitSettings settings, string tag)
         {
-            this.sphere = settings.sphere;
+            raymarcher = settings.raymacher;
+            _filteringSettings = new FilteringSettings(null, settings._layerMask);
             this.renderPassEvent = renderPassEvent;
             this.settings = settings;
             blitMaterial = settings.blitMaterial;
             m_ProfilerTag = tag;
+
+            
             m_TemporaryColorTexture.Init("_TemporaryColorTexture");
             if (settings.dstType == Target.TextureID)
             {
@@ -36,7 +42,11 @@ public class BlitPass : ScriptableRendererFeature
         public void Setup(ScriptableRenderer renderer)
         {
             if (settings.requireDepthNormals)
+            {
                 ConfigureInput(ScriptableRenderPassInput.Normal);
+                ConfigureInput(ScriptableRenderPassInput.Depth);
+            }
+               
 
         }
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
@@ -46,11 +56,14 @@ public class BlitPass : ScriptableRendererFeature
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
+            var stack = VolumeManager.instance.stack;
             RenderTextureDescriptor opaqueDesc = renderingData.cameraData.cameraTargetDescriptor;
             opaqueDesc.depthBufferBits = 0;
-
+            _cam = renderingData.cameraData.camera;
+            //opaqueDesc.enableRandomWrite = true;
+            ConfigureInput(ScriptableRenderPassInput.Color);
             var renderer = renderingData.cameraData.renderer;
-
+            
             if (settings.srcType == Target.CameraColor)
             {
                 source = renderer.cameraColorTarget;
@@ -90,16 +103,22 @@ public class BlitPass : ScriptableRendererFeature
                 }
                 cmd.GetTemporaryRT(m_DestinationTexture.id, opaqueDesc, filterMode);
             }
-
+            var customEffect = stack.GetComponent<VOlumeComp>();
             //Debug.Log($"src = {source},     dst = {destination} ");
             // Can't read and write to same color target, use a TemporaryRT
             if (source == destination || (settings.srcType == settings.dstType && settings.srcType == Target.CameraColor))
             {
                 cmd.GetTemporaryRT(m_TemporaryColorTexture.id, opaqueDesc, filterMode);
-                blitMaterial.SetMatrix("_FrustumCornersES", GetFrustumCorners(renderingData.cameraData.camera));
-                blitMaterial.SetMatrix("_CameraToWorld", renderingData.cameraData.camera.cameraToWorldMatrix);
-                blitMaterial.SetFloat("max_Distance", 100f);
-                blitMaterial.SetVector("Sphere1", sphere);
+
+
+                blitMaterial.SetMatrix(Shader.PropertyToID("_CameraInverseProjection"), _cam.projectionMatrix.inverse);
+                blitMaterial.SetMatrix(Shader.PropertyToID("_CameraToWorld"), _cam.cameraToWorldMatrix);
+                blitMaterial.SetVector(Shader.PropertyToID("_CameraToWorldPosition"), _cam.transform.position);
+
+                blitMaterial.SetInt(Shader.PropertyToID("_Max_steps"), customEffect.maxSteps.value);
+                blitMaterial.SetFloat(Shader.PropertyToID("_Max_Distance"), customEffect.maxDistance.value);
+                blitMaterial.SetFloat(Shader.PropertyToID("_DinstanceAccuracy"), customEffect.accuracy.value);
+
                 Blit(cmd, source, m_TemporaryColorTexture.Identifier(), blitMaterial, settings.blitMaterialPassIndex);
                 Blit(cmd, m_TemporaryColorTexture.Identifier(), destination);
             }
@@ -107,53 +126,37 @@ public class BlitPass : ScriptableRendererFeature
             {
                 Blit(cmd, source, destination, blitMaterial, settings.blitMaterialPassIndex);
             }
-            GL.PushMatrix();
-            GL.LoadOrtho(); // Note: z value of vertices don't make a difference because we are using ortho projection
-
-            GL.Begin(GL.QUADS);
-
-            // Here, GL.MultitexCoord2(0, x, y) assigns the value (x, y) to the TEXCOORD0 slot in the shader.
-            // GL.Vertex3(x,y,z) queues up a vertex at position (x, y, z) to be drawn.  Note that we are storing
-            // our own custom frustum information in the z coordinate.
-            GL.MultiTexCoord2(0, 0.0f, 0.0f);
-            GL.Vertex3(0.0f, 0.0f, 3.0f); // BL
-
-            GL.MultiTexCoord2(0, 1.0f, 0.0f);
-            GL.Vertex3(1.0f, 0.0f, 2.0f); // BR
-
-            GL.MultiTexCoord2(0, 1.0f, 1.0f);
-            GL.Vertex3(1.0f, 1.0f, 1.0f); // TR
-
-            GL.MultiTexCoord2(0, 0.0f, 1.0f);
-            GL.Vertex3(0.0f, 1.0f, 0.0f); // TL
-
-            GL.End();
-            GL.PopMatrix();
+           
 
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }
 
-        private Matrix4x4 GetFrustumCorners(Camera cam)
+        private Matrix4x4 FrustumCorners(Camera cam)
         {
-            Matrix4x4 frustrum = Matrix4x4.identity;
+            float camFov = cam.fieldOfView;
+            float camAspect = cam.aspect;
 
-            float fov = Mathf.Tan((cam.fieldOfView * 0.5f) * Mathf.Rad2Deg);
+            Matrix4x4 frustumCorners = Matrix4x4.identity;
 
-            Vector3 goUp = Vector3.up * fov;
-            Vector3 goRight = Vector3.right * fov * cam.aspect;
+            float fovWHalf = camFov * 0.5f;
 
-            Vector3 TL = (-Vector3.forward - goRight + goUp);
-            Vector3 TR = (-Vector3.forward + goRight + goUp);
-            Vector3 BR = (-Vector3.forward + goRight - goUp);
-            Vector3 BL = (-Vector3.forward - goRight - goUp);
+            float tan_fov = Mathf.Tan(fovWHalf * Mathf.Deg2Rad);
 
-            frustrum.SetRow(0, TL);
-            frustrum.SetRow(1, TR);
-            frustrum.SetRow(2, BR);
-            frustrum.SetRow(3, BL);
+            Vector3 toRight = Vector3.right * tan_fov * camAspect;
+            Vector3 toTop = Vector3.up * tan_fov;
 
-            return frustrum;
+            Vector3 topLeft = (-Vector3.forward - toRight + toTop);
+            Vector3 topRight = (-Vector3.forward + toRight + toTop);
+            Vector3 bottomRight = (-Vector3.forward + toRight - toTop);
+            Vector3 bottomLeft = (-Vector3.forward - toRight - toTop);
+
+            frustumCorners.SetRow(0, topLeft);
+            frustumCorners.SetRow(1, topRight);
+            frustumCorners.SetRow(2, bottomRight);
+            frustumCorners.SetRow(3, bottomLeft);
+
+            return frustumCorners;
         }
         public override void FrameCleanup(CommandBuffer cmd)
         {
@@ -170,8 +173,10 @@ public class BlitPass : ScriptableRendererFeature
     [System.Serializable]
     public class BlitSettings
     {
+        public ComputeShader raymacher;
+        public LayerMask _layerMask;
         public RenderPassEvent Event = RenderPassEvent.AfterRenderingOpaques;
-        public Vector4 sphere;
+      
         public Material blitMaterial = null;
         public int blitMaterialPassIndex = 0;
         public bool setInverseViewMatrix = false;
