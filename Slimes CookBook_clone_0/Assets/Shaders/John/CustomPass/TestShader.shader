@@ -5,7 +5,7 @@ Shader "Unlit/TestShader"
        
         [MainTexture]_MainTex("Texture", 2D) = "white" {}
         _BaseColor("Color", Color) = (0, 0, 0.5, 0.3)
-        
+                TestParam("TestParam", Float) = 1.0
         _SpecColorSize("_SpecColorSize", Float) = 1.0
         [HDR]_SpecColor("Specular", Color) = (0.2, 0.2, 0.2)
       
@@ -66,6 +66,9 @@ Shader "Unlit/TestShader"
     half4x4 _CameraInverseProjection;
     half4x4 _CameraWorld;
     half3 _CameraToWorldPosition;
+    half _AspectRatio;
+    half _OrthoSize;
+    half TestParam;
 
     half _Max_Distance;
     half _Max_steps;
@@ -77,7 +80,7 @@ Shader "Unlit/TestShader"
     half _SpecColorSize;
     half _EmmisionSize;
     
-    half3 _positions[40];
+    half3 _positions[20];
     half3 _Position;
     half4 _BaseColor;
     half4 _SpecColor;
@@ -99,6 +102,40 @@ Shader "Unlit/TestShader"
 
     float sdSphere(float3 eye, float3 center, float s) {
         half d = distance(eye, center) - s;
+
+        return d;
+    }
+    float sdSphereUnion(float3 eye) {
+        float m = 0.0;
+        float p = 0.0;
+        float dmin = 1e6;
+
+        float h = 1.0;
+
+        for (int i = 0; i < _positions.Length; i++)
+        {
+            float db = length(_positions[i] - eye);
+
+            if (db < _Size) {
+                float x = db / _Size;
+                p += 1.0 - x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
+                m += 1.0;
+                h = max(h, .5 * _Size);
+            }
+            else {
+
+
+                dmin = min(dmin, db - _Size);
+            }
+
+
+        }
+        half d = dmin + .1;
+
+        if (m > 0.5) {
+            float th = .1;
+            d = h * (th - p);
+        }
 
         return d;
     }
@@ -188,7 +225,7 @@ Shader "Unlit/TestShader"
         }
         return result;
     }
-    half3 _Shading(half3 p, half3 n, half3 ro, half ds) {
+    half3 _Shading(half3 p, half3 n, half3 ro) {
         Light lights = GetMainLight();
         half3 result;
         half3 color = _BaseColor.rgb;
@@ -250,11 +287,14 @@ Shader "Unlit/TestShader"
     }
 
     Ray CreateCameraRay(float2 uv) {
+      
         float3 origin = mul(_CameraWorld, float4(0, 0, 0, 1)).xyz;
+        origin += mul(_CameraWorld, float4(uv * _OrthoSize, 0, 0)).xyz;
+
         float3 direction = mul(_CameraInverseProjection, float4(uv, 0, 1)).xyz;
-        //direction /= abs(direction.z);
+       
         direction = mul(_CameraWorld, float4(direction, 0)).xyz;
-        //direction = normalize(direction);
+        
         return CreateRay(origin, direction);
     }
 
@@ -264,8 +304,10 @@ Shader "Unlit/TestShader"
         float rayDst = 0; // current distance traveled along ray
         float3 rOrigin = ro;
         
+       
         for (int i = 0; i < _Max_steps; i++)     
         {
+           
             float dst = GetDist(rOrigin);
             half3 pointOnSurface = rOrigin + rd * dst;
            
@@ -277,7 +319,7 @@ Shader "Unlit/TestShader"
             if (dst <= _DinstanceAccuracy) {
                
                 half3 norm = Get_Norm(pointOnSurface);               
-                half3 tes = _Shading(pointOnSurface, norm, rd, dst);
+                half3 tes = _Shading(pointOnSurface, norm, rd);
                 ret = float4(tes, _BaseColor.a);
                 return ret;
                 break;
@@ -286,7 +328,8 @@ Shader "Unlit/TestShader"
             rOrigin += rd * dst;
             rayDst += dst;
 
-        }        
+        }       
+      
         return ret;
     }
 
@@ -294,30 +337,45 @@ Shader "Unlit/TestShader"
     {
         v2f o;
         o.vertex = TransformObjectToHClip(v.vertex);
-              
+       
         o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-        float2 uv = o.uv * 2 - 1;
-
-        Ray ray = CreateCameraRay(uv);
-        o.rayDirection = ray.direction;
-        o.rayOrigin = ray.origin;
+        o.projParams = ComputeScreenPos(o.vertex);
         float3 viewVector = mul(unity_CameraInvProjection, float4(o.uv * 2 - 1, 0, -1));
         o.viewVector = mul(unity_CameraToWorld, float4(viewVector, 0));
-        o.projParams = ComputeScreenPos(o.vertex);
+
+        /*float2 uv = o.uv * 2.0 - 1.0;
+       
+        Ray ray = CreateCameraRay(uv);
+        o.rayDirection = ray.direction;
+        o.rayOrigin = ray.origin;*/
+        
+        
        
         return o;
     }
 
     half4 frag(v2f i) : SV_Target
     {       
+        float2 uv = i.uv * 2.0 - 1.0;
+
+        Ray ray = CreateCameraRay(uv);
+       /* o.rayDirection = ray.direction;
+        o.rayOrigin = ray.origin;*/
+
+        half3 rDirection = normalize(ray.direction);
+        half3 rOrigin = ray.origin;
         
-        half3 rDirection = normalize(i.rayDirection);
-        half3 rOrigin = i.rayOrigin;       
-        
-        float viewDir = length(i.rayDirection);
+        float viewDir = length(ray.direction);
        
         float nonLinear = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, i.uv).r;
-        float sceneEyeDepthtest = LinearEyeDepth(nonLinear, _ZBufferParams) * viewDir;               
+        
+        float sceneEyeDepthtest = LinearEyeDepth(nonLinear, _ZBufferParams) * viewDir;
+
+        //comment this out for perspective depth
+        float orthoLinearDepth = _ProjectionParams.x > 0 ? nonLinear : 1- nonLinear;
+        sceneEyeDepthtest = lerp(_ProjectionParams.y, _ProjectionParams.z, orthoLinearDepth);
+
+                    
        
         half4 add = raymarch(rOrigin, rDirection, sceneEyeDepthtest);
         // sample the texture

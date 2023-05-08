@@ -5,16 +5,16 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/John/MultiplayerScenes/OfflineScene.unity
     guid: a003bcf378887934baf09aac9500afe9
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/John/MultiplayerScenes/RoomScene.unity
     guid: 5141c0801e0783f43aba206f6e44fe26
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/John/MultiplayerScenes/Multiplayer.unity
     guid: 28d689bd89ad7444c9ede11ae6157afc
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/John/Trees.unity
     guid: af7fe04302860d1429257bb279e183d0
   m_configObjects:

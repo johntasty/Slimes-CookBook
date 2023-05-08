@@ -30,12 +30,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Blend: 0.3
+    - TestParam: -0.6
+    - _Blend: 0.2
     - _BlendFloor: 2.8
     - _DinstanceAccuracy: 0.01
-    - _EmmisionSize: 0.2
-    - _Max_Distance: 25
-    - _Max_steps: 45
+    - _EmmisionSize: 0.13
+    - _Max_Distance: 30
+    - _Max_steps: 50
     - _Metallic: 0.921
     - _Reflections: 0
     - _Roughness: 0.953
@@ -45,14 +46,14 @@ Material:
     - _ShadowPenumbra: 1.5
     - _Size: 0.2
     - _Smoothness: 0.91
-    - _SpecColorSize: 19
+    - _SpecColorSize: 11.42
     - _SpecPower: 0.1
     - _SpecPowerPreClamp: 100
     m_Colors:
-    - _BaseColor: {r: 0.5649356, g: 0.28969386, b: 0.7075472, a: 0.92156863}
-    - _EmissionColor: {r: 0.25098044, g: 0.6888261, b: 0.85490197, a: 1}
+    - _BaseColor: {r: 0.17942329, g: 0.6037736, b: 0.20384684, a: 0.9372549}
+    - _EmissionColor: {r: 0.7924528, g: 0.14513257, b: 0.13830544, a: 1}
     - _LightColor: {r: 1, g: 0.08018869, b: 0.08018869, a: 1}
     - _Position: {r: -0.938, g: 0.129, b: -0.177, a: 0}
     - _Positions: {r: 0, g: 0.14, b: -0.37, a: 0.5}
-    - _SpecColor: {r: 3.9555323, g: 1.6921971, b: 6.5464573, a: 1}
+    - _SpecColor: {r: 0.6037736, g: 0.26994058, b: 0.088287644, a: 1}
   m_BuildTextureStacks: []

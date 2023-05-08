@@ -38,6 +38,8 @@ public class MArchingShader : ScriptableRendererFeature
             material.SetMatrix(Shader.PropertyToID("_CameraInverseProjection"), renderingData.cameraData.camera.projectionMatrix.inverse);
             material.SetMatrix(Shader.PropertyToID("_CameraWorld"), renderingData.cameraData.camera.cameraToWorldMatrix);
             material.SetVector(Shader.PropertyToID("_CameraToWorldPosition"), renderingData.cameraData.camera.transform.position);
+            material.SetFloat(Shader.PropertyToID("_AspectRatio"), renderingData.cameraData.camera.aspect);
+            material.SetFloat(Shader.PropertyToID("_OrthoSize"), renderingData.cameraData.camera.orthographicSize);
 
             cmd.Blit(sourceRT, renderingData.cameraData.renderer.cameraColorTarget);
 

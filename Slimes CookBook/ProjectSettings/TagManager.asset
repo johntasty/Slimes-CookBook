@@ -10,6 +10,8 @@ TagManager:
   - Interactable
   - Wizard
   - Slime
+  - Metaball
+  - BallsParent
   layers:
   - Default
   - TransparentFX
@@ -23,7 +25,7 @@ TagManager:
   - Walls
   - Interactable
   - PuzzleLayer
-  - 
+  - Slime
   - 
   - 
   - 
