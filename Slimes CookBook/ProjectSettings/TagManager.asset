@@ -12,6 +12,7 @@ TagManager:
   - Slime
   - Metaball
   - BallsParent
+  - elevatorpath
   layers:
   - Default
   - TransparentFX
