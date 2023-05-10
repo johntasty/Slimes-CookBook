@@ -38,13 +38,16 @@ public class ElevatorSpeedControl : MonoBehaviour
 
     void Update()
     {
+        //Debug.Log(pushStrenght + "pushStrenght");
+        //Debug.Log(elevatorMove.elevatorSpeed + "speed");
         if (wizard != null || slime != null)
         {
             if (Input.GetKeyDown(KeyCode.V))
             {
                 IncreaseSpeed();
+                //elevatorMove.elevatorSpeed = pushStrenght;
             }
-            else if (!Input.GetKeyDown(KeyCode.V) && elevatorMove.elevatorSpeed > 0.1f)
+            else if (!Input.GetKeyDown(KeyCode.V) && elevatorMove.elevatorSpeed > 0f)
             {
                 DecreaseSpeed();
 
@@ -55,13 +58,13 @@ public class ElevatorSpeedControl : MonoBehaviour
     }
 
     //Assign player gameobjects
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.gameObject.CompareTag("Wizard"))
             wizard = other.gameObject;
         if (other.gameObject.CompareTag("Slime"))
             slime = other.gameObject;
-
+        ElevatorCollision();
 
     }
 
@@ -69,20 +72,36 @@ public class ElevatorSpeedControl : MonoBehaviour
     {
         if (wizard != null || slime != null)
         {
+            float currentVelocity = 0f;
 
+            elevatorMove.elevatorSpeed += Mathf.SmoothDamp(elevatorMove.elevatorSpeed, pushStrenght, ref currentVelocity, 10f);
+
+            //pushStrenght += Mathf.SmoothDamp(pushStrenght, pushStrenght, ref elevatorMove.elevatorSpeed, 0.1f * Time.fixedDeltaTime);
             elevatorMove.elevatorSpeed += pushStrenght;
-
 
 
         }
     }
 
     private void DecreaseSpeed()
-    { elevatorMove.elevatorSpeed = Mathf.Lerp(elevatorMove.elevatorSpeed, -deCell, deCell * Time.fixedDeltaTime); }
+    {
+        float currentVelocity = 0.0f;
+
+        //elevatorMove.elevatorSpeed = Mathf.Lerp(elevatorMove.elevatorSpeed, -deCell, deCell * Time.fixedDeltaTime);
+
+        elevatorMove.elevatorSpeed = Mathf.SmoothDamp(elevatorMove.elevatorSpeed,0, ref currentVelocity, deCell * Time.deltaTime);
+
+    }
 
 
 
-
+    private void ElevatorCollision()
+    {
+        if (wizard != null) 
+        {
+            wizard.transform.SetParent(this.transform, false);
+        } else { wizard.transform.SetParent(null, false); }
+    }    
 
 
 

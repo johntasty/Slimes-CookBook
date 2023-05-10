@@ -21,6 +21,7 @@ public class ElevatorMoveTo : MonoBehaviour
     [SerializeField] private Vector3[] elevatorDes = new Vector3[0];
     public bool startPoint = false;
     public bool endPoint = false;
+
     //Vector3 myLocation;
 
     // Start is called before the first frame update
@@ -60,16 +61,25 @@ public class ElevatorMoveTo : MonoBehaviour
         {
 
             Vector3 moveLocations;
+            Vector3 currentVelocity = Vector3.zero;
             moveLocations = elevatorDes[currentDes];
             if (this.transform.position != elevatorDes[currentDes])
             {
-                this.transform.position = Vector3.MoveTowards(this.transform.position, moveLocations, elevatorSpeed * Time.deltaTime);
+                //Vector3 originalLocation;
+                //originalLocation = this.transform.position;
+                //this.transform.position = new Vector3(moveLocations.x,moveLocations.y, moveLocations.z);
+
+
+                //this.transform.position = Vector3.SmoothDamp(this.transform.position, moveLocations,ref  currentVelocity, elevatorSpeed*2,elevatorSpeed);
+
+                this.transform.position = Vector3.MoveTowards(this.transform.position, moveLocations, elevatorSpeed /** Time.deltaTime*/);
+                //this.transform.position = Mathf.Lerp(this.transform.position, moveLocations, elevatorSpeed * Time.fixedDeltaTime);
                 if (this.transform.position == elevatorDes[currentDes]) currentDes++;
 
             }
             else if (currentDes >= elevatorDes.Length) { this.transform.position = elevatorDes[currentDes]; currentDes = 0; }
 
-            Debug.Log(currentDes + "move locations");
+            //Debug.Log(currentDes + "move locations");
             //WhereElevator();
         }
 
