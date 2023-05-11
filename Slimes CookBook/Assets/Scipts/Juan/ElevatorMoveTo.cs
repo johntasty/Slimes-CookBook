@@ -12,13 +12,15 @@ public class ElevatorMoveTo : MonoBehaviour
     /// 
 
     //public List <GameObject> locations;
+    [SerializeField] public CharacterController characterController;
     GameObject test;
     public LineRenderer lineRenderer;
     public float elevatorSpeed;
     int currentDes = 0;
     bool move;
     [SerializeField] private int elevatorDesLength;
-    [SerializeField] private Vector3[] elevatorDes = new Vector3[0];
+    [SerializeField] public Vector3[] elevatorDes = new Vector3[0];
+    public Vector3 moveLocations;
     public bool startPoint = false;
     public bool endPoint = false;
 
@@ -44,9 +46,9 @@ public class ElevatorMoveTo : MonoBehaviour
 
 
         MoveElevator();
-        
 
-    
+
+
 
 
 
@@ -60,11 +62,14 @@ public class ElevatorMoveTo : MonoBehaviour
         if (currentDes < elevatorDes.Length)
         {
 
-            Vector3 moveLocations;
+            //Vector3 moveLocations;
             Vector3 currentVelocity = Vector3.zero;
             moveLocations = elevatorDes[currentDes];
+            Vector3 direction = moveLocations - transform.position;
             if (this.transform.position != elevatorDes[currentDes])
             {
+                characterController.Move(direction * elevatorSpeed * Time.deltaTime);
+
                 //Vector3 originalLocation;
                 //originalLocation = this.transform.position;
                 //this.transform.position = new Vector3(moveLocations.x,moveLocations.y, moveLocations.z);
@@ -72,7 +77,7 @@ public class ElevatorMoveTo : MonoBehaviour
 
                 //this.transform.position = Vector3.SmoothDamp(this.transform.position, moveLocations,ref  currentVelocity, elevatorSpeed*2,elevatorSpeed);
 
-                this.transform.position = Vector3.MoveTowards(this.transform.position, moveLocations, elevatorSpeed /** Time.deltaTime*/);
+                //this.transform.position = Vector3.MoveTowards(this.transform.position, moveLocations, elevatorSpeed /** Time.deltaTime*/);
                 //this.transform.position = Mathf.Lerp(this.transform.position, moveLocations, elevatorSpeed * Time.fixedDeltaTime);
                 if (this.transform.position == elevatorDes[currentDes]) currentDes++;
 
@@ -85,10 +90,10 @@ public class ElevatorMoveTo : MonoBehaviour
 
         //WhereElevator();
     }
-    
+
     public void WhereElevator()
     {
-         Vector3 startPos = elevatorDes[0];
+        Vector3 startPos = elevatorDes[0];
         Vector3 endPos = elevatorDes[elevatorDesLength];
         if (this.transform.position == startPos)
         {
@@ -102,6 +107,6 @@ public class ElevatorMoveTo : MonoBehaviour
 
         }
         else { endPoint = false; }
-    }    
+    }
 
 }

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3824,6 +3824,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2037691146}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1442287311 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4684722554642901527, guid: 69b7314a1432fdd4f96f7ea808ecab83,
+    type: 3}
+  m_PrefabInstance: {fileID: 606912669519621477}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1444569684
 Mesh:
   m_ObjectHideFlags: 0
@@ -5326,12 +5332,30 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 606912669519621477}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1442287311}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1f10198def480e4b9e65b41bb25dc40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!143 &1776412950
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1442287311}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1789267157
 GameObject:
   m_ObjectHideFlags: 0
@@ -6041,6 +6065,11 @@ PrefabInstance:
       propertyPath: elevatorDesLength
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 1276804498841963244, guid: 69b7314a1432fdd4f96f7ea808ecab83,
+        type: 3}
+      propertyPath: characterController
+      value: 
+      objectReference: {fileID: 1776412950}
     - target: {fileID: 1793040967069929301, guid: 69b7314a1432fdd4f96f7ea808ecab83,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -6069,7 +6098,7 @@ PrefabInstance:
     - target: {fileID: 4005422694686806197, guid: 69b7314a1432fdd4f96f7ea808ecab83,
         type: 3}
       propertyPath: pushStrenght
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4684722554642901527, guid: 69b7314a1432fdd4f96f7ea808ecab83,
         type: 3}

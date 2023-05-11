@@ -18,6 +18,9 @@ public class ElevatorSpeedControl : MonoBehaviour
     [SerializeField] private float pushStrenght;
     [SerializeField] private float deCell;
 
+    bool accelarating = false;
+    bool deccelaration = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -38,13 +41,15 @@ public class ElevatorSpeedControl : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(accelarating + " accelerating");
         //Debug.Log(pushStrenght + "pushStrenght");
-        //Debug.Log(elevatorMove.elevatorSpeed + "speed");
+        Debug.Log(elevatorMove.elevatorSpeed + "speed");
         if (wizard != null || slime != null)
         {
             if (Input.GetKeyDown(KeyCode.V))
             {
-                IncreaseSpeed();
+                //IncreaseSpeed();
+                AccelaratingNow();
                 //elevatorMove.elevatorSpeed = pushStrenght;
             }
             else if (!Input.GetKeyDown(KeyCode.V) && elevatorMove.elevatorSpeed > 0f)
@@ -56,7 +61,30 @@ public class ElevatorSpeedControl : MonoBehaviour
         }
 
     }
+    IEnumerator Accelarate(Vector3 target)
+    {
+        
+        accelarating = true;
+        float strenght = pushStrenght;
+        float duration = 0.5f;
+        float time = 0;
+        Vector3 targetDirection = target - transform.position;
+        do {
+            time += Time.deltaTime;
 
+            float normalizedTime = time / duration;
+            transform.position = Vector3.Lerp(transform.position, targetDirection * strenght, normalizedTime);
+            yield return null;
+        } while (time < duration);
+
+        accelarating = false;
+        Debug.Log(targetDirection + " target");
+    }
+    void AccelaratingNow()
+    {
+        if (accelarating) return;
+        StartCoroutine(Accelarate(elevatorMove.moveLocations));
+    }
     //Assign player gameobjects
     private void OnTriggerStay(Collider other)
     {
@@ -74,10 +102,11 @@ public class ElevatorSpeedControl : MonoBehaviour
         {
             float currentVelocity = 0f;
 
-            elevatorMove.elevatorSpeed += Mathf.SmoothDamp(elevatorMove.elevatorSpeed, pushStrenght, ref currentVelocity, 10f);
+            //elevatorMove.elevatorSpeed = Mathf.SmoothDamp(elevatorMove.elevatorSpeed, pushStrenght, ref currentVelocity, 2f, pushStrenght);
+            //elevatorMove.elevatorSpeed = Mathf.Lerp(elevatorMove.elevatorSpeed, pushStrenght, );
 
             //pushStrenght += Mathf.SmoothDamp(pushStrenght, pushStrenght, ref elevatorMove.elevatorSpeed, 0.1f * Time.fixedDeltaTime);
-            elevatorMove.elevatorSpeed += pushStrenght;
+            //elevatorMove.elevatorSpeed += pushStrenght;
 
 
         }
@@ -89,7 +118,7 @@ public class ElevatorSpeedControl : MonoBehaviour
 
         //elevatorMove.elevatorSpeed = Mathf.Lerp(elevatorMove.elevatorSpeed, -deCell, deCell * Time.fixedDeltaTime);
 
-        elevatorMove.elevatorSpeed = Mathf.SmoothDamp(elevatorMove.elevatorSpeed,0, ref currentVelocity, deCell * Time.deltaTime);
+        elevatorMove.elevatorSpeed = Mathf.SmoothDamp(elevatorMove.elevatorSpeed,0, ref currentVelocity, deCell * Time.fixedDeltaTime);
 
     }
 
