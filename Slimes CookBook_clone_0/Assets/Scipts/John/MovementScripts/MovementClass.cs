@@ -15,11 +15,12 @@ using UnityEngine;
     //turn variables
     float _TargetAngle;
     float turnSmoothVel;
-
+  
     //Input Variables
     private Vector2 inputMove;
     private Vector2 inputRotate;
-
+    Vector3 inputMovement;
+    Vector3 inputRotateMove;
     //animator hashes
     private int _XAxis;
     private int _YAxis;
@@ -31,13 +32,16 @@ using UnityEngine;
     //velocity Jumping
     private float _Velocity;
     //movement velocity
-    Vector3 _VelocityVec;
+    public Vector3 _VelocityVec;
+    //Isomateric Skew
+    Matrix4x4 isoMatrix;
 
     #region Setup
     public void Setup(MovementAttributes set)
     {
         this.MovementVariables = set;
         tempGrav = MovementVariables._Gravity;
+        isoMatrix = Matrix4x4.Rotate(Quaternion.Euler(0, -45, 0));
     }
     public void SetHashes(string _XAxisName, string _YaxisName)
     {
@@ -52,7 +56,7 @@ using UnityEngine;
     #region Movement
     public void GroundChecker()
     {
-        grounded = Physics.CheckSphere(player.position, 0.4f, MovementVariables.groundLayer);
+        grounded = Physics.CheckSphere(player.position + (Vector3.up * 0.4f), 0.4f, MovementVariables.groundLayer);
     }
     public void Gravity()
     {
@@ -67,43 +71,53 @@ using UnityEngine;
     public void MovementInputs(Vector2 input)
     {
         inputMove = input;
+        inputMovement.x = input.x;
+        inputMovement.z = input.y;
     }
     public void RotationInputs(Vector2 input)
     {
-        inputRotate = input;
+        inputRotate = input;      
     }
 
     public void Rotation()
     {
-        _TargetAngle = Mathf.Atan2(inputMove.x, inputMove.y) * Mathf.Rad2Deg + MovementVariables.cam.eulerAngles.y;
+        if (inputMove == Vector2.zero) return;
 
-        float angle = Mathf.SmoothDampAngle(player.eulerAngles.y, _TargetAngle, ref turnSmoothVel, MovementVariables.turn);
-        Vector3 playRot = player.rotation.eulerAngles;
-        player.rotation = Quaternion.Euler(playRot.x, angle, playRot.z);
+        Vector3 skewedMove = isoMatrix.MultiplyPoint3x4(inputMovement);
+        inputRotateMove = (player.position + skewedMove) - player.position;
+        Quaternion rotation = Quaternion.LookRotation(inputRotateMove, Vector3.up);
+        //player.rotation = Quaternion.RotateTowards(player.rotation, rotation, MovementVariables.TurnSmoothing * Time.deltaTime);
+        player.rotation = Quaternion.Slerp(player.rotation, rotation, MovementVariables.TurnSmoothing * Time.deltaTime);
+
+        //_TargetAngle = Mathf.Atan2(inputMove.x, inputMove.y) * Mathf.Rad2Deg ;
+        //float angle = Mathf.SmoothDampAngle(player.eulerAngles.y, _TargetAngle, ref turnSmoothVel, MovementVariables.turn);
+        //Vector3 playRot = player.rotation.eulerAngles;
+        //player.rotation = Quaternion.Euler(playRot.x, angle, playRot.z);
     }
 
     public void MovementVector()
     {
-        float VectorMagnitude = inputMove.magnitude;
+        float VectorMagnitude = inputMove.normalized.magnitude;
         float accel = VectorMagnitude * MovementVariables.speed;
 
-        Vector3 temp_movement = Quaternion.Euler(0f, _TargetAngle, 0f) * Vector3.forward;
-        _VelocityVec = temp_movement * VectorMagnitude * MovementVariables.speed;
+        Vector3 temp_movement =  player.forward;
+        _VelocityVec = temp_movement * accel;
         if (!grounded && WallHug)
         {
             _VelocityVec = temp_movement * VectorMagnitude * 1f;
-        }        
+        }
         _VelocityVec.y = _Velocity;
+        MovementVariables.playerChar.Move(_VelocityVec * Time.deltaTime);
     }
     public void ApplyMovement()
     {
-        MovementVector();        
-        MovementVariables.playerChar.Move(_VelocityVec * Time.deltaTime);
         ApplyHashes();
+        MovementVector();
     }
     public void Jump()
     {
         if (!grounded) return;
+       
         _Velocity += MovementVariables._JumpPower;
     }
     public void SlopeMatch()
@@ -148,9 +162,9 @@ using UnityEngine;
     {
         if (!MovementVariables.HasAnimation) return;
         if (!grounded) return;
-        float spe = _VelocityVec.magnitude;
+        float spe = new Vector3(_VelocityVec.x, 0 , _VelocityVec.z).magnitude;
         MovementVariables._ControllerAnimator.SetFloat(_YAxis, spe, MovementVariables.AnimationBlendSpd, Time.fixedDeltaTime);
-        MovementVariables._ControllerAnimator.SetFloat(_XAxis, inputRotate.x, MovementVariables.AnimationBlendTurn, Time.fixedDeltaTime);
+        MovementVariables._ControllerAnimator.SetFloat(_XAxis, inputMove.x, MovementVariables.AnimationBlendTurn, Time.fixedDeltaTime);
     }
     #endregion
 }

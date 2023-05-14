@@ -630,7 +630,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5540179417212902178}
+      - m_Target: {fileID: 5540179417212902182}
         m_TargetAssemblyTypeName: SteamLobbyManagment, Assembly-CSharp
         m_MethodName: HostLobby
         m_Mode: 1
@@ -7587,6 +7587,7 @@ GameObject:
   - component: {fileID: 1686762005}
   - component: {fileID: 1686762004}
   - component: {fileID: 1686762007}
+  - component: {fileID: 1686762008}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -7625,11 +7626,11 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
-  field of view: 60
+  near clip plane: 0.01
+  far clip plane: 50
+  field of view: 40
   orthographic: 0
-  orthographic size: 5
+  orthographic size: 15
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -7652,8 +7653,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1686762003}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.23911765, y: -0.3696438, z: 0.09904577, w: 0.89239913}
+  m_LocalPosition: {x: 0, y: 5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7693,6 +7694,40 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
+--- !u!114 &1686762008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1686762003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowDebugText: 0
+  m_ShowCameraFrustum: 1
+  m_IgnoreTimeScale: 0
+  m_WorldUpOverride: {fileID: 0}
+  m_UpdateMethod: 2
+  m_BlendUpdateMethod: 1
+  m_DefaultBlend:
+    m_Style: 1
+    m_Time: 2
+    m_CustomCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  m_CustomBlends: {fileID: 0}
+  m_CameraCutEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_CameraActivatedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1694483326
 GameObject:
   m_ObjectHideFlags: 0
@@ -8947,11 +8982,11 @@ GameObject:
   - component: {fileID: 5540179417212902171}
   - component: {fileID: 5540179417212902174}
   - component: {fileID: 5540179417212902175}
-  - component: {fileID: 5540179417212902177}
-  - component: {fileID: 5540179417212902176}
-  - component: {fileID: 5540179417212902178}
-  - component: {fileID: 5540179417212902180}
-  - component: {fileID: 5540179417212902179}
+  - component: {fileID: 5540179417212902183}
+  - component: {fileID: 5540179417212902182}
+  - component: {fileID: 5540179417212902181}
+  - component: {fileID: 5540179417212902185}
+  - component: {fileID: 5540179417212902184}
   m_Layer: 0
   m_Name: StartPos
   m_TagString: Untagged
@@ -8993,7 +9028,7 @@ MonoBehaviour:
   sendRate: 30
   offlineScene: Assets/Scenes/John/MultiplayerScenes/OfflineScene.unity
   onlineScene: Assets/Scenes/John/MultiplayerScenes/RoomScene.unity
-  transport: {fileID: 5540179417212902180}
+  transport: {fileID: 5540179417212902184}
   networkAddress: localhost
   maxConnections: 2
   authenticator: {fileID: 0}
@@ -9002,10 +9037,20 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs:
-  - {fileID: 1354632512004256384, guid: d4e1a66ff32dd894bb578948468e67a7, type: 3}
-  - {fileID: 4444553668751487616, guid: 7f9566c6027db134e8b5ff364680f89f, type: 3}
+  - {fileID: 1634787576430268158, guid: 2633599d841fc74479fc4aa629d8bd53, type: 3}
+  - {fileID: 5307064623126649455, guid: 6c038d5b314e6f34f91b345fc2b4d0f1, type: 3}
   - {fileID: 5152941909035078397, guid: 60ccd33788714aa418491f1dd0a6a990, type: 3}
   - {fileID: 4444553668751487616, guid: feeeeedde9518f54ab5c605cbcd42687, type: 3}
+  - {fileID: 3051205061570401082, guid: 8790f1896a6e70045bf712c02c032675, type: 3}
+  - {fileID: 5960965056743552621, guid: 99181c4038c41684b883f995935715a1, type: 3}
+  - {fileID: 4303823876926827443, guid: 67c1868c1ab000942b7b803281bfdd50, type: 3}
+  - {fileID: 7169465257584905758, guid: 0186acd6ccb5d7447abfc8c866f215d0, type: 3}
+  - {fileID: 6717898366754749848, guid: e18912e122af3594e9c4f29eca157007, type: 3}
+  - {fileID: 2861726150863379716, guid: 40057d60f468d8842acd8b371158681f, type: 3}
+  - {fileID: 290230665004565250, guid: 92378625cb667c24792e4888b2433eeb, type: 3}
+  - {fileID: 4636792930741738714, guid: 20aa5da1ff58ed743995e16894e95a08, type: 3}
+  - {fileID: 8130345384324886855, guid: 85b41657201e403418f5fb0f5072d380, type: 3}
+  - {fileID: 173247327886093702, guid: 4d7d2d13543bd3b4eb54c92a54cdaa18, type: 3}
   snapshotSettings:
     bufferTimeMultiplier: 2
     catchupNegativeThreshold: -1
@@ -9027,8 +9072,11 @@ MonoBehaviour:
   roomSlots: []
   clientIndex: 0
   GamePlayersPrefabs:
-  - {fileID: 4444553668751487616, guid: feeeeedde9518f54ab5c605cbcd42687, type: 3}
-  - {fileID: 4444553668751487616, guid: 7f9566c6027db134e8b5ff364680f89f, type: 3}
+  - {fileID: 1634787576430268158, guid: 2633599d841fc74479fc4aa629d8bd53, type: 3}
+  - {fileID: 5307064623126649455, guid: 6c038d5b314e6f34f91b345fc2b4d0f1, type: 3}
+  additiveScenes:
+  - Assets/Scenes/John/MultiplayerScenes/Room_1_WallPuzzle.unity
+  - Assets/Scenes/John/MultiplayerScenes/MainHubScene.unity
 --- !u!114 &5540179417212902175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9041,7 +9089,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b979f26c95d34324ba005bfacfa9c4fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &5540179417212902176
+--- !u!114 &5540179417212902181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5540179417212902169}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef4bffeda13d7a748973ff9204401c07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5540179417212902182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5540179417212902169}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbcaee82f7d24e64297be3aaa10d689d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttons: {fileID: 866280663}
+--- !u!114 &5540179417212902183
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9057,46 +9130,7 @@ MonoBehaviour:
   Timeout: 25
   AllowSteamRelay: 1
   UseNextGenSteamNetworking: 1
---- !u!114 &5540179417212902177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5540179417212902169}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef4bffeda13d7a748973ff9204401c07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &5540179417212902178
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5540179417212902169}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bbcaee82f7d24e64297be3aaa10d689d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  buttons: {fileID: 1843566365}
---- !u!114 &5540179417212902179
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5540179417212902169}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  offsetX: 0
-  offsetY: 0
---- !u!114 &5540179417212902180
+--- !u!114 &5540179417212902184
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9120,3 +9154,17 @@ MonoBehaviour:
   clientMaxReceivesPerTick: 1000
   clientSendQueueLimit: 10000
   clientReceiveQueueLimit: 10000
+--- !u!114 &5540179417212902185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5540179417212902169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offsetX: 0
+  offsetY: 0

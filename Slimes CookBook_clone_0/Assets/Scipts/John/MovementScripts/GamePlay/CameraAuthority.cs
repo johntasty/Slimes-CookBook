@@ -6,15 +6,15 @@ using UnityEngine.InputSystem;
 public class CameraAuthority : NetworkBehaviour
 {
     [SerializeField]
-    CinemachineFreeLook _Freelook;
+    CinemachineVirtualCamera _Camera;
     [SerializeField]
     Camera _PlayerCam;
     public override void OnStartAuthority()
     {
         _PlayerCam.enabled = true;
-        _Freelook.enabled = true;        
+        _Camera.enabled = true;        
 
         PlayerInput player = GetComponent<PlayerInput>();
-        transform.GetComponentInChildren<CinemachineInput>().look = player.actions.FindAction("Look");
+        //transform.GetComponentInChildren<CinemachineInput>().look = player.actions.FindAction("Look");
     }
 }

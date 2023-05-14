@@ -15,6 +15,12 @@ EditorBuildSettings:
     path: Assets/Scenes/John/MultiplayerScenes/Multiplayer.unity
     guid: 28d689bd89ad7444c9ede11ae6157afc
   - enabled: 0
+    path: Assets/Scenes/John/MultiplayerScenes/Room_1_WallPuzzle.unity
+    guid: 72f7069421049064289d10a7aeb2bf7e
+  - enabled: 0
+    path: Assets/Scenes/John/MultiplayerScenes/MainHubScene.unity
+    guid: d7278e6d19f7ad842833560772c72886
+  - enabled: 0
     path: Assets/Scenes/John/Trees.unity
     guid: af7fe04302860d1429257bb279e183d0
   m_configObjects:

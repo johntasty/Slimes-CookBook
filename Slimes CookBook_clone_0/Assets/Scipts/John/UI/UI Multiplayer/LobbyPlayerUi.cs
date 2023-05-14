@@ -32,6 +32,7 @@ public class LobbyPlayerUi : MonoBehaviour
     {
         var cSteam = new CSteamID(newPlayerNumber);
         playerNameText.text = SteamFriends.GetFriendPersonaName(cSteam);
+       
     }
 
     // Random color set by Player::OnStartServer

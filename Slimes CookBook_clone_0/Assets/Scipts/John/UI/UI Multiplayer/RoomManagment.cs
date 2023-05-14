@@ -3,6 +3,7 @@ using Mirror;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using Steamworks;
+using System.Collections;
 
 /*
 	Documentation: https://mirror-networking.gitbook.io/docs/components/network-room-manager
@@ -22,8 +23,15 @@ using Steamworks;
 public class RoomManagment : NetworkRoomManager
 {
     public List<GameObject> GamePlayersPrefabs  = new List<GameObject>();
+    public List<NetworkConnectionToClient> pendingPlayersNext = new List<NetworkConnectionToClient>();
     public static new RoomManagment singleton { get; private set; }
 
+    [Header("Additive Scenes - First is start scene")]
+
+    [Scene, Tooltip("Add additive scenes here.\nFirst entry will be players' start scene")]
+    public string[] additiveScenes;
+    // This is set true after server loads all subscene instances
+    bool subscenesLoaded;
     #region Server Callbacks
 
     private void Awake()
@@ -74,6 +82,15 @@ public class RoomManagment : NetworkRoomManager
         //LobbyUi.SetActive(false);
        
     }
+  
+    private IEnumerator LoadScenes(string SceneName)
+    {
+        yield return SceneManager.LoadSceneAsync(SceneName, LoadSceneMode.Additive);
+
+       
+        // Let mirror know there are new scene objects that need to be spawned
+        NetworkServer.SpawnObjects();
+    }
 
     /// <summary>
     /// This allows customization of the creation of the room-player object on the server.
@@ -96,6 +113,7 @@ public class RoomManagment : NetworkRoomManager
     /// <returns>A new GamePlayer object.</returns>
     public override GameObject OnRoomServerCreateGamePlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
     {
+               
         int prefab = roomPlayer.GetComponent<LobbyPlayer>().GetPrefabSpawn();
        
         GameObject prefabToSpawn = null;
@@ -106,6 +124,7 @@ public class RoomManagment : NetworkRoomManager
         {
             prefabToSpawn = Instantiate(GamePlayersPrefabs[1], Vector3.zero, Quaternion.identity);
         }
+        pendingPlayersNext.Add(conn);
         return prefabToSpawn;
     }
 
@@ -127,30 +146,18 @@ public class RoomManagment : NetworkRoomManager
         CSteamID steamId = SteamMatchmaking.GetLobbyMemberByIndex(
             SteamLobbyManagment.LobbyId,
             numPlayers - 1);
-        conn.identity.GetComponent<LobbyPlayer>().ResetPlayerNumbers(steamId.m_SteamID);
-
+        if (conn.identity.TryGetComponent(out LobbyPlayer lobbyPlayer))
+        {
+            lobbyPlayer.ResetPlayerNumbers(steamId.m_SteamID);
+        }
+      
         //LobbyPlayer.ResetPlayerNumbers();
         foreach (NetworkRoomPlayer player in roomSlots)
             if (player != null)
             {
                 player.gameObject.GetComponent<LobbyPlayer>().playerParent = 1;
             }
-        //// increment the index before adding the player, so first player starts at 1
-        //clientIndex++;
-
-        //if (Utils.IsSceneActive(RoomScene))
-        //{
-        //    allPlayersReady = false;
-
-        //    //Debug.Log("NetworkRoomManager.OnServerAddPlayer playerPrefab: {roomPlayerPrefab.name}");
-
-        //    GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
-        //    if (newRoomGameObject == null)
-        //        newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
-
-        //    NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
-        //    LobbyPlayer.ResetPlayerNumbers();
-        //}
+      
 
     }
     /// <summary>
@@ -186,15 +193,53 @@ public class RoomManagment : NetworkRoomManager
         
         if (SceneManager.GetActiveScene().name == "RoomScene")
         {
-            LobbyUi.GetStartButton().gameObject.SetActive(true);
-            LobbyUi.GetStartButton().onClick.AddListener(SceneChange);
+            //LobbyUi.GetStartButton().gameObject.SetActive(true);
+            //LobbyUi.GetStartButton().onClick.AddListener(SceneChange);
+            roomSlots[0].GetComponent<NetworkIdentity>().connectionToClient.identity.transform.GetComponent<LobbyPlayer>().RpcStartButton();
+            //Debug.Log(roomSlots[0].GetComponent<NetworkIdentity>().connectionToClient.identity.transform);
+            
         }
         
     }
-    void SceneChange()
+   
+    public void ServerChangeSceneAdditive(string newSceneName)
+    {
+        if (string.IsNullOrWhiteSpace(newSceneName))
+        {
+            Debug.LogError("ServerChangeScene empty scene name");
+            return;
+        }
+
+        if (NetworkServer.isLoadingScene && newSceneName == networkSceneName)
+        {
+            Debug.LogError($"Scene change is already in progress for {newSceneName}");
+            return;
+        }
+       
+        // Let server prepare for scene change
+        OnServerChangeScene(newSceneName);
+        // set server flag to stop processing messages while changing scenes
+        // it will be re-enabled in FinishLoadScene.
+        NetworkServer.isLoadingScene = true;
+
+        loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, LoadSceneMode.Additive);
+               
+
+    }
+    public void SceneChange()
     {
        
         base.ServerChangeScene(GameplayScene);
+        
+    }
+    public void SceneChangeCommand(string SceneName)
+    {
+
+        base.ServerChangeScene(SceneName);
+
+    }
+    public void MovePlayers(NetworkIdentity networkIdentity)
+    {
         
     }
     void ServerChangeSceneGameScene(string newSceneName)
@@ -230,7 +275,47 @@ public class RoomManagment : NetworkRoomManager
         }
         
     }
+    public override void OnServerSceneChanged(string sceneName)
+    {
+        
+        base.OnServerSceneChanged(sceneName);
+        // This fires after server fully changes scenes, e.g. offline to online
+        // If server has just loaded the Container (online) scene, load the subscenes on server
+        //if(sceneName == GameplayScene)
+        //{
+        //    foreach (string SceneName in additiveScenes)
+        //        StartCoroutine(LoadScenes(SceneName));
+        //}
+        if (sceneName == "MainHubScene")
+        {
+            Transform startPos = GetStartPosition();
 
+            foreach(NetworkConnectionToClient id in pendingPlayersNext)
+            {
+                //GameObject player = Instantiate(GamePlayersPrefabs[0], startPos.position, startPos.rotation);
+                //if (id.identity.gameObject == null) return;
+                
+                //NetworkServer.Destroy(NetworkClient.spawned[id.identity.netId].gameObject);
+                //NetworkServer.ReplacePlayerForConnection(id, player, true);
+            }
+            pendingPlayersNext.Clear();
+            //for (int i = 0; i < clients.Count; i++)
+            //{
+
+            //    GameObject player = Instantiate(GamePlayersPrefabs[i], startPos.position, startPos.rotation);
+            //    NetworkConnectionToClient client = clients[i];
+            //    //NetworkServer.Destroy(client.identity.gameObject);
+
+            //    NetworkServer.RemovePlayerForConnection(client, true);
+            //    NetworkServer.ReplacePlayerForConnection(client, player, true);
+            //}
+
+
+           
+
+        }
+           
+    }
     #endregion
 
     #region Client Callbacks

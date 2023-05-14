@@ -170,6 +170,18 @@ public class LobbyPlayer : NetworkRoomPlayer
     #endregion
 
     #region Commands
+    [ClientRpc]
+    public void RpcStartButton()
+    {
+        
+        LobbyUi.GetStartButton().gameObject.SetActive(true);
+        LobbyUi.GetStartButton().onClick.AddListener(SceneChanging);
+    }
+    [Command]
+    void SceneChanging()
+    {
+        RoomManagment.singleton.SceneChange();
+    }
     [Command]
     public void CmdChangeReady(bool readyState)
     {

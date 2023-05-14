@@ -5,10 +5,15 @@ using UnityEngine;
 using Mirror;
 public class PlankMove : NetworkBehaviour
 {
+    [SerializeField]
+    GetAllPositions holesHolder;
+
     Vector3 StartPosition;
     // Start is called before the first frame update
+   
     void Start()
     {
+        enabled = true;
         StartPosition = transform.position;
 
         MoveObject.OnHoleSelected += CmdMove;
@@ -20,19 +25,24 @@ public class PlankMove : NetworkBehaviour
         MoveObject.OnHoleHighLight -= CmdRotate;
     }
     [Command(requiresAuthority = false)]
-    private void CmdRotate(Vector3 obj)
+    private void CmdRotate(int obj)
     {
         if (transform.position != StartPosition) return;
-        StartCoroutine(RotatePlank(obj));
+       
+        Vector3 targetButton = holesHolder.buttons[obj].transform.position;
+        StartCoroutine(RotatePlank(targetButton));
     }
 
     [Command (requiresAuthority = false)]
-    private void CmdMove(Vector3 obj)
-    {       
-        StartCoroutine(MoveObj(obj));       
+    private void CmdMove(int obj)
+    {
+        Debug.Log(gameObject.name);
+        
+        Vector3 targetButton = holesHolder.buttons[obj].transform.position;
+        StartCoroutine(MoveObj(targetButton));       
     }
     IEnumerator RotatePlank(Vector3 target)
-    {        
+    {      
         float timeElapsed = 0;
         Vector3 direction = target - transform.position;
         Quaternion hole = Quaternion.LookRotation(direction);

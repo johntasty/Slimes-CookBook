@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 using Mirror;
 public class SimpleControll : NetworkBehaviour
 {
-
     [SerializeField] Camera _PlayerCam;
 
     [Header("Attributes")]
@@ -19,9 +18,10 @@ public class SimpleControll : NetworkBehaviour
   
     public event Action<Vector2> Look;
     public event Action<bool> Interact;
-
+      
     public override void OnStartAuthority()
     {
+        //DontDestroyOnLoad(gameObject);
         if (!isLocalPlayer) return;
         enabled = true;
         SetAttributes();
@@ -37,20 +37,20 @@ public class SimpleControll : NetworkBehaviour
    
     private void SetAttributes()
     {
-        wallProperties = GetComponent<WallDissolve>();
+        wallProperties = GetComponentInChildren<WallDissolve>();
         wallProperties.enabled = true;
         wallProperties.WallSetup();
         GetComponent<PlayerInput>().enabled = true;
         MovementFunctions = new MovementClass();
 
         SlimesCookBook playerInput = new SlimesCookBook();
-        CharacterController character = GetComponent<CharacterController>();
-        MovementFunctions._Player = transform;
+        CharacterController character = GetComponentInChildren<CharacterController>();
+        MovementFunctions._Player = character.transform;
 
         SetInputs.playerInput = playerInput;
         SetInputs.playerChar = character;
         if (SetInputs.HasAnimation) { 
-            SetInputs._ControllerAnimator = GetComponent<Animator>();
+            SetInputs._ControllerAnimator = GetComponentInChildren<Animator>();
             SetInputs._ControllerAnimator.enabled = true;
             MovementFunctions.SetHashes("XAxis", "YAxis");           
         }
@@ -69,18 +69,19 @@ public class SimpleControll : NetworkBehaviour
             MovementFunctions.WallCheck();
         }
         
-        MovementFunctions.Gravity();
+        MovementFunctions.Gravity();       
         //MovementFunctions.SlopeMatch();
-
+       
     }
     
     private void LateUpdate()
     {
         if (!isLocalPlayer) return;
-        wallProperties.WallDissolusion();
+       
+        wallProperties.WallDissolusion();        
         MovementFunctions.Rotation();
         MovementFunctions.ApplyMovement();
-       
+
     }
 
     private void OnEnable()

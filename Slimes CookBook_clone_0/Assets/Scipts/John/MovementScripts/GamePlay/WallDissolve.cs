@@ -8,6 +8,7 @@ public class WallDissolve : MonoBehaviour
 
     [SerializeField]
     Material WallDissolveMat;
+    [SerializeField]
     private Camera MainCam;
     [SerializeField]
     LayerMask Masks;
@@ -20,7 +21,7 @@ public class WallDissolve : MonoBehaviour
     private MaterialPropertyBlock propertyBlock;
     public void WallSetup()
     {
-        MainCam = transform.GetComponentInChildren<Camera>();
+        
         if (propertyBlock == null)
             propertyBlock = new MaterialPropertyBlock();
     }
@@ -55,6 +56,7 @@ public class WallDissolve : MonoBehaviour
 
             foreach(Renderer render in rendererCache)
             {
+                if (render == null) return;
                 propertyBlock.SetVector(PosId, new Vector4(view.x, view.y, view.z, -1f));
                 render.SetPropertyBlock(propertyBlock);
             }

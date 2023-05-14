@@ -146,6 +146,7 @@ namespace Mirror
                 return;
 
             // replace room player with game player
+            
             NetworkServer.Destroy(conn.identity.gameObject);
             NetworkServer.ReplacePlayerForConnection(conn, gamePlayer, true);
         }

@@ -18,6 +18,7 @@ public class SlimeCreator : MonoBehaviour
     [SerializeField]
     Material _Material;
     Vector4[] _BallsArray;
+    [SerializeField]
     Transform[] _Balls;
     static readonly int _BallPosArray = Shader.PropertyToID("_positions");
 
@@ -25,13 +26,14 @@ public class SlimeCreator : MonoBehaviour
     void Start()
     {        
         _BallsArray = new Vector4[20];
-        _Balls = new Transform[20];
-        parent = GameObject.FindGameObjectWithTag("BallsParent").transform;
+        //_Balls = new Transform[20];
+        //parent = GameObject.FindGameObjectWithTag("BallsParent").transform;
         StartCoroutine(SetUp());
        
     }
     Vector3[] PointsOnSphere(int n)
     {
+        
         List<Vector3> upts = new List<Vector3>();
         float inc = Mathf.PI * (3 - Mathf.Sqrt(5));
         float off = 2.0f / 18;
@@ -71,9 +73,7 @@ public class SlimeCreator : MonoBehaviour
         for (int i = 1; i <= rows; i++)
         {
             float lat = i * latStep;
-            //float r;
-            //if (i == 0 || i == rows + 1) { r = poleRadius; }
-            //else { r = Mathf.Lerp(poleRadius, equatorRadius, Mathf.Abs(Mathf.Sin(lat))); }
+           
             float r = Mathf.Lerp(poleRadius, 1f, (float)i / (rows + 1));
             r *= Mathf.Pow(Mathf.Cos(lat), 2);
 
@@ -92,7 +92,7 @@ public class SlimeCreator : MonoBehaviour
         Vector3[] pts = spherePoints.ToArray();
         return pts;
     }
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         MoveObject();
     }
@@ -109,12 +109,13 @@ public class SlimeCreator : MonoBehaviour
   IEnumerator SetUp()
     {
         Vector3[] points = CreateSphericalGrid(4,5);
-        GameObject ball = null;
+        //GameObject ball = null;
         Vector3 pos;
         int i = 0;
         foreach (Vector3 point in points)
         {
-            ball = Instantiate(prefab, parent);
+            //ball = Instantiate(prefab, parent);
+            GameObject ball = _Balls[i].gameObject;
             ball.name = i.ToString();
             pos = point.normalized;
             ball.GetComponent<CustomPhysics>().Origin = pos * range;
@@ -123,8 +124,9 @@ public class SlimeCreator : MonoBehaviour
 
             springs.Add(ball.GetComponent<CustomPhysics>());
             ball.transform.position = transform.position + (pos * range);
-            _Balls[i] = ball.transform;
+           
             _BallsArray[i] = new Vector4(ball.transform.position.x, ball.transform.position.y, ball.transform.position.z, radius);
+            ball.SetActive(true);
             i++;
             yield return null;
         }
