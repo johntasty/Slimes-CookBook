@@ -435,23 +435,25 @@ Shader "Custom/DefaultShader"
 						// By casting 0 to SurfaceData, we automatically set all the contents to 0.
 
 						float2 screenPos = IN.viewDis.xy / IN.viewDis.w;
-						float2 offset = Unity_Remap_float2(_PlayerPos.xy, float2(0.0,1.), float2(.5, -1.5));
-						screenPos += offset;
-						float2 screenPosAdded = Unity_TilingAndOffset_float(screenPos, float2(1, 1), screenPos);
+						float2 offset = Unity_Remap_float2(screenPos, float2(0.0,1.), float2(.5, -1.5));
+						//screenPos += offset;
+						float2 oos= IN.viewDis.xy / IN.viewDis.w;
+						float2 screenPosAdded = Unity_TilingAndOffset_float(screenPos, float2(1, 1), oos);
 						
 						float dissolveNoise = snoise(_DistanceToCamera * (IN.positionWS.xyz * (_DistaceMultiplier)));
 						dissolveNoise = dissolveNoise * 0.999;
-						float dissolve = dissolveNoise - _DissolveAmount;
-
-						float temp = dissolveNoise + (_PlayerPos.w);
+						//float dissolve = dissolveNoise - _DissolveAmount;
+						float zDepth = IN.positionCS.z / IN.positionCS.w;
+						//float zDepth = IN.viewDis.z / IN.viewDis.w;
+						float temp = dissolveNoise ;
 												
-						float d = length((screenPosAdded) / float2( _Widht , _Height ));
+						float d = length((screenPos)) + zDepth;
 						//d = 1 - d;
 
-						float x = d - (temp);
+						float x = d - temp;
+						//x = 1 - x;
 						
-						
-						float isVisible =  x - _DissolveAmount;
+						float isVisible = x - _DissolveAmount;
 						//float isVisible = (dissolve);
 						
 

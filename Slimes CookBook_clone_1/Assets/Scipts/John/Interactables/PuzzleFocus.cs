@@ -19,7 +19,6 @@ public class PuzzleFocus : NetworkBehaviour
     [SerializeField]
     string InteractionTag;
    
-
     [SerializeField]
     Button InteraactionCanvas = null;
     [SerializeField]
@@ -37,6 +36,9 @@ public class PuzzleFocus : NetworkBehaviour
     [Header("Check if you want the camera to switch, \n when you reach another point.")]
     [SerializeField]
     bool DoubleTrigger;
+    [Header("Check if you want the camera follow to switch, \n when you reach another point.")]
+    [SerializeField]
+    bool Follow;
     [Header("Slime teleport")]
     [SerializeField]
     bool Teleport;
@@ -129,9 +131,12 @@ public class PuzzleFocus : NetworkBehaviour
     private void OnTriggerEnter(Collider other)
     {
         
-        if (other.TryGetComponent(out NetworkIdentity compomn))
+        if (other.transform.parent != null)
         {
-            check = compomn.isLocalPlayer;
+            if(other.transform.parent.TryGetComponent(out NetworkIdentity compomn))
+            {
+                check = compomn.isLocalPlayer;
+            }            
             
         }
         else { check = false; }
@@ -146,13 +151,7 @@ public class PuzzleFocus : NetworkBehaviour
     }
    
     private void OnTriggerExit(Collider other)
-    {
-        if(other.TryGetComponent(out NetworkIdentity compomn))
-        {
-            check = compomn.isLocalPlayer;
-           
-        }
-        else { check = false; }
+    {       
        
         if (other.CompareTag(InteractionTag))
         {
@@ -162,7 +161,7 @@ public class PuzzleFocus : NetworkBehaviour
            
             //button pops up
             PopUp.gameObject.SetActive(false);
-            interactor =null;
+            interactor = null;
             if (DoubleTrigger) return;
             //resets camera to players
             _Camera.SetActive(false);   
@@ -170,22 +169,39 @@ public class PuzzleFocus : NetworkBehaviour
             Canvas.SetActive(false);
         }
     }
-  
+  void SetUpFollow()
+    {        
+        if (Follow)
+        {
+            _CinemaCamera.Follow = _ObjectToFocus;
+        }        
+    }
     void SetUpLookPoint()
     {
        
         if (_CinemaCamera == null) { return; }
        
         _CinemaCamera.LookAt = _ObjectToFocus;
-       
+        SetUpFollow();
+
+
     }
     void TeleportPlayer(Vector3 teleportPoint)
     {
         if (Teleport)
         {
-            interactor.gameObject.SetActive(false);
-            interactor.position = teleportPoint;
-            interactor.gameObject.SetActive(true);
+            interactor.parent.gameObject.SetActive(false);
+            if(InteractionTag == "Slime")
+            {
+                Transform balls = interactor.parent.Find("ParentBall");
+                int len = balls.childCount;
+                for (int i = 0; i < len - 1; i++)
+                {
+                    balls.GetChild(i).position = teleportPoint;
+                }
+            }                
+            interactor.position = teleportPoint;           
+            interactor.parent.gameObject.SetActive(true);
         }
     }
     void SetFocusToPlayer(Transform LookPoint)
@@ -197,46 +213,4 @@ public class PuzzleFocus : NetworkBehaviour
         
     }
 
-    [Command(requiresAuthority = false)]
-    void Testing(NetworkIdentity networkIdentity)
-    {
-        //NetworkConnectionToClient conn = networkIdentity.connectionToClient;
-        //conn.Send(new SceneMessage { sceneName = "Room_1_WallPuzzle", sceneOperation = SceneOperation.LoadAdditive, customHandling = false });
-        RpcLoadUnloadScene("Room_1_WallPuzzle", LoadAction.Load);
-
-    }
-    [ClientRpc]
-    public void RpcLoadUnloadScene(string SceneName, LoadAction loadAction)
-    {
-        StartCoroutine(LoadUnloadScene(SceneName, loadAction));
-    }
-    private IEnumerator LoadUnloadScene(string sceneName, LoadAction loadAction)
-    {       
-
-        if (loadAction == LoadAction.Load)
-        {
-            yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            
-        }
-        else
-        {
-            yield return SceneManager.UnloadSceneAsync(sceneName);
-            yield return Resources.UnloadUnusedAssets();
-        }
-
-        Debug.Log("checking");
-        // Tell mirror to update the list of available objects
-        NetworkClient.PrepareToSpawnSceneObjects();
-        
-        Debug.LogFormat("{0} {1} Done", sceneName, loadAction.ToString());
-
-    }
-    [Command(requiresAuthority = false)]
-    void UnloadScene(NetworkIdentity networkIdentity)
-    {
-        RpcLoadUnloadScene("Room_1_WallPuzzle", LoadAction.Unload);
-        //NetworkConnectionToClient conn = networkIdentity.connectionToClient;
-        //conn.Send(new SceneMessage { sceneName = "Room_1_WallPuzzle", sceneOperation = SceneOperation.UnloadAdditive, customHandling = false });
-
-    }
 }

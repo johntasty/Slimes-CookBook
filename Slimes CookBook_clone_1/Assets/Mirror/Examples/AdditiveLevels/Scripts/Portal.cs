@@ -48,7 +48,7 @@ namespace Mirror.Examples.AdditiveLevels
 
             // applies to host client on server and remote clients
             if (other.TryGetComponent(out PlayerController playerController))
-                playerController.enabled = false;
+                //playerController.enabled = false;
 
             if (isServer)
                 StartCoroutine(SendPlayerToNewScene(other.gameObject));
@@ -67,7 +67,7 @@ namespace Mirror.Examples.AdditiveLevels
 
                 yield return new WaitForSeconds(AdditiveLevelsNetworkManager.singleton.fadeInOut.GetDuration());
 
-                NetworkServer.RemovePlayerForConnection(conn, false);
+                //NetworkServer.RemovePlayerForConnection(conn, false);
 
                 // reposition player on server and client
                 player.transform.position = startPosition;
@@ -79,7 +79,7 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to load the new subscene with custom handling (see NetworkManager::OnClientChangeScene).
                 conn.Send(new SceneMessage { sceneName = destinationScene, sceneOperation = SceneOperation.LoadAdditive, customHandling = true });
 
-                NetworkServer.AddPlayerForConnection(conn, player);
+                //NetworkServer.AddPlayerForConnection(conn, player);
 
                 // host client would have been disabled by OnTriggerEnter above
                 if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent(out PlayerController playerController))

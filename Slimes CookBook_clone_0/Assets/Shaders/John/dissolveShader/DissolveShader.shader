@@ -10,6 +10,7 @@ Shader "Universal Render Pipeline/Lit"
         [Header(Dissolve Variables)]
 
         _DissolveAmount("Dissolve Amount", Range(0 , 1)) = 0
+        
          _Cutoff("Dissolve _Cutoff", Float) = 1
         _DistaceMultiplier("DistaceMultiplier", Float) = 1
         _DistanceToCamera("_DistanceToCamera", Float) = 1
@@ -17,13 +18,16 @@ Shader "Universal Render Pipeline/Lit"
         _Widht("_Widht", Float) = 1
      
         _PlayerPos("_PlayerPos", Vector) = (0,0,0)
-
+        _CutoutMask1MapWorldPos("_CutoutMask1MapWorldPos", Vector) = (0,0,0,0)
+        _CutoutMask1Map_ST("_CutoutMask1Map_ST", Vector) = (0,0,0,0)
+      
         [Header(Glow)]
         [HDR]_GlowColor("Color", Color) = (1, 1, 1, 1)
         _GlowRange("Range", Range(0, .5)) = 0.1
         _GlowFalloff("Falloff", Range(0, 1)) = 0.1
                        
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
+        
         [MainColor] _BaseColor("Color", Color) = (1,1,1,1)
 
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5

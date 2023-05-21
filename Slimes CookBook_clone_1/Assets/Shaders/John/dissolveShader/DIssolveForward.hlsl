@@ -192,11 +192,44 @@ Varyings LitPassVertex(Attributes input)
     output.viewDis = ComputeScreenPos(vertexInput.positionCS);
     return output;
 }
+void Unity_Remap_float3(float3 In, float2 InMinMax, float2 OutMinMax, out float3 Out)
+{
+    Out = OutMinMax.x + (In - InMinMax.x) * (OutMinMax.y - OutMinMax.x) / (InMinMax.y - InMinMax.x);
+}
 
+void Unity_TilingAndOffset_float(float2 UV, float2 Tiling, float2 Offset, out float2 Out)
+{
+    Out = UV * Tiling + Offset;
+}
+void Unity_Ellipse_float(float2 UV, float Width, float Height, out float Out)
+{
+    float d = length((UV * 2 - 1) / float2(Width, Height));
+    Out = saturate((1 - d) / fwidth(d));
+
+}
+inline float CutoutMaskClipper(float3 posWorld) {
+   
+    //float position = distance(_CutoutMask1MapWorldPos.xyz , posWorld);
+    float3 position = (_CutoutMask1MapWorldPos.xyz - posWorld) ;
+    float dis = length(position / _CutoutMask1Map_ST.xyz);
+   /* float dist = distance(position , _CutoutMask1Map_ST.xy);
+    float dist1 = distance(position , (_CutoutMask1Map_ST.xy * _CutoutMask1Map_ST.xy));*/
+
+    float circle = 1 - saturate(dis);
+
+    //circle = 1 - circle;
+   
+    return circle;
+}
 inline void InitializeStandardLitSurfaceDataFor(float2 uv, out SurfaceData outSurfaceData, float4 view, float3 positionWs)
 {
-    float2 screenPos = view.xy / view.w;
+    if (cutShape == 1) {
+        float uvs = CutoutMaskClipper(positionWs);
+        clip(1 - uvs - _Cutoff);
+    }  
 
+   
+    float2 screenPos = view.xy / view.w;
     float2 offset = Unity_Remap_float2(_PlayerPos.xy, float2(0.0, 1.), float2(.5, -1.5));
     screenPos += offset;
     float2 screenPosAdded = Unity_TilingAndOffset_float(screenPos, float2(1, 1), screenPos);

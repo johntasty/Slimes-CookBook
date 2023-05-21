@@ -44,7 +44,7 @@ Material:
     - _ShadowMax: 10
     - _ShadowMin: 0.2
     - _ShadowPenumbra: 1.5
-    - _Size: 0.25
+    - _Size: 0.2
     - _Smoothness: 0.91
     - _SpecColorSize: 11.42
     - _SpecPower: 0.1

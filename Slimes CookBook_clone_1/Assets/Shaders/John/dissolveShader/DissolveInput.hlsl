@@ -15,6 +15,11 @@
 CBUFFER_START(UnityPerMaterial)
 float4 _BaseMap_ST;
 float4 _DetailAlbedoMap_ST;
+
+float4 _CutoutMask1Map_ST;
+
+float4 _CutoutMask1MapWorldPos;
+float cutShape;
 half4 _BaseColor;
 half4 _SpecColor;
 half4 _EmissionColor;
