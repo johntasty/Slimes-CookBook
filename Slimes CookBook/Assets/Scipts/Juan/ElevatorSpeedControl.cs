@@ -25,39 +25,21 @@ public class ElevatorSpeedControl : MonoBehaviour
     void Start()
     {
         //wizard = GameObject.FindWithTag("Player");
-        slime = GameObject.FindWithTag("slime");
+        //slime = GameObject.FindWithTag("Slime");
 
         elevatorMove = GetComponentInParent<ElevatorMoveTo>();
-
-
-
 
     }
 
 
-
-
-
-
     void Update()
     {
-        Debug.Log(accelarating + " accelerating");
-        //Debug.Log(pushStrenght + "pushStrenght");
-        Debug.Log(elevatorMove.elevatorSpeed + "speed");
-        if (wizard != null || slime != null)
+        //Debug.Log(accelarating + " accelerating");
+        ////Debug.Log(pushStrenght + "pushStrenght");
+        //Debug.Log(elevatorMove.elevatorSpeed + "speed");
+        if (Input.GetKeyDown(KeyCode.V))
         {
-            if (Input.GetKeyDown(KeyCode.V))
-            {
-                //IncreaseSpeed();
-                AccelaratingNow();
-                //elevatorMove.elevatorSpeed = pushStrenght;
-            }
-            else if (!Input.GetKeyDown(KeyCode.V) && elevatorMove.elevatorSpeed > 0f)
-            {
-                DecreaseSpeed();
-
-
-            }
+            AccelaratingNow();           
         }
 
     }
@@ -65,20 +47,21 @@ public class ElevatorSpeedControl : MonoBehaviour
     {
         
         accelarating = true;
+       
         float strenght = pushStrenght;
-        float duration = 0.5f;
+        float duration = 2f;
         float time = 0;
-        Vector3 targetDirection = target - transform.position;
+        Vector3 targetDirection = (target - transform.position).normalized * strenght;
+        Vector3 targ = transform.position + targetDirection;
         do {
             time += Time.deltaTime;
-
             float normalizedTime = time / duration;
-            transform.position = Vector3.Lerp(transform.position, targetDirection * strenght, normalizedTime);
+            transform.position = Vector3.Lerp(transform.position, targ , normalizedTime);
             yield return null;
         } while (time < duration);
 
         accelarating = false;
-        Debug.Log(targetDirection + " target");
+        
     }
     void AccelaratingNow()
     {
@@ -86,14 +69,11 @@ public class ElevatorSpeedControl : MonoBehaviour
         StartCoroutine(Accelarate(elevatorMove.moveLocations));
     }
     //Assign player gameobjects
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Wizard"))
-            wizard = other.gameObject;
-        if (other.gameObject.CompareTag("Slime"))
-            slime = other.gameObject;
-        ElevatorCollision();
-
+        if (other.gameObject.CompareTag("Wizard") || other.gameObject.CompareTag("Slime"))
+            other.transform.SetParent(transform);
+             
     }
 
     private void IncreaseSpeed()
