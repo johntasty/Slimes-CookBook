@@ -17,6 +17,7 @@ Shader "Custom/DefaultShader"
 		_Widht("_Widht", Float) = 1
 		_Radius("_Radius", Float) = 1
 		_PlayerPos("_PlayerPos", Vector) = (0,0,0)
+		_Test("_PlayerPos", Vector) = (0,0,0)
 	
 		[Header(Glow)]
 		[HDR]_GlowColor("Color", Color) = (1, 1, 1, 1)
@@ -60,6 +61,7 @@ Shader "Custom/DefaultShader"
 					float _GlowRange;
 					float _GlowFalloff;
 					float4 _PlayerPos;
+					float2 _Test;
 					
 					
 				CBUFFER_END
@@ -148,6 +150,7 @@ Shader "Custom/DefaultShader"
 							float4 shadowCoord			: TEXCOORD7;
 						#endif
 							float4 viewDis		: TEXCOORD8;
+							float4 positionVS		: TEXCOORD9;
 					};
 
 					// Automatically defined with SurfaceInput.hlsl
@@ -392,6 +395,7 @@ Shader "Custom/DefaultShader"
 						#endif
 							
 							OUT.viewDis = ComputeScreenPos(positionInputs.positionCS);
+							//OUT.positionVS = mul(UNITY_MATRIX_V, float4(IN.positionWS.xyz, 1.0)).xyz;
 						return OUT;
 					}
 
@@ -433,28 +437,23 @@ Shader "Custom/DefaultShader"
 						// Note, we can just use SurfaceData surfaceData; here and not set it.
 						// However we then need to ensure all values in the struct are set before returning.
 						// By casting 0 to SurfaceData, we automatically set all the contents to 0.
-
-						float2 screenPos = IN.viewDis.xy / IN.viewDis.w;
-						float2 offset = Unity_Remap_float2(screenPos, float2(0.0,1.), float2(.5, -1.5));
-						//screenPos += offset;
-						float2 oos= IN.viewDis.xy / IN.viewDis.w;
-						float2 screenPosAdded = Unity_TilingAndOffset_float(screenPos, float2(1, 1), oos);
+						//float dist = length(_PlayerPos.x - IN.viewDis.z);
+						
+						float2 screenPos = (IN.viewDis.xy / IN.viewDis.w) * 2 - 1 ;
+						float distanceScr = length(screenPos);
 						
 						float dissolveNoise = snoise(_DistanceToCamera * (IN.positionWS.xyz * (_DistaceMultiplier)));
 						dissolveNoise = dissolveNoise * 0.999;
-						//float dissolve = dissolveNoise - _DissolveAmount;
-						float zDepth = IN.positionCS.z / IN.positionCS.w;
-						//float zDepth = IN.viewDis.z / IN.viewDis.w;
-						float temp = dissolveNoise ;
-												
-						float d = length((screenPos)) + zDepth;
-						//d = 1 - d;
-
-						float x = d - temp;
-						//x = 1 - x;
 						
-						float isVisible = x - _DissolveAmount;
-						//float isVisible = (dissolve);
+						float dissolve = dissolveNoise - _DissolveAmount;
+						
+						//float zDepth = IN.viewDis.z / IN.viewDis.w;
+
+						half sphere = (dissolve - _Height) / _Widht;
+						float temp = distanceScr - sphere;
+						
+						float gradient = saturate(IN.viewDirWS.z / _Test.x);
+						float isVisible = temp - gradient;
 						
 
 						clip(isVisible);
@@ -483,25 +482,15 @@ Shader "Custom/DefaultShader"
 					half4 frag(Varyings IN) : SV_Target {
 						SurfaceData surfaceData = InitializeSurfaceData(IN);
 						InputData inputData = InitializeInputData(IN, surfaceData.normalTS);
+												
 
-						// In URP v10+ versions we could use this :
-						// half4 color = UniversalFragmentPBR(inputData, surfaceData);
-
-						// But for other versions, we need to use this instead.
-						// We could also avoid using the SurfaceData struct completely, but it helps to organise things.
-						
 						half4 color = UniversalFragmentPBR(inputData, surfaceData.albedo, surfaceData.metallic,
 							surfaceData.specular, surfaceData.smoothness, surfaceData.occlusion,
 							surfaceData.emission, surfaceData.alpha);
 
 						color.rgb = MixFog(color.rgb, inputData.fogCoord);
 
-						// color.a = OutputAlpha(color.a);
-						// Not sure if this is important really. It's implemented as :
-						// saturate(outputAlpha + _DrawObjectPassData.a);
-						// Where _DrawObjectPassData.a is 1 for opaque objects and 0 for alpha blended.
-						// But it was added in URP v8, and versions before just didn't have it.
-						// We could still saturate the alpha to ensure it doesn't go outside the 0-1 range though :
+						
 						color.a = saturate(color.a);
 
 						return color; // float4(inputData.bakedGI,1);

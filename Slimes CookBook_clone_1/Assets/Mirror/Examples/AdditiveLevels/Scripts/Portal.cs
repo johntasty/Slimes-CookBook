@@ -35,8 +35,8 @@ namespace Mirror.Examples.AdditiveLevels
 
         public override void OnStartClient()
         {
-            if (label.TryGetComponent(out LookAtMainCamera lookAtMainCamera))
-                lookAtMainCamera.enabled = true;
+            //if (label.TryGetComponent(out LookAtMainCamera lookAtMainCamera))
+            //    lookAtMainCamera.enabled = true;
         }
 
         // Note that I have created layers called Player(6) and Portal(7) and set them
@@ -47,9 +47,11 @@ namespace Mirror.Examples.AdditiveLevels
             if (!other.CompareTag("Player")) return;
 
             // applies to host client on server and remote clients
-            if (other.TryGetComponent(out PlayerController playerController))
+            //if (other.TryGetComponent(out PlayerController playerController))
                 //playerController.enabled = false;
 
+
+            Debug.Log(isServer);
             if (isServer)
                 StartCoroutine(SendPlayerToNewScene(other.gameObject));
         }
@@ -67,7 +69,7 @@ namespace Mirror.Examples.AdditiveLevels
 
                 yield return new WaitForSeconds(AdditiveLevelsNetworkManager.singleton.fadeInOut.GetDuration());
 
-                //NetworkServer.RemovePlayerForConnection(conn, false);
+                NetworkServer.RemovePlayerForConnection(conn, false);
 
                 // reposition player on server and client
                 player.transform.position = startPosition;
@@ -79,7 +81,7 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to load the new subscene with custom handling (see NetworkManager::OnClientChangeScene).
                 conn.Send(new SceneMessage { sceneName = destinationScene, sceneOperation = SceneOperation.LoadAdditive, customHandling = true });
 
-                //NetworkServer.AddPlayerForConnection(conn, player);
+                NetworkServer.AddPlayerForConnection(conn, player);
 
                 // host client would have been disabled by OnTriggerEnter above
                 if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent(out PlayerController playerController))

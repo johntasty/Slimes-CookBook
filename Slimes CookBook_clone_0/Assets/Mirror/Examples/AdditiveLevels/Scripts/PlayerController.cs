@@ -2,16 +2,14 @@
 
 namespace Mirror.Examples.AdditiveLevels
 {
-    [RequireComponent(typeof(CapsuleCollider))]
-    [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(NetworkTransform))]
-    [RequireComponent(typeof(Rigidbody))]
+
     public class PlayerController : NetworkBehaviour
     {
         public enum GroundState : byte { Jumping, Falling, Grounded }
 
         [Header("Avatar Components")]
         public CharacterController characterController;
+        
 
         [Header("Movement")]
         [Range(1, 20)]
@@ -60,25 +58,25 @@ namespace Mirror.Examples.AdditiveLevels
                 characterController = GetComponent<CharacterController>();
 
             // Override CharacterController default values
-            characterController.enabled = false;
+            //characterController.enabled = false;
             characterController.skinWidth = 0.02f;
             characterController.minMoveDistance = 0f;
 
-            GetComponent<Rigidbody>().isKinematic = true;
+          
 
-            this.enabled = false;
+            //this.enabled = false;
         }
 
         public override void OnStartAuthority()
         {
-            characterController.enabled = true;
+            //characterController.enabled = true;
             this.enabled = true;
         }
 
         public override void OnStopAuthority()
         {
             this.enabled = false;
-            characterController.enabled = false;
+            //characterController.enabled = false;
         }
 
         void Update()

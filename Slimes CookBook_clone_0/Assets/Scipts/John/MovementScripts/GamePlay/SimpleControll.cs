@@ -18,13 +18,18 @@ public class SimpleControll : NetworkBehaviour
   
     public event Action<Vector2> Look;
     public event Action<bool> Interact;
-      
+
+   
     public override void OnStartAuthority()
     {
-        //DontDestroyOnLoad(gameObject);
-        if (!isLocalPlayer) return;
+       
         enabled = true;
+       
         SetAttributes();
+        if (isServer)
+        {
+            HostingPlayer();
+        }
         if (SlimeMovement)
         {
             ObserverListener.Instance._Slime = GetComponent<SimpleControll>();
@@ -35,11 +40,20 @@ public class SimpleControll : NetworkBehaviour
         ObserverListener.Instance.WireUp();
     }
    
+    public void HostingPlayer()
+    {
+        MovementFunctions.Hosting = true;
+       
+    }
+    public override void OnStopAuthority()
+    {
+        this.enabled = false;        
+    }
     private void SetAttributes()
     {
-        wallProperties = GetComponentInChildren<WallDissolve>();
-        wallProperties.enabled = true;
-        wallProperties.WallSetup();
+        //wallProperties = GetComponentInChildren<WallDissolve>();
+        //wallProperties.enabled = true;
+        //wallProperties.WallSetup();
         GetComponent<PlayerInput>().enabled = true;
         MovementFunctions = new MovementClass();
 
@@ -76,9 +90,10 @@ public class SimpleControll : NetworkBehaviour
     
     private void LateUpdate()
     {
+                
         if (!isLocalPlayer) return;
        
-        wallProperties.WallDissolusion();        
+        //wallProperties.WallDissolusion();        
         MovementFunctions.Rotation();
         MovementFunctions.ApplyMovement();
 
@@ -86,15 +101,11 @@ public class SimpleControll : NetworkBehaviour
 
     private void OnEnable()
     {
-        if (!isLocalPlayer) return;
-        
 
     }
     private void OnDisable()
     {
-        if (!isLocalPlayer) return;
-        SetInputs.playerInput.Disable();
-        
+               
     }
 
     

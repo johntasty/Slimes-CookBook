@@ -88,10 +88,12 @@ Material:
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
-    - _Cutoff: 0.5
+    - _Cutoff: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DissolveAmount: 0
+    - _DissolveAmount: 1
+    - _DissolvePercentage: 5.19
+    - _DissolvePercentage2: 11.3
     - _DistaceMultiplier: 1
     - _DistanceToCamera: 1
     - _DstBlend: 0
@@ -102,9 +104,9 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GlowFalloff: 0.072
-    - _GlowRange: 0.041
-    - _Height: 1
+    - _GlowFalloff: 0.057
+    - _GlowRange: 0.003
+    - _Height: 2
     - _Metallic: 0
     - _NoiseAmplitude: 0.5
     - _NoiseFrequency: 0.5
@@ -112,7 +114,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
-    - _Radius: 2
+    - _Radius: 1.13
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
@@ -123,7 +125,7 @@ Material:
     - _SquishScalar: 8
     - _SrcBlend: 1
     - _Surface: 0
-    - _Widht: 1
+    - _Widht: 6
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
@@ -134,8 +136,9 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GlowColor: {r: 2.268893, g: 0.6533461, b: 0, a: 1}
     - _NoiseOffset: {r: 1, g: 1, b: 1, a: 1}
-    - _PlayerPos: {r: 0, g: 0, b: 0, a: 0}
+    - _PlayerPos: {r: -23.3, g: 1.8, b: 2.3, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _Test: {r: 10, g: 0.7, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &1576891933392286118
 MonoBehaviour:

@@ -89,7 +89,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 389701055375373469}
   m_LocalRotation: {x: 0.23911765, y: -0.3696438, z: 0.09904577, w: 0.89239913}
-  m_LocalPosition: {x: 0, y: 5, z: 0}
+  m_LocalPosition: {x: 6.1237245, y: 5.000001, z: -6.123724}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -104,7 +104,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 389701055375373469}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45e653bab7fb20e499bda25e1b646fea, type: 3}
   m_Name: 
@@ -361,7 +361,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1892351707832145803}
   - component: {fileID: 1227560162424786228}
-  - component: {fileID: 891347402009733982}
   - component: {fileID: 3545365880562874217}
   m_Layer: 0
   m_Name: TestChar
@@ -407,26 +406,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.65, z: 0}
---- !u!114 &891347402009733982
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1227560162424786225}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02873df819cd4604a9de8fa518b192a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WallDissolveMat: {fileID: 2100000, guid: 55f37cce2265b6a43964d025b4740105, type: 2}
-  MainCam: {fileID: 6631120769559815725}
-  Masks:
-    serializedVersion: 2
-    m_Bits: 2560
-  dissolveAmount: 1.6
-  LookAt: {fileID: 6631120768696597972}
-  rendererCache: []
 --- !u!95 &3545365880562874217
 Animator:
   serializedVersion: 4
@@ -435,7 +414,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1227560162424786225}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: c8f3bfc5771e57e4894423e89eceb80a, type: 3}
   m_Controller: {fileID: 9100000, guid: 3dd392baabd815c41b203aa3e9529764, type: 2}
   m_CullingMode: 1
@@ -626,7 +605,7 @@ GameObject:
   - component: {fileID: 4849794581239761602}
   m_Layer: 0
   m_Name: WraperChar
-  m_TagString: Untagged
+  m_TagString: Wizard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -905,7 +884,7 @@ MonoBehaviour:
   syncDirection: 1
   syncMode: 0
   syncInterval: 0
-  target: {fileID: 6061813815992860011}
+  target: {fileID: 1892351707832145803}
   clientAuthority: 0
   syncPosition: 1
   syncRotation: 1
@@ -3844,7 +3823,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6631120769559815723}
   m_LocalRotation: {x: 0.23911765, y: -0.3696438, z: 0.09904577, w: 0.89239913}
-  m_LocalPosition: {x: 0, y: 5, z: 0}
+  m_LocalPosition: {x: 6.1237245, y: 5.000001, z: -6.123724}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

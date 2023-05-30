@@ -30,7 +30,7 @@ public class WallDissolve : MonoBehaviour
         Vector3 dir = MainCam.transform.position - LookAt.position;
         Ray ray = new Ray(transform.position, dir.normalized);
         Vector3 view = MainCam.WorldToViewportPoint(LookAt.position);
-        Debug.DrawRay(transform.position, dir.normalized * 50, Color.green);
+        //Todo physics scene raycast for host
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 50, Masks))
         {

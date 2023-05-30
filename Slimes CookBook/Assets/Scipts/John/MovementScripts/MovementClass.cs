@@ -11,11 +11,15 @@ using UnityEngine;
     {
         set => player = value;
     }
-
+    bool hosting;
+    public bool Hosting
+    {
+        set => hosting = value;
+    }
     //turn variables
     float _TargetAngle;
     float turnSmoothVel;
-  
+   
     //Input Variables
     private Vector2 inputMove;
     private Vector2 inputRotate;
@@ -56,6 +60,13 @@ using UnityEngine;
     #region Movement
     public void GroundChecker()
     {
+        if (hosting)
+        {
+            grounded = player.gameObject.scene.GetPhysicsScene().SphereCast(player.position + (Vector3.up * 0.4f), .2f, -player.up, out RaycastHit hits, .4f, MovementVariables.groundLayer);
+          
+            return;
+        }
+       
         grounded = Physics.CheckSphere(player.position + (Vector3.up * 0.4f), 0.4f, MovementVariables.groundLayer);
     }
     public void Gravity()

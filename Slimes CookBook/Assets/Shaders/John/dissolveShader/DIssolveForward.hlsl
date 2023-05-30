@@ -229,22 +229,29 @@ inline void InitializeStandardLitSurfaceDataFor(float2 uv, out SurfaceData outSu
     }  
 
    
-    float2 screenPos = view.xy / view.w;
-    float2 offset = Unity_Remap_float2(_PlayerPos.xy, float2(0.0, 1.), float2(.5, -1.5));
+    float2 screenPos = (view.xy / view.w) * 2 - 1;
+    float distanceScr = length(screenPos);
+
+   /* float2 offset = Unity_Remap_float2(_PlayerPos.xy, float2(0.0, 1.), float2(.5, -1.5));
     screenPos += offset;
-    float2 screenPosAdded = Unity_TilingAndOffset_float(screenPos, float2(1, 1), screenPos);
+    float2 screenPosAdded = Unity_TilingAndOffset_float(screenPos, float2(1, 1), screenPos);*/
     float dissolveNoise = snoise(_DistanceToCamera * (positionWs.xyz * (_DistaceMultiplier)));
     dissolveNoise = dissolveNoise * 0.999;
     float dissolve = dissolveNoise - _DissolveAmount;
 
-    float temp = dissolveNoise + (_PlayerPos.w);
+    half sphere = (dissolve - _Height) / _Widht;
+    float temp = distanceScr - sphere;
 
-    float d = length((screenPosAdded) / float2(_Widht, _Height));
+  /*  float temp = dissolveNoise + (_PlayerPos.w);
+
+    float d = length((screenPosAdded) / float2(_Widht, _Height));*/
     //d = 1 - d;
 
-    float x = d - (temp);
-
-    float isVisible = x - _DissolveAmount;
+    //float x = d - (temp);
+    //float isVisible = x - _DissolveAmount;
+    float3 positionVs = mul(UNITY_MATRIX_V, float4(positionWs.xyz, 1.0)).xyz;
+    float gradient = saturate(positionVs.z / _PlayerPos.w);
+    float isVisible = temp - gradient;
     //float isVisible = (dissolve);
     clip(isVisible);
 

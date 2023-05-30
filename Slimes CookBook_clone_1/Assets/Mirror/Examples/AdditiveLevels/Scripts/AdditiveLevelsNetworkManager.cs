@@ -54,8 +54,8 @@ namespace Mirror.Examples.AdditiveLevels
             foreach (string additiveScene in additiveScenes)
                 yield return SceneManager.LoadSceneAsync(additiveScene, new LoadSceneParameters
                 {
-                    loadSceneMode = LoadSceneMode.Additive,
-                    localPhysicsMode = LocalPhysicsMode.Physics3D // change this to .Physics2D for a 2D game
+                    loadSceneMode = LoadSceneMode.Additive
+                     // change this to .Physics2D for a 2D game
                 });
 
             subscenesLoaded = true;

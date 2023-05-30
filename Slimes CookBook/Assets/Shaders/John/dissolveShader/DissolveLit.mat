@@ -118,7 +118,7 @@ Material:
     - _GlossyReflections: 0
     - _GlowFalloff: 0.037
     - _GlowRange: 0.021
-    - _Height: 0.3
+    - _Height: 2
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -130,7 +130,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
-    - _Widht: 0.2
+    - _Widht: 6
     - _WorkflowMode: 1
     - _ZWrite: 1
     - cutShape: 0
@@ -142,6 +142,6 @@ Material:
     - _CutoutMask1Map_ST: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GlowColor: {r: 0.44546327, g: 0.3741891, b: 0.34449157, a: 1}
-    - _PlayerPos: {r: 0, g: 0, b: 0, a: 1}
+    - _PlayerPos: {r: 0, g: 0, b: 0, a: 3}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

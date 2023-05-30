@@ -35,6 +35,7 @@ namespace Mirror
         [Tooltip("Minimum number of players to auto-start the game")]
         public int minPlayers = 1;
 
+
         [FormerlySerializedAs("m_RoomPlayerPrefab")]
         [SerializeField]
         [Tooltip("Prefab to use for the Room Player")]
@@ -120,8 +121,7 @@ namespace Mirror
 
         void SceneLoadedForPlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
         {
-            Debug.Log($"NetworkRoom SceneLoadedForPlayer scene: {SceneManager.GetActiveScene().path} {conn}");
-
+            Debug.Log($"NetworkRoom SceneLoadedForPlayer scene: {SceneManager.GetActiveScene().path} {conn}");          
             if (Utils.IsSceneActive(RoomScene))
             {
                 // cant be ready in room, add to ready list
@@ -269,17 +269,15 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerReady(NetworkConnectionToClient conn)
         {
-            Debug.Log($"NetworkRoomManager OnServerReady {conn}");
             base.OnServerReady(conn);
+            //if (conn != null && conn.identity != null)
+            //{
+            //    GameObject roomPlayer = conn.identity.gameObject;
 
-            if (conn != null && conn.identity != null)
-            {
-                GameObject roomPlayer = conn.identity.gameObject;
-
-                // if null or not a room player, don't replace it
-                if (roomPlayer != null && roomPlayer.GetComponent<NetworkRoomPlayer>() != null)
-                    SceneLoadedForPlayer(conn, roomPlayer);
-            }
+            //    // if null or not a room player, don't replace it
+            //    if (roomPlayer != null && roomPlayer.GetComponent<NetworkRoomPlayer>() != null)
+            //        SceneLoadedForPlayer(conn, roomPlayer);
+            //}
         }
 
         /// <summary>
@@ -335,7 +333,6 @@ namespace Mirror
             {
                 foreach (NetworkRoomPlayer roomPlayer in roomSlots)
                 {
-                    Debug.Log(roomSlots.Count);
                     if (roomPlayer == null)
                         continue;
 
@@ -365,6 +362,7 @@ namespace Mirror
         {
             if (sceneName != RoomScene)
             {
+                
                 // call SceneLoadedForPlayer on any players that become ready while we were loading the scene.
                 foreach (PendingPlayer pending in pendingPlayers)
                     SceneLoadedForPlayer(pending.conn, pending.roomPlayer);
