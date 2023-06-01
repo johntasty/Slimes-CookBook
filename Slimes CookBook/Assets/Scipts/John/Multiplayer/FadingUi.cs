@@ -13,7 +13,7 @@ public class FadingUi : MonoBehaviour
     public Color fadeColor = Color.black;
 
     [Range(1, 100), Tooltip("Rate of fade in / out: higher is faster")]
-    public byte stepRate = 2;
+    public byte stepRate = 1;
 
     float step;
 
@@ -66,6 +66,7 @@ public class FadingUi : MonoBehaviour
             fadeColor.a = alpha;
             fadeImage.color = fadeColor;
         }
+        
         managerCam.enabled = false;
     }
 }

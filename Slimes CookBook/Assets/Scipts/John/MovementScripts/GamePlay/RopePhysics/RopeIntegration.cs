@@ -19,6 +19,8 @@ public class RopeIntegration : MonoBehaviour
     [SerializeField]
     RopePointSettings ropeSettings;
     [SerializeField]
+    RopeJoint RopeStarter, RopeEnd;
+    [SerializeField]
     int RopeSegments;
     [SerializeField]
     float RopeLenght;
@@ -29,11 +31,17 @@ public class RopeIntegration : MonoBehaviour
 
     [SerializeField]
     LineRenderer RopeVisual;
+    [SerializeField]
+    GameObject RopeVisualPrefab;
+    [SerializeField]
+    Transform RopeVisualParent;
 
     float _Gravity = -9.81f;
 
     [SerializeField]
     List<RopeJoint> points = new List<RopeJoint>();
+    [SerializeField]
+    List<RopeJoint> elevatorRopes = new List<RopeJoint>();
     public int Iterations = 10;
     public static Vector3[] positions;
 
@@ -41,11 +49,25 @@ public class RopeIntegration : MonoBehaviour
 
     Coroutine updater = null;
     Coroutine RopeConstruct = null;
-    bool done = false;
+
+    public bool activatedElevator = false;
     private void Start()
-    {       
+    {
+       
         RopeConstruct = StartCoroutine(RopeConstructor());
         
+    }
+    private void OnEnable()
+    {
+        testingPos.ElevetorActivated += ActivateConstruction;
+    }
+    private void OnDestroy()
+    {
+        testingPos.ElevetorActivated -= ActivateConstruction;
+    }
+    void ActivateConstruction()
+    {
+        activatedElevator = true;
     }
     private void Update()
     {
@@ -53,8 +75,7 @@ public class RopeIntegration : MonoBehaviour
         {
             StopCoroutine(updater);
         }
-        //if (!done) return;
-        //DebugPosition();
+      
     }
     IEnumerator UpdateTick()
     {
@@ -67,6 +88,7 @@ public class RopeIntegration : MonoBehaviour
     }
     IEnumerator RopeConstructor()
     {
+        points.Add(RopeStarter);
         Vector3 position = points[0].transform.position;
         RopeJoint pointRope = null;
         for (int i = 0; i < RopeSegments; i++)
@@ -76,9 +98,16 @@ public class RopeIntegration : MonoBehaviour
             pointRope = point.GetComponent<RopeJoint>();
             points.Add(pointRope);
         }
-        pointRope.AnchorPoint = true;
-        
+        points.Add(RopeEnd);
+
+        foreach (RopeJoint item in elevatorRopes)
+        {
+            points.Add(item);
+        }
         SetUpJoints();
+
+        while (!activatedElevator) yield return null;
+      
         RopeVisualUpdate();
         steUpComplete?.Invoke();
          yield return null;
@@ -87,13 +116,19 @@ public class RopeIntegration : MonoBehaviour
     }
     void RopeVisualUpdate()
     {
-        RopeVisual.positionCount = points.Count;
+        if(RopeVisual == null)
+        {
+            LineRenderer newLine = Instantiate(RopeVisualPrefab, RopeVisualParent).GetComponent<LineRenderer>();
+            RopeVisual = newLine;
+        }
+        RopeVisual.positionCount = points.Count - elevatorRopes.Count;
         RopeVisual.SetPositions(positions);
         UpdateSegments?.Invoke();
     }
     void UpdateListPositions()
     {
         float curentLen = 0;
+       
         for (int i = 0; i < positions.Length; i++)
         {
             positions[i] = points[i].transform.position;
@@ -106,29 +141,32 @@ public class RopeIntegration : MonoBehaviour
         float grav = _Gravity * ropeSettings._GravityMultiplier;
         foreach (RopeJoint point in RopeJoints)
         {
-            point.previousPosition = point.transform.position;
+            //Vector3 velocityVec = point.transform.position - point.previousPosition;
+            //point.velocityVec = velocityVec;            
             point.SimulateJoint(grav, Time.fixedDeltaTime);
+            point.previousPosition = point.transform.position;
             for (int i = 0; i < Iterations; i++)
             {
                 point.ConstrainRope(Time.fixedDeltaTime);
             }            
         }
+        //DebugPosition();
         if (curentLen > RopeLenght)
         {
-            DebugPosition();
+            //
         }
     }
 
     void DebugPosition()
     {
         points[0].previousPosition = points[0].transform.position;
-        points[RopeJoints.Count - 1].previousPosition = points[points.Count - 1].transform.position;
+        //points[RopeJoints.Count - 1].previousPosition = points[points.Count - 1].transform.position;
 
         points[0].VelocityCalculateAnchors();
-        points[points.Count - 1].VelocityCalculateAnchors();
+        //points[points.Count - 1].VelocityCalculateAnchors();
 
         points[0].ConstrainRope(Time.fixedDeltaTime);
-        points[points.Count - 1].ConstrainRope(Time.fixedDeltaTime);
+        //points[points.Count - 1].ConstrainRope(Time.fixedDeltaTime);
     }
     void SetUpJoints()
     {
@@ -142,17 +180,31 @@ public class RopeIntegration : MonoBehaviour
             RopeJoints.Add(item);
         }
 
-        for (int i = 0; i < points.Count; i++)
+        for (int i = 0; i < points.Count - elevatorRopes.Count; i++)
         {
             positions[i] = points[i].transform.position;
             RopeJoint current = points[i];
             if (!current.AnchorPoint)
             {
                 current.AddConnection(i - 1);
+                if (i == points.Count - 1) break;
                 current.AddConnection(i + 1);
             }
         }
         points[0].AddConnection(1);
-        points[points.Count - 1].AddConnection(points.Count - 2);
+        points[points.Count - elevatorRopes.Count - 1].AddConnection(points.Count - elevatorRopes.Count - 2);
+        int IndexAdd = points.Count - elevatorRopes.Count;
+        for (int i = 0; i < elevatorRopes.Count; i++)
+        {
+            positions[i + IndexAdd] = elevatorRopes[i].transform.position;
+            RopeJoint current = elevatorRopes[i];
+            if (!current.AnchorPoint)
+            {
+                current.AddConnection(i + IndexAdd - 1);
+                if (i + IndexAdd == points.Count - 1) break;
+                current.AddConnection(i + IndexAdd + 1);
+            }
+        }
+       
     }
 }

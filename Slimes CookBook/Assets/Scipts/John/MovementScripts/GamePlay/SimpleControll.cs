@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Mirror;
+using System.Collections;
+using System.Collections.Generic;
 public class SimpleControll : NetworkBehaviour
 {
     [SerializeField] Camera _PlayerCam;
@@ -19,7 +21,9 @@ public class SimpleControll : NetworkBehaviour
     public event Action<Vector2> Look;
     public event Action<bool> Interact;
 
+    CharacterController character = null;
    
+    
     public override void OnStartAuthority()
     {
        
@@ -58,7 +62,7 @@ public class SimpleControll : NetworkBehaviour
         MovementFunctions = new MovementClass();
 
         SlimesCookBook playerInput = new SlimesCookBook();
-        CharacterController character = GetComponentInChildren<CharacterController>();
+        character = GetComponentInChildren<CharacterController>();
         MovementFunctions._Player = character.transform;
 
         SetInputs.playerInput = playerInput;
@@ -76,6 +80,7 @@ public class SimpleControll : NetworkBehaviour
    
     private void FixedUpdate()
     {
+       
         if (!isLocalPlayer) return;
         MovementFunctions.GroundChecker();
         if (SlimeMovement)
@@ -83,7 +88,8 @@ public class SimpleControll : NetworkBehaviour
             MovementFunctions.WallCheck();
         }
         
-        MovementFunctions.Gravity();       
+        MovementFunctions.Gravity();     
+        
         //MovementFunctions.SlopeMatch();
        
     }
@@ -101,7 +107,7 @@ public class SimpleControll : NetworkBehaviour
 
     private void OnEnable()
     {
-
+       
     }
     private void OnDisable()
     {
@@ -124,7 +130,11 @@ public class SimpleControll : NetworkBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
-        Interact?.Invoke(true);
+        if (context.performed)
+        {
+            Interact?.Invoke(true);
+        }
+        
     }
     public void OnJump(InputAction.CallbackContext context)
     {
@@ -144,6 +154,8 @@ public class SimpleControll : NetworkBehaviour
     {
         //ToDo
     }
+  
+   
    
 
 }

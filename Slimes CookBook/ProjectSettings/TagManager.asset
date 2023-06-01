@@ -12,6 +12,7 @@ TagManager:
   - Slime
   - Metaball
   - BallsParent
+  - SeSaw
   layers:
   - Default
   - TransparentFX

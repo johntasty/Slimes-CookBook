@@ -94,7 +94,6 @@ public class AdditiveNetwork : NetworkRoomManager
         // Start loading the additive subscene      
         if (mode == NetworkManagerMode.ClientOnly)
         {
-            Debug.Log("checking");
             // Start loading the additive subscene
             loadingSceneAsync = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
 
@@ -124,8 +123,16 @@ public class AdditiveNetwork : NetworkRoomManager
        
         if (mode == NetworkManagerMode.ClientOnly)
         {
-            yield return SceneManager.UnloadSceneAsync(sceneName);
-            yield return Resources.UnloadUnusedAssets();
+           
+            if (SceneManager.GetSceneByPath(sceneName).IsValid())
+            {
+                yield return SceneManager.UnloadSceneAsync(sceneName);
+                yield return Resources.UnloadUnusedAssets();
+            }
+            //else
+            //{
+            //    Debug.Log("Scene invalid");
+            //}
         }
 
         // Reset these to false when ready to proceed
@@ -254,7 +261,7 @@ public class AdditiveNetwork : NetworkRoomManager
    
     public static void RegisterTeleportPositions(Transform start, string SceneName)
     {       
-        //if (teleportRegistar.ContainsKey(SceneName)) return;
+        if (teleportRegistar.ContainsKey(SceneName)) return;
         teleportRegistar.Add(SceneName, start);
        
     }

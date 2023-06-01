@@ -1,14 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 //[ExecuteInEditMode]
 public class testingPos : MonoBehaviour
 {
+    public static Action ElevetorActivated;
     private static int PosId = Shader.PropertyToID("_PlayerPos");
 
     public Material mat;
-    public LineRenderer segments;
-
+    [SerializeField]
+    LineRenderer segments;
+    
     public float MoveDuration;
     public float RotationDuration;
 
@@ -18,45 +21,101 @@ public class testingPos : MonoBehaviour
     public float speed;
     public Vector3[] segmentPoints;
     public Vector3 target;
-    Vector3 direction;
+    public Vector3 direction;
+    public Vector3 prevdirection;
     public bool moving = false;
     public bool endReached = false;
+    public bool reverse = false;
     public int index = 1;
     
     float distance;
     float distancetraveled;
     //distance measurment
     public float t;
-
-    //coroutines references
-    Coroutine moveToPoint = null;
+    public bool[] successHits;
+    public int successHitsIndex = 0;
+    public int hitt = 0;
+    public int fail = 0;
+   
     Coroutine moveUpdate = null;
     Coroutine RotatePoint = null;
 
     private void Awake()
     {
+        successHits = new bool[5];
+        for (int i = 0; i < successHits.Length; i++)
+        {
+            successHits[i] = false;
+        }       
         RopeIntegration.steUpComplete += StartElevator;
         RopeIntegration.UpdateSegments += UpdatePositions;
+        ElevatorButtons.MoveElevatorSuccess += SuccessArray;
     }
+    private void OnDestroy()
+    {
+        RopeIntegration.steUpComplete -= StartElevator;
+        RopeIntegration.UpdateSegments -= UpdatePositions;
+        ElevatorButtons.MoveElevatorSuccess -= SuccessArray;
+    }
+    private void OnEnable()
+    {
+        ElevetorActivated?.Invoke();
+        StartCoroutine(HitLoop());
+        
+    }
+   
     public void StartElevator()
     {
         Initialize();
         SetUp();
+        
     }
     private void Update()
     {
+       
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            
-            Accelarate();
+          
         }
         if (Input.GetKeyDown(KeyCode.KeypadEnter)){
-            StopCoroutine(moveToPoint);
-            moving = false;
+           
 
         }
     }
+    IEnumerator HitLoop()
+    {
+        while (true)
+        {
+            for (int i = 0; i < successHits.Length; i++)
+            {
+                if (successHits[i])
+                {
+                    hitt++;
+                    hitt = Mathf.Clamp(hitt, 0, 5);
+                    fail = 0;
+                    speed += (3 * hitt) * Time.deltaTime;
+                    speed = Mathf.Clamp(speed, 0, 15);
+                    successHits[i] = false;
 
+                }
+                else
+                {
+                    fail++;
+                    fail = Mathf.Clamp(fail, 0, 5);
+                    hitt = 0;
+                    speed -= fail * Time.deltaTime;
+                    speed = Mathf.Clamp(speed, 0, 15);
+                }
+                yield return new WaitForSeconds(.5f);
+            }
+            yield return null;
+        }        
+    }
+    void SuccessArray()
+    {
+        successHits[successHitsIndex] = true;     
+        successHitsIndex = (successHitsIndex + 1) % successHits.Length;
+    }
     public void Initialize()
     {
         segmentPoints = new Vector3[segments.positionCount];
@@ -65,13 +124,28 @@ public class testingPos : MonoBehaviour
     void UpdatePositions()
     {
         if (segmentPoints.Length <= 0) return;
-        //segments.GetPositions(segmentPoints);
+        if (!reverse)
+        {
+
+            segments.GetPositions(segmentPoints);
+            target = segmentPoints[index];
+            
+            direction = (target - transform.position).normalized;
+            if(direction != prevdirection)
+            {
+                GetDistance();
+                prevdirection = direction;
+            }
+            return;
+        }
+       
     }
     public void SetUp()
     {  
         target = segmentPoints[index];
         GetDistance();
         direction = (target - transform.position).normalized;
+        prevdirection = direction;
         moveUpdate = StartCoroutine(MoveUpdate());
         RotatePoint = StartCoroutine(RotateToPoint());
     }
@@ -89,67 +163,38 @@ public class testingPos : MonoBehaviour
     void Accelarate()
     {
         if (moving || endReached) return;
-
-        moveToPoint = StartCoroutine(MoveToPoint());
-    }
-    IEnumerator MoveToPoint()
-    {
-        moving = true;
        
-        float time = 0;
-        do {
-            time += Time.deltaTime;
-            float normalizedTime = time / MoveDuration;
-
-            forcePower = Mathf.Lerp(0, 1, normalizedTime);
-            
-            yield return null;
-        } while (time < MoveDuration);
-
-        float timer = 0;
-        float currentSpeed = forcePower;
-        do
-        {
-            timer += Time.deltaTime;
-            float normalizedTime = timer / MoveDuration;
-
-            forcePower = Mathf.Lerp(currentSpeed, 0, normalizedTime);           
-            yield return null;
-        } while (timer < MoveDuration);
-
-        moving = false;       
+      
     }
+   
     IEnumerator MoveUpdate()
     {
         while (true)
         {
             Elevator();
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
     }
     IEnumerator RotateToPoint()
     {
-        while(t > 1) { yield return null; }
-        Quaternion rotateTowards = Quaternion.LookRotation(direction, Vector3.up);
-        
-        float time = 0;
-        while (t < 1)
+
+        while (t > 1 || index == 0) {yield return null; }
+
+        do
         {
-            if (rotateTowards == Quaternion.identity) { break; }
-            time += Time.deltaTime;
-            float normalizedTime = time / RotationDuration;
+            Quaternion rotateTowards = Quaternion.LookRotation(direction, Vector3.up);
+            //if (rotateTowards == Quaternion.identity) { break; }          
             transform.rotation = Quaternion.Slerp(transform.rotation, rotateTowards, t);
 
             yield return null;
-        }
+        } while (t < 1) ;
     }
     void SwitchTarget()
     {
         index++;
         if (index > segmentPoints.Length - 1) { 
             endReached = true;
-            forcePower = 0;
-            StopCoroutine(moveToPoint);
+            speed = 0;           
             StopCoroutine(moveUpdate);
             if (LoopAround)
             {
@@ -176,8 +221,9 @@ public class testingPos : MonoBehaviour
             reverseOrder[loop - i] = point;
         }
         segmentPoints = reverseOrder;
-        index = 1;
+        index = 0;
         endReached = false;
+        reverse = !reverse;
         SetUp();
     }
 }
