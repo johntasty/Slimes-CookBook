@@ -14,6 +14,7 @@ public class ElevatorSpeedControl : MonoBehaviour
     [SerializeField] GameObject slime;
 
     [SerializeField] private ElevatorMoveTo elevatorMove;
+    [SerializeField] private LiftMechanism liftScript;
 
     [SerializeField] private float pushStrenght;
     [SerializeField] private float deCell;
@@ -39,8 +40,12 @@ public class ElevatorSpeedControl : MonoBehaviour
         //Debug.Log(elevatorMove.elevatorSpeed + "speed");
         if (Input.GetKeyDown(KeyCode.V))
         {
-            AccelaratingNow();           
+            if(liftScript.wizardLever)
+            { AccelaratingNow(); }
+            //AccelaratingNow();
         }
+
+
 
     }
     IEnumerator Accelarate(Vector3 target)
@@ -69,11 +74,16 @@ public class ElevatorSpeedControl : MonoBehaviour
         StartCoroutine(Accelarate(elevatorMove.moveLocations));
     }
     //Assign player gameobjects
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.gameObject.CompareTag("Wizard") || other.gameObject.CompareTag("Slime"))
-            other.transform.SetParent(transform);
-             
+        {
+            //wizard = other.gameObject;
+            //wizard.transform.SetParent(transform, false);
+            other.transform.SetParent(transform, false);
+            //other.gameObject.transform.SetParent(transform, false);
+            //ElevatorCollision();
+        }
     }
 
     private void IncreaseSpeed()

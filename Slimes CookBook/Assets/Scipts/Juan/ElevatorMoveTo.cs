@@ -21,8 +21,7 @@ public class ElevatorMoveTo : MonoBehaviour
 
     [SerializeField] public Vector3[] elevatorDes = new Vector3[0];
     public Vector3 moveLocations;
-    public bool startPoint = false;
-    public bool endPoint = false;
+ 
 
     //Vector3 myLocation;
 
