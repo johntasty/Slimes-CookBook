@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IRopePoint
 {
-    public void SetUpSettings(float len, float damp, float springCon, float restLength);
+    public void SetUpSettings(float spd, float weight, float damp, float springCon, float restLength, RopeConstruct rope);
        
     public void SimulateJoint(float gravity, float time);
 }

@@ -123,12 +123,9 @@ public class AdditiveNetwork : NetworkRoomManager
        
         if (mode == NetworkManagerMode.ClientOnly)
         {
-           
-            if (SceneManager.GetSceneByPath(sceneName).IsValid())
-            {
-                yield return SceneManager.UnloadSceneAsync(sceneName);
-                yield return Resources.UnloadUnusedAssets();
-            }
+
+            yield return SceneManager.UnloadSceneAsync(sceneName);
+            yield return Resources.UnloadUnusedAssets();
             //else
             //{
             //    Debug.Log("Scene invalid");

@@ -6,6 +6,7 @@ using Mirror;
 public class ElevatorButtons : NetworkBehaviour
 {
     public static Action MoveElevatorSuccess;
+    public static Action ReturnJourney;
     [SerializeField]
     float duration = 1f;
     [SerializeField]
@@ -19,7 +20,10 @@ public class ElevatorButtons : NetworkBehaviour
     Vector3 target;
     Vector3 prevtarget;
     Coroutine rotator = null;
-    int succesfull = 0;
+
+    [SyncVar]
+    public int succesfull = 0;
+
     private void Start()
     {
         ButtonTriggers.TriggerPosition += CmdRotator;
@@ -30,7 +34,6 @@ public class ElevatorButtons : NetworkBehaviour
     }
    public bool CheckLocal(Transform player)
    {
-       
         bool local = player.GetComponent<NetworkIdentity>().isLocalPlayer;
         return local;
    }
@@ -38,11 +41,7 @@ public class ElevatorButtons : NetworkBehaviour
     {
         ButtonTriggers.TriggerPosition -= CmdRotator;
     }
-    private void Update()
-    {
-        CmdSuccessRotation();
-       
-    }
+   
     [Command(requiresAuthority = false)]
     void CmdRotator(Vector3 targetSide)
     {
@@ -57,19 +56,22 @@ public class ElevatorButtons : NetworkBehaviour
     }
     [Command(requiresAuthority = false)]
     void CmdSuccessRotation()
-    {
-        if (succesfull < 2) return;
+    {       
         succesfull = 0;
         MoveElevatorSuccess?.Invoke();        
     }
+    [Command(requiresAuthority = false)]
+    public void CmdReturnJourney()
+    {
+        ReturnJourney?.Invoke();
+    }
     IEnumerator SeaSaw()
     {
-       
         float time = 0;
-        Vector3 dirs = (target - SeSawObject.position).normalized;
+        Vector3 dirs = (SeSawObject.position - target).normalized;
         float dot = Vector3.Dot(dirs, transform.forward);
         dir = Mathf.Sign(dot);
-        Quaternion rotateTowards = Quaternion.AngleAxis(angleCap * dir, Vector3.right);
+        Quaternion rotateTowards = Quaternion.AngleAxis(angleCap * dir, Vector3.forward);
         do
         {
             time += Time.deltaTime;
@@ -80,10 +82,18 @@ public class ElevatorButtons : NetworkBehaviour
         } while (time < duration);
         if(target != prevtarget)
         {
-            succesfull++;            
+            CmdIncrementSuccess();
             prevtarget = target;
         }
-        
+        if (succesfull >= 2)
+        {
+            CmdSuccessRotation();
+        }
+            
     }
-   
+   [Command(requiresAuthority = false)]
+   void CmdIncrementSuccess()
+    {
+        succesfull++;
+    }
 }

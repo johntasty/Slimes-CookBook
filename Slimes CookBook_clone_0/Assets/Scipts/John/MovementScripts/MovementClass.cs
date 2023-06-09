@@ -16,9 +16,20 @@ using UnityEngine;
     {
         set => hosting = value;
     }
+
+    bool _OnPlatform = false;
+    Vector3 platform;
+   
+    public bool OnPlatform
+    {
+        get => _OnPlatform;
+        set => _OnPlatform = value;
+    }
+    Transform platCurrent;
+    Vector3 platCurrentLastPos;
     //turn variables
-    float _TargetAngle;
-    float turnSmoothVel;
+    public float _TargetAngle;
+    public float turnSmoothVel;
    
     //Input Variables
     private Vector2 inputMove;
@@ -28,6 +39,7 @@ using UnityEngine;
     //animator hashes
     private int _XAxis;
     private int _YAxis;
+    float VectorMagnitude;
 
     //Gravity    
     bool grounded;
@@ -39,7 +51,12 @@ using UnityEngine;
     public Vector3 _VelocityVec;
     //Isomateric Skew
     Matrix4x4 isoMatrix;
-
+    Collider[] hits = new Collider[1];
+    PhysicsScene CurrentScenePhysics;
+    public PhysicsScene _CurrentScene
+    {
+        set => CurrentScenePhysics = value;
+    }
     #region Setup
     public void Setup(MovementAttributes set)
     {
@@ -78,7 +95,10 @@ using UnityEngine;
         }
         _Velocity += tempGrav * MovementVariables._GravityMultiplier * Time.deltaTime;       
     }
-
+    public void ResetGravityVelocity()
+    {
+        _Velocity = 0;
+    }
     public void MovementInputs(Vector2 input)
     {
         inputMove = input;
@@ -108,17 +128,35 @@ using UnityEngine;
 
     public void MovementVector()
     {
-        float VectorMagnitude = inputMove.normalized.magnitude;
+        VectorMagnitude = inputMove.normalized.magnitude;
         float accel = VectorMagnitude * MovementVariables.speed;
 
         Vector3 temp_movement =  player.forward;
+        
         _VelocityVec = temp_movement * accel;
+        
         if (!grounded && WallHug)
         {
             _VelocityVec = temp_movement * VectorMagnitude * 1f;
-        }
-        _VelocityVec.y = _Velocity;
+        }        
+        _VelocityVec.y = _Velocity;        
         MovementVariables.playerChar.Move(_VelocityVec * Time.deltaTime);
+        if (_OnPlatform) player.position += CalculateOffset();
+    }
+    public void VelocityInjection(Vector3 PlatformDirection)
+    {
+        platform = PlatformDirection;
+    }
+    public void PlatformInjection(Transform PlatformDirection)
+    {
+        platCurrent = PlatformDirection;
+        platCurrentLastPos = PlatformDirection.position;
+    }
+    Vector3 CalculateOffset()
+    {
+        Vector3 offset = platCurrent.position - platCurrentLastPos;        
+        platCurrentLastPos = platCurrent.position;
+        return offset;
     }
     public void ApplyMovement()
     {
@@ -146,19 +184,21 @@ using UnityEngine;
     }
     public void WallCheck()
     {
-        
-        WallHug = Physics.CheckSphere(player.position, MovementVariables.radius, MovementVariables.WallLayer);
-        //if (!WallHug) { tempGrav = MovementVariables._Gravity; }
         if (!grounded && WallHug)
-        {            
+        {
             _Velocity = Mathf.Clamp(_Velocity, 0, 0.8f);
 
-            //Vector3 diff = player.position - hit.normal;
-            //float angle = Mathf.Atan2(diff.x, diff.y) * Mathf.Rad2Deg;
-            //Vector3 playRot = player.rotation.eulerAngles;           
-            //player.rotation = Quaternion.Euler(angle * 5, playRot.y, playRot.z);
         }
+        if (hosting)
+        {
+            int num = CurrentScenePhysics.OverlapSphere(player.position, .4f, hits, MovementVariables.WallLayer, QueryTriggerInteraction.Ignore);
+            WallHug = num.Equals(1);          
+            return;
+
+        }
+        WallHug = Physics.CheckSphere(player.position, MovementVariables.radius, MovementVariables.WallLayer);
     }
+
     public void TriggerWallStick()
     {
         if (!grounded && WallHug)
@@ -173,7 +213,7 @@ using UnityEngine;
     {
         if (!MovementVariables.HasAnimation) return;
         if (!grounded) return;
-        float spe = new Vector3(_VelocityVec.x, 0 , _VelocityVec.z).magnitude;
+        float spe = new Vector3(_VelocityVec.x, 0 , _VelocityVec.z).magnitude * VectorMagnitude;
         MovementVariables._ControllerAnimator.SetFloat(_YAxis, spe, MovementVariables.AnimationBlendSpd, Time.fixedDeltaTime);
         MovementVariables._ControllerAnimator.SetFloat(_XAxis, inputMove.x, MovementVariables.AnimationBlendTurn, Time.fixedDeltaTime);
     }

@@ -45,6 +45,7 @@ public class FadingUi : MonoBehaviour
     {
         float alpha = fadeImage.color.a;
         managerCam.enabled = true;
+       
         while (alpha < 1)
         {
             yield return null;

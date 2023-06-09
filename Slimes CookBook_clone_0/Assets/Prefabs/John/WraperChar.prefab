@@ -685,6 +685,8 @@ MonoBehaviour:
   SlimeMat: {fileID: 0}
   WallHug: 0
   GravityApply: 1
+  radi: 0
+  dista: 0
 --- !u!114 &3334683021607855942
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3889,11 +3891,11 @@ MonoBehaviour:
   m_ShowCameraFrustum: 1
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
-  m_UpdateMethod: 2
-  m_BlendUpdateMethod: 1
+  m_UpdateMethod: 0
+  m_BlendUpdateMethod: 0
   m_DefaultBlend:
     m_Style: 1
-    m_Time: 2
+    m_Time: 3
     m_CustomCurve:
       serializedVersion: 2
       m_Curve: []

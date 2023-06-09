@@ -691,11 +691,11 @@ MonoBehaviour:
   m_ShowCameraFrustum: 1
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
-  m_UpdateMethod: 2
-  m_BlendUpdateMethod: 1
+  m_UpdateMethod: 0
+  m_BlendUpdateMethod: 0
   m_DefaultBlend:
     m_Style: 1
-    m_Time: 2
+    m_Time: 3
     m_CustomCurve:
       serializedVersion: 2
       m_Curve: []
@@ -2787,7 +2787,7 @@ MonoBehaviour:
     cam: {fileID: 3783136746862648576}
     playerChar: {fileID: 0}
     turn: 0.1
-    radius: 0.3
+    radius: 0.5
     HasAnimation: 0
     _ControllerAnimator: {fileID: 0}
     AnimationBlendSpd: 0.8
@@ -2796,6 +2796,8 @@ MonoBehaviour:
   SlimeMat: {fileID: 2100000, guid: f440c0d80924c194587934dee8f07ebb, type: 2}
   WallHug: 0
   GravityApply: 1
+  radi: 0
+  dista: 0
 --- !u!114 &2714635375566267949
 MonoBehaviour:
   m_ObjectHideFlags: 0

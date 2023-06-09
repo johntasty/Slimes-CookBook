@@ -190,6 +190,7 @@ public class PuzzleFocus : NetworkBehaviour
     {
         if (Teleport)
         {
+            PopUp.gameObject.SetActive(false);
             interactor.parent.gameObject.SetActive(false);
             if(InteractionTag == "Slime")
             {

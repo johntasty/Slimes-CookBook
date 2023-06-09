@@ -39,8 +39,7 @@ public class PlankMove : NetworkBehaviour
     [Command (requiresAuthority = false)]
     private void CmdMove(int obj)
     {
-        Debug.Log(gameObject.name);
-        
+               
         Vector3 targetButton = holesHolder.buttons[obj].transform.position;
         MovePlanks(targetButton);
     }

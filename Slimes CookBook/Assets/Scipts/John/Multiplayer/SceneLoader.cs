@@ -31,7 +31,10 @@ public class SceneLoader : NetworkBehaviour
         // tag check in case you didn't set up the layers and matrix as noted above
         if (other.CompareTag("Wizard") || other.CompareTag("Slime"))
         {
-            SceneChanging(other.transform.parent.gameObject);
+            other.GetComponent<CharacterController>().enabled = false;
+            if (isServer)
+                StartCoroutine(SendPlayerToNewScene(other.transform.parent.gameObject));
+            //SceneChanging(other.transform.parent.gameObject);
         }
     }
     [Command(requiresAuthority = false)]
@@ -50,10 +53,9 @@ public class SceneLoader : NetworkBehaviour
 
             // Tell client to unload previous subscene. No custom handling for this.     
             conn.Send(new SceneMessage { sceneName = gameObject.scene.path, sceneOperation = SceneOperation.UnloadAdditive, customHandling = true });
+            Debug.Log(gameObject.scene.path);
             yield return new WaitForSeconds(AdditiveNetwork.singleton.fadeInOut.GetDuration());
             NetworkServer.RemovePlayerForConnection(conn, false);
-
-            //startPosition = AdditiveNetwork.singleton.GetTeleportPosition(destinationSceneName).position;
 
             parent.transform.position = startPosition;
 
@@ -66,8 +68,9 @@ public class SceneLoader : NetworkBehaviour
             // Tell client to load the new subscene with custom handling (see NetworkManager::OnClientChangeScene).
             conn.Send(new SceneMessage { sceneName = destinationScene, sceneOperation = SceneOperation.LoadAdditive, customHandling = true });
             yield return new WaitForSeconds(AdditiveNetwork.singleton.fadeInOut.GetDuration());
+            Debug.Log(destinationScene);
             NetworkServer.AddPlayerForConnection(conn, parent);
-           
+            parent.GetComponentInChildren<CharacterController>().enabled = true;
         }
     }
 }

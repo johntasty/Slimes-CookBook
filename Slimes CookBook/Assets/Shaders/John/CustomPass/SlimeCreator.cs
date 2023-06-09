@@ -92,7 +92,7 @@ public class SlimeCreator : MonoBehaviour
         Vector3[] pts = spherePoints.ToArray();
         return pts;
     }
-    private void LateUpdate()
+    private void FixedUpdate()
     {
         MoveObject();
     }

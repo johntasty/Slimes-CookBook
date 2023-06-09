@@ -4,25 +4,42 @@ using UnityEngine;
 
 public class SeSawTriggers : MonoBehaviour
 {
-    Transform previousParent = null;
+    public SimpleControll controller = null;
+    [SerializeField]
+    testingPos platform;
+    [SerializeField]
+    Transform plat;
+    public Vector3 lastPos;
+    public float check;
+    [SerializeField]
+    ElevatorButtons sesawManager;
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Wizard") || other.CompareTag("Slime"))
         {
-            other.transform.parent.position = transform.position;
-
-            foreach (Transform child in other.transform.parent)
+            if (!sesawManager.CheckLocal(other.transform.parent)) { return; }
+            if (other.transform.parent.TryGetComponent(out controller))
             {
-                child.position = transform.position; 
+               
+                controller.OnPlatform();
+                controller.InjectPosition(plat);
+              
             }
-            other.transform.parent.SetParent(transform);           
+    
         }
     }
+     
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Wizard") || other.CompareTag("Slime"))
         {
-            other.transform.parent.SetParent(null);           
+            if (!sesawManager.CheckLocal(other.transform.parent)) { return; }
+            if (controller != null)
+            {
+                controller.OnPlatform();
+                controller = null;
+               
+            }
         }
     }
 }

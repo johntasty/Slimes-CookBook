@@ -9,12 +9,12 @@ public class ButtonTriggers : MonoBehaviour
     bool interactingCollider = false;
     [SerializeField]
     ElevatorButtons sesawManager;
-
+    [SerializeField]
+    string TagToInteract;
     Transform player = null;
     private void OnEnable()
     {
-        ObserverListener.Instance.InteractWizard += InteractButton;
-       
+        ObserverListener.Instance.InteractWizard += InteractButton;       
     }
 
     private void InteractButton(bool obj)
@@ -28,11 +28,11 @@ public class ButtonTriggers : MonoBehaviour
 
     private void OnDestroy()
     {
-        ObserverListener.Instance.InteractWizard += InteractButton;
+        ObserverListener.Instance.InteractWizard -= InteractButton;
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Wizard") || other.CompareTag("Slime"))
+        if(other.CompareTag(TagToInteract))
         {
             interactingCollider = true;
             player = other.transform.parent;
@@ -40,7 +40,7 @@ public class ButtonTriggers : MonoBehaviour
     }
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Wizard") || other.CompareTag("Slime"))
+        if (other.CompareTag(TagToInteract))
         {
             interactingCollider = false;
             player = null;

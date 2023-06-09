@@ -2,16 +2,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//[ExecuteInEditMode]
-public class testingPos : MonoBehaviour
+using Mirror;
+public class testingPos : NetworkBehaviour
 {
-    public static Action ElevetorActivated;
-    private static int PosId = Shader.PropertyToID("_PlayerPos");
-
-    public Material mat;
+    [SerializeField]
+    GameObject ReturnSwitch;
     [SerializeField]
     LineRenderer segments;
-    
+    [SerializeField]
+    Transform propeler;
+    bool propellerRotating = false;
+    [SerializeField]
+    float propellerSpeed = 1f;
     public float MoveDuration;
     public float RotationDuration;
 
@@ -23,8 +25,16 @@ public class testingPos : MonoBehaviour
     public Vector3 target;
     public Vector3 direction;
     public Vector3 prevdirection;
+    Vector3 _Velocity;
+    public float vSpeed;
+    public Vector3 Velocity
+    {
+        get => _Velocity;
+    }
     public bool moving = false;
     public bool endReached = false;
+
+    [SyncVar]
     public bool reverse = false;
     public int index = 1;
     
@@ -32,36 +42,31 @@ public class testingPos : MonoBehaviour
     float distancetraveled;
     //distance measurment
     public float t;
-    public bool[] successHits;
+ 
+    [SyncVar]
     public int successHitsIndex = 0;
-    public int hitt = 0;
-    public int fail = 0;
-   
+
     Coroutine moveUpdate = null;
     Coroutine RotatePoint = null;
+    [SerializeField]
+    RopeIntegration ropeMaker;
+
 
     private void Awake()
     {
-        successHits = new bool[5];
-        for (int i = 0; i < successHits.Length; i++)
-        {
-            successHits[i] = false;
-        }       
-        RopeIntegration.steUpComplete += StartElevator;
-        RopeIntegration.UpdateSegments += UpdatePositions;
+        RopeConstruct.setupComplete += StartElevator;       
         ElevatorButtons.MoveElevatorSuccess += SuccessArray;
+        ElevatorButtons.ReturnJourney += Return;
     }
     private void OnDestroy()
-    {
-        RopeIntegration.steUpComplete -= StartElevator;
-        RopeIntegration.UpdateSegments -= UpdatePositions;
+    {       
+        RopeConstruct.setupComplete -= StartElevator;     
         ElevatorButtons.MoveElevatorSuccess -= SuccessArray;
+        ElevatorButtons.ReturnJourney -= Return;
     }
     private void OnEnable()
     {
-        ElevetorActivated?.Invoke();
-        StartCoroutine(HitLoop());
-        
+       
     }
    
     public void StartElevator()
@@ -70,51 +75,95 @@ public class testingPos : MonoBehaviour
         SetUp();
         
     }
-    private void Update()
+  IEnumerator PropellerStart()
     {
-       
-        if (Input.GetKeyDown(KeyCode.Space))
+        propellerRotating = true;
+        
+        float time = 0;
+        float duration = 1f;
+        
+        do
         {
-          
-        }
-        if (Input.GetKeyDown(KeyCode.KeypadEnter)){
-           
+            time += Time.deltaTime;
+            float normalTime = time / duration;
+            float angle = (360f * normalTime);
+            Quaternion RotateAngle = Quaternion.AngleAxis(angle* propellerSpeed, Vector3.forward);
+            propeler.localRotation = Quaternion.Slerp(propeler.localRotation, RotateAngle, normalTime);
+            yield return null;
 
+        } while (time < duration);
+        if(successHitsIndex >= 4)
+        {
+            StartCoroutine(AccelarateElevator());
         }
+        if (reverse)
+        {
+            StartCoroutine(AccelarateElevator());
+        }
+        propellerRotating = false;
+        
+    }
+    IEnumerator AccelarateElevator()
+    {
+        speed = .1f;
+        StartCoroutine(HitLoop());
+        float time = 0;
+        float duration = 5;
+        float normalTime = 0;
+        do
+        {
+            time += Time.deltaTime;
+            normalTime = time / duration;
+            speed = Mathf.Lerp(0, 15, normalTime);
+            yield return new WaitForFixedUpdate();
+        } while (time < duration);
     }
     IEnumerator HitLoop()
     {
-        while (true)
+        propellerRotating = true;
+        int anglez = 0;
+      
+        while (speed > 0)
         {
-            for (int i = 0; i < successHits.Length; i++)
-            {
-                if (successHits[i])
-                {
-                    hitt++;
-                    hitt = Mathf.Clamp(hitt, 0, 5);
-                    fail = 0;
-                    speed += (3 * hitt) * Time.deltaTime;
-                    speed = Mathf.Clamp(speed, 0, 15);
-                    successHits[i] = false;
-
-                }
-                else
-                {
-                    fail++;
-                    fail = Mathf.Clamp(fail, 0, 5);
-                    hitt = 0;
-                    speed -= fail * Time.deltaTime;
-                    speed = Mathf.Clamp(speed, 0, 15);
-                }
-                yield return new WaitForSeconds(.5f);
-            }
-            yield return null;
+            anglez = (anglez + 1) % 360;          
+            Quaternion RotateAngle = Quaternion.AngleAxis(anglez * propellerSpeed, Vector3.forward);
+            propeler.localRotation = RotateAngle;
+          
+            yield return new WaitForFixedUpdate();
         }        
     }
     void SuccessArray()
     {
-        successHits[successHitsIndex] = true;     
-        successHitsIndex = (successHitsIndex + 1) % successHits.Length;
+        if (propellerRotating) return;
+        CmdSuccessHit();                     
+    }
+    void Return()
+    {
+        if (propellerRotating) return;
+        CmdReturnJourney();          
+    }
+    [Command(requiresAuthority = false)]
+    void CmdSuccessHit()
+    {
+        if (successHitsIndex >= 4 || reverse) return;        
+        successHitsIndex++;
+        RpcStartupEngine();
+    }
+    [ClientRpc]
+    void RpcStartupEngine()
+    {
+        StartCoroutine(PropellerStart());
+    }
+    [Command(requiresAuthority = false)]
+    void CmdReturnJourney()
+    {
+        successHitsIndex = 0;
+        RpcStartupReturn();
+    }
+    [ClientRpc]
+    void RpcStartupReturn()
+    {
+        StartCoroutine(PropellerStart());
     }
     public void Initialize()
     {
@@ -145,28 +194,28 @@ public class testingPos : MonoBehaviour
         target = segmentPoints[index];
         GetDistance();
         direction = (target - transform.position).normalized;
+        
         prevdirection = direction;
         moveUpdate = StartCoroutine(MoveUpdate());
-        RotatePoint = StartCoroutine(RotateToPoint());
+        StartCoroutine(RotateToFirstPoint());
+       
     }
     void Elevator()
     {
         float Vel = speed * forcePower;
         distancetraveled += Vel * Time.deltaTime;
-        t = distancetraveled / distance;
-        Vector3 velocity = direction * Vel * Time.deltaTime;
-        transform.position += velocity;
+        t = distancetraveled / distance;        
+         Vector3 dir = direction * Vel * Time.deltaTime;
+        _Velocity = direction * Vel;
+        vSpeed = Vel;
+        transform.position += dir;
+        //SlopeRope(t);
         if (t < 1) return;
         SwitchTarget();
         GetDistance();
     }
-    void Accelarate()
-    {
-        if (moving || endReached) return;
-       
-      
-    }
    
+
     IEnumerator MoveUpdate()
     {
         while (true)
@@ -178,16 +227,34 @@ public class testingPos : MonoBehaviour
     IEnumerator RotateToPoint()
     {
 
-        while (t > 1 || index == 0) {yield return null; }
+        //while (t > 1 || index == 0) {yield return null; }
 
-        do
+        while (t < 1)
         {
             Quaternion rotateTowards = Quaternion.LookRotation(direction, Vector3.up);
-            //if (rotateTowards == Quaternion.identity) { break; }          
+               
             transform.rotation = Quaternion.Slerp(transform.rotation, rotateTowards, t);
 
+            yield return new WaitForFixedUpdate();
+        }
+    }
+    IEnumerator RotateToFirstPoint()
+    {
+
+        //while (t > 1 || index == 0) {yield return null; }
+        float time = 0;
+        float normaltime = 0;
+        float duration = 10f;
+        do
+        {
+            time += Time.deltaTime;
+            normaltime = time / duration;
+            Quaternion rotateTowards = Quaternion.LookRotation(direction, Vector3.up);
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotateTowards, normaltime);
+
             yield return null;
-        } while (t < 1) ;
+        } while (time < duration);
     }
     void SwitchTarget()
     {
@@ -204,7 +271,12 @@ public class testingPos : MonoBehaviour
             return; }       
         target = segmentPoints[index];
         direction = (target - transform.position).normalized;
-        RotatePoint = StartCoroutine(RotateToPoint());
+        if(index != 0) {
+            t = 0;
+            RotatePoint = StartCoroutine(RotateToPoint());
+            return;
+        }
+        StartCoroutine(RotateToFirstPoint());
     }
     void GetDistance()
     {        
@@ -223,7 +295,18 @@ public class testingPos : MonoBehaviour
         segmentPoints = reverseOrder;
         index = 0;
         endReached = false;
-        reverse = !reverse;
+        CmdReverseOrder();
+        ActivateReturnSwitch();
         SetUp();
+    }
+    [Server]
+    void CmdReverseOrder()
+    {
+        reverse = !reverse;
+    }
+    void ActivateReturnSwitch()
+    {
+        bool active = !ReturnSwitch.activeInHierarchy;
+        ReturnSwitch.SetActive(active);
     }
 }
