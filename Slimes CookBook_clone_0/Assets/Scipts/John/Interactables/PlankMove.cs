@@ -5,10 +5,17 @@ using UnityEngine;
 using Mirror;
 public class PlankMove : NetworkBehaviour
 {
+    [SerializeField]
+    GetAllPositions holesHolder;
+    public float testing;
     Vector3 StartPosition;
+    bool moving = false;
+    bool rotating = false;
     // Start is called before the first frame update
+   
     void Start()
     {
+        enabled = true;
         StartPosition = transform.position;
 
         MoveObject.OnHoleSelected += CmdMove;
@@ -20,19 +27,35 @@ public class PlankMove : NetworkBehaviour
         MoveObject.OnHoleHighLight -= CmdRotate;
     }
     [Command(requiresAuthority = false)]
-    private void CmdRotate(Vector3 obj)
+    private void CmdRotate(int obj)
     {
         if (transform.position != StartPosition) return;
-        StartCoroutine(RotatePlank(obj));
+       
+        Vector3 targetButton = holesHolder.buttons[obj].transform.position;
+        RotatePlanks(targetButton);
+       
     }
 
     [Command (requiresAuthority = false)]
-    private void CmdMove(Vector3 obj)
-    {       
-        StartCoroutine(MoveObj(obj));       
+    private void CmdMove(int obj)
+    {
+               
+        Vector3 targetButton = holesHolder.buttons[obj].transform.position;
+        MovePlanks(targetButton);
+    }
+    void MovePlanks(Vector3 targetButton)
+    {
+        if (moving) return;
+        StartCoroutine(MoveObj(targetButton));
+    }
+    void RotatePlanks(Vector3 target)
+    {
+        if (rotating) return;
+        StartCoroutine(RotatePlank(target));
     }
     IEnumerator RotatePlank(Vector3 target)
-    {        
+    {
+        rotating = true;
         float timeElapsed = 0;
         Vector3 direction = target - transform.position;
         Quaternion hole = Quaternion.LookRotation(direction);
@@ -43,14 +66,15 @@ public class PlankMove : NetworkBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, hole, normalizedTime);
             yield return null;
         } while (timeElapsed < 1);
-       
+        rotating = false;
     }
     IEnumerator MoveObj(Vector3 target)
     {
-        if(transform.position != StartPosition)
+        moving = true;
+        if (transform.position != StartPosition)
         {
             Vector3 startPoint = transform.position;
-            Vector3 centerPoint = (startPoint + StartPosition) / 2;
+            Vector3 centerPoint = StartPosition;
 
             Vector3 startDirection = centerPoint - startPoint;
             Vector3 endDirection = target - centerPoint;
@@ -59,7 +83,7 @@ public class PlankMove : NetworkBehaviour
             do
             {
                 timeElapsedBack += Time.deltaTime;
-                float normalizedTime = timeElapsedBack / 2;
+                float normalizedTime = timeElapsedBack / 1.5f;
                 Quaternion StartRot = Quaternion.LookRotation(startDirection);         
                 Quaternion EndRot = Quaternion.LookRotation(endDirection);         
                 
@@ -75,18 +99,20 @@ public class PlankMove : NetworkBehaviour
                     Quaternion.Slerp(transform.rotation, EndRot, normalizedTime), 
                     normalizedTime);
                 yield return null;
-            } while (timeElapsedBack < 2);
+            } while (timeElapsedBack < 1.5f);
         }
 
         float timeElapsed = 0;       
         do
         {
             timeElapsed += Time.deltaTime;
-            float normalizedTime = timeElapsed / 1;
+            float normalizedTime = timeElapsed / .5f;
            
             transform.position = Vector3.Lerp(transform.position, target, normalizedTime);
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, normalizedTime);
             yield return null;
-        } while (timeElapsed < 1);
+        } while (timeElapsed < .5f);
+        moving = false;
     }
+   
 }

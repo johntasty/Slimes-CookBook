@@ -8,6 +8,7 @@ public class WallDissolve : MonoBehaviour
 
     [SerializeField]
     Material WallDissolveMat;
+    [SerializeField]
     private Camera MainCam;
     [SerializeField]
     LayerMask Masks;
@@ -20,7 +21,7 @@ public class WallDissolve : MonoBehaviour
     private MaterialPropertyBlock propertyBlock;
     public void WallSetup()
     {
-        MainCam = transform.GetComponentInChildren<Camera>();
+        
         if (propertyBlock == null)
             propertyBlock = new MaterialPropertyBlock();
     }
@@ -29,7 +30,7 @@ public class WallDissolve : MonoBehaviour
         Vector3 dir = MainCam.transform.position - LookAt.position;
         Ray ray = new Ray(transform.position, dir.normalized);
         Vector3 view = MainCam.WorldToViewportPoint(LookAt.position);
-        Debug.DrawRay(transform.position, dir.normalized * 50, Color.green);
+        //Todo physics scene raycast for host
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 50, Masks))
         {
@@ -55,6 +56,7 @@ public class WallDissolve : MonoBehaviour
 
             foreach(Renderer render in rendererCache)
             {
+                if (render == null) return;
                 propertyBlock.SetVector(PosId, new Vector4(view.x, view.y, view.z, -1f));
                 render.SetPropertyBlock(propertyBlock);
             }

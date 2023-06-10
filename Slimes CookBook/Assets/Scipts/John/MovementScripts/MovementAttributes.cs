@@ -8,7 +8,7 @@ public struct MovementAttributes
     [Header("Move Speed")]
     public float speed;
     public float Maxspeed;
-
+    public float TurnSmoothing;
     [Header("Jump Power")]
     public float _JumpPower;
 

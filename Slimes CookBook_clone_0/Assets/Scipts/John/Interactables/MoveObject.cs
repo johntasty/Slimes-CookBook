@@ -5,8 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 public class MoveObject : MonoBehaviour, ISelectHandler
 {
-    public static event Action<Vector3> OnHoleSelected;
-    public static event Action<Vector3> OnHoleHighLight;
+    public static event Action<int> OnHoleSelected;
+    public static event Action<int> OnHoleHighLight;
     public static event Action<int> OnNumberSelected;
 
     public static event Action OnSubmit;
@@ -22,7 +22,7 @@ public class MoveObject : MonoBehaviour, ISelectHandler
     public void CmdMoveTohole()
     {
 
-        OnHoleSelected?.Invoke(transform.position);
+        OnHoleSelected?.Invoke(int.Parse(gameObject.name));
     }
 
     public void DisplayImage()
@@ -40,6 +40,10 @@ public class MoveObject : MonoBehaviour, ISelectHandler
 
     public void OnSelect(BaseEventData eventData)
     {
-        OnHoleHighLight?.Invoke(transform.position);
+        if(int.TryParse(gameObject.name, out int result))
+        {
+            OnHoleHighLight?.Invoke(result);
+        }
+       
     }
 }

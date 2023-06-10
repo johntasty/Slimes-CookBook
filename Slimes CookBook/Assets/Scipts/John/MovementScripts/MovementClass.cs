@@ -11,18 +11,35 @@ using UnityEngine;
     {
         set => player = value;
     }
+    bool hosting;
+    public bool Hosting
+    {
+        set => hosting = value;
+    }
 
+    bool _OnPlatform = false;
+    Vector3 platform;
+   
+    public bool OnPlatform
+    {
+        get => _OnPlatform;
+        set => _OnPlatform = value;
+    }
+    Transform platCurrent;
+    Vector3 platCurrentLastPos;
     //turn variables
-    float _TargetAngle;
-    float turnSmoothVel;
-
+    public float _TargetAngle;
+    public float turnSmoothVel;
+   
     //Input Variables
     private Vector2 inputMove;
     private Vector2 inputRotate;
-
+    Vector3 inputMovement;
+    Vector3 inputRotateMove;
     //animator hashes
     private int _XAxis;
     private int _YAxis;
+    float VectorMagnitude;
 
     //Gravity    
     bool grounded;
@@ -31,13 +48,21 @@ using UnityEngine;
     //velocity Jumping
     private float _Velocity;
     //movement velocity
-    Vector3 _VelocityVec;
-
+    public Vector3 _VelocityVec;
+    //Isomateric Skew
+    Matrix4x4 isoMatrix;
+    Collider[] hits = new Collider[1];
+    PhysicsScene CurrentScenePhysics;
+    public PhysicsScene _CurrentScene
+    {
+        set => CurrentScenePhysics = value;
+    }
     #region Setup
     public void Setup(MovementAttributes set)
     {
         this.MovementVariables = set;
         tempGrav = MovementVariables._Gravity;
+        isoMatrix = Matrix4x4.Rotate(Quaternion.Euler(0, -45, 0));
     }
     public void SetHashes(string _XAxisName, string _YaxisName)
     {
@@ -52,7 +77,14 @@ using UnityEngine;
     #region Movement
     public void GroundChecker()
     {
-        grounded = Physics.CheckSphere(player.position, 0.4f, MovementVariables.groundLayer);
+        if (hosting)
+        {
+            grounded = player.gameObject.scene.GetPhysicsScene().SphereCast(player.position + (Vector3.up * 0.4f), .2f, -player.up, out RaycastHit hits, .4f, MovementVariables.groundLayer);
+          
+            return;
+        }
+       
+        grounded = Physics.CheckSphere(player.position + (Vector3.up * 0.4f), 0.4f, MovementVariables.groundLayer);
     }
     public void Gravity()
     {
@@ -63,47 +95,78 @@ using UnityEngine;
         }
         _Velocity += tempGrav * MovementVariables._GravityMultiplier * Time.deltaTime;       
     }
-
+    public void ResetGravityVelocity()
+    {
+        _Velocity = 0;
+    }
     public void MovementInputs(Vector2 input)
     {
         inputMove = input;
+        inputMovement.x = input.x;
+        inputMovement.z = input.y;
     }
     public void RotationInputs(Vector2 input)
     {
-        inputRotate = input;
+        inputRotate = input;      
     }
 
     public void Rotation()
     {
-        _TargetAngle = Mathf.Atan2(inputMove.x, inputMove.y) * Mathf.Rad2Deg + MovementVariables.cam.eulerAngles.y;
+        if (inputMove == Vector2.zero) return;
 
-        float angle = Mathf.SmoothDampAngle(player.eulerAngles.y, _TargetAngle, ref turnSmoothVel, MovementVariables.turn);
-        Vector3 playRot = player.rotation.eulerAngles;
-        player.rotation = Quaternion.Euler(playRot.x, angle, playRot.z);
+        Vector3 skewedMove = isoMatrix.MultiplyPoint3x4(inputMovement);
+        inputRotateMove = (player.position + skewedMove) - player.position;
+        Quaternion rotation = Quaternion.LookRotation(inputRotateMove, Vector3.up);
+        //player.rotation = Quaternion.RotateTowards(player.rotation, rotation, MovementVariables.TurnSmoothing * Time.deltaTime);
+        player.rotation = Quaternion.Slerp(player.rotation, rotation, MovementVariables.TurnSmoothing * Time.deltaTime);
+
+        //_TargetAngle = Mathf.Atan2(inputMove.x, inputMove.y) * Mathf.Rad2Deg ;
+        //float angle = Mathf.SmoothDampAngle(player.eulerAngles.y, _TargetAngle, ref turnSmoothVel, MovementVariables.turn);
+        //Vector3 playRot = player.rotation.eulerAngles;
+        //player.rotation = Quaternion.Euler(playRot.x, angle, playRot.z);
     }
 
     public void MovementVector()
     {
-        float VectorMagnitude = inputMove.magnitude;
+        VectorMagnitude = inputMove.normalized.magnitude;
         float accel = VectorMagnitude * MovementVariables.speed;
 
-        Vector3 temp_movement = Quaternion.Euler(0f, _TargetAngle, 0f) * Vector3.forward;
-        _VelocityVec = temp_movement * VectorMagnitude * MovementVariables.speed;
+        Vector3 temp_movement =  player.forward;
+        
+        _VelocityVec = temp_movement * accel;
+        
         if (!grounded && WallHug)
         {
             _VelocityVec = temp_movement * VectorMagnitude * 1f;
         }        
-        _VelocityVec.y = _Velocity;
+        _VelocityVec.y = _Velocity;        
+        MovementVariables.playerChar.Move(_VelocityVec * Time.deltaTime);
+        if (_OnPlatform) player.position += CalculateOffset();
+    }
+    public void VelocityInjection(Vector3 PlatformDirection)
+    {
+        platform = PlatformDirection;
+    }
+    public void PlatformInjection(Transform PlatformDirection)
+    {
+        platCurrent = PlatformDirection;
+        platCurrentLastPos = PlatformDirection.position;
+    }
+    Vector3 CalculateOffset()
+    {
+        Vector3 offset = platCurrent.position - platCurrentLastPos;        
+        platCurrentLastPos = platCurrent.position;
+        return offset;
     }
     public void ApplyMovement()
     {
-        MovementVector();        
-        MovementVariables.playerChar.Move(_VelocityVec * Time.deltaTime);
         ApplyHashes();
+        MovementVector();
     }
     public void Jump()
     {
         if (!grounded) return;
+       
         _Velocity += MovementVariables._JumpPower;
     }
     public void SlopeMatch()
@@ -121,19 +184,21 @@ using UnityEngine;
     }
     public void WallCheck()
     {
-        
-        WallHug = Physics.CheckSphere(player.position, MovementVariables.radius, MovementVariables.WallLayer);
-        //if (!WallHug) { tempGrav = MovementVariables._Gravity; }
         if (!grounded && WallHug)
-        {            
+        {
             _Velocity = Mathf.Clamp(_Velocity, 0, 0.8f);
 
-            //Vector3 diff = player.position - hit.normal;
-            //float angle = Mathf.Atan2(diff.x, diff.y) * Mathf.Rad2Deg;
-            //Vector3 playRot = player.rotation.eulerAngles;           
-            //player.rotation = Quaternion.Euler(angle * 5, playRot.y, playRot.z);
         }
+        if (hosting)
+        {
+            int num = CurrentScenePhysics.OverlapSphere(player.position, .4f, hits, MovementVariables.WallLayer, QueryTriggerInteraction.Ignore);
+            WallHug = num.Equals(1);          
+            return;
+
+        }
+        WallHug = Physics.CheckSphere(player.position, MovementVariables.radius, MovementVariables.WallLayer);
     }
+
     public void TriggerWallStick()
     {
         if (!grounded && WallHug)
@@ -148,9 +213,9 @@ using UnityEngine;
     {
         if (!MovementVariables.HasAnimation) return;
         if (!grounded) return;
-        float spe = _VelocityVec.magnitude;
+        float spe = new Vector3(_VelocityVec.x, 0 , _VelocityVec.z).magnitude * VectorMagnitude;
         MovementVariables._ControllerAnimator.SetFloat(_YAxis, spe, MovementVariables.AnimationBlendSpd, Time.fixedDeltaTime);
-        MovementVariables._ControllerAnimator.SetFloat(_XAxis, inputRotate.x, MovementVariables.AnimationBlendTurn, Time.fixedDeltaTime);
+        MovementVariables._ControllerAnimator.SetFloat(_XAxis, inputMove.x, MovementVariables.AnimationBlendTurn, Time.fixedDeltaTime);
     }
     #endregion
 }

@@ -40,7 +40,7 @@ public class LobbyPlayer : NetworkRoomPlayer
     public bool readyToStart;
 
 
-    RoomManagment room = NetworkManager.singleton as RoomManagment;
+    AdditiveNetwork room = NetworkManager.singleton as AdditiveNetwork;
     // This is called by the hook of playerNumber SyncVar above
     public int GetPrefabSpawn()
     {
@@ -170,6 +170,22 @@ public class LobbyPlayer : NetworkRoomPlayer
     #endregion
 
     #region Commands
+    [TargetRpc]
+    public void RpcStartButton(NetworkConnectionToClient target)
+    {
+        LobbyUi.GetStartButton().gameObject.SetActive(true);
+        LobbyUi.GetStartButton().onClick.AddListener(SceneChanging);
+    }
+    [ClientRpc]
+    public void RpcStartDisable()
+    {
+        LobbyUi.GetStartButton().gameObject.SetActive(false);       
+    }
+    [Command]
+    void SceneChanging()
+    {
+        AdditiveNetwork.singleton.SceneChange();
+    }
     [Command]
     public void CmdChangeReady(bool readyState)
     {
@@ -178,7 +194,6 @@ public class LobbyPlayer : NetworkRoomPlayer
         
         if (room != null)
         {
-            
             room.ReadyStatusChanged();
         }
     }
@@ -221,11 +236,11 @@ public class LobbyPlayer : NetworkRoomPlayer
     public void OnNavigate(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) return;
-        int index = (int)context.ReadValue<Vector2>().x; 
-        if(index == 1)
+        int index = (int)context.ReadValue<Vector2>().y; 
+        if(index == -1)
         {
             CmdMoveRight();
-        }else if(index == -1)
+        }else if(index == 1)
         {
             CmdMoveLeft();
         }

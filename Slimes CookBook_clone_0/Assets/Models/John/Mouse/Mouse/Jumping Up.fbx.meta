@@ -84,23 +84,7 @@ ModelImporter:
           preInfinity: 2
           postInfinity: 2
           rotationOrder: 4
-      events:
-      - time: 0.46292135
-        functionName: JumpNow
-        data: 
-        objectReferenceParameter: {fileID: 11500000, guid: 336c7348c3187eb41898f00657e47030,
-          type: 3}
-        floatParameter: 0
-        intParameter: 0
-        messageOptions: 0
-      - time: 0.98651683
-        functionName: Peaked
-        data: 
-        objectReferenceParameter: {fileID: 11500000, guid: 336c7348c3187eb41898f00657e47030,
-          type: 3}
-        floatParameter: 0
-        intParameter: 0
-        messageOptions: 0
+      events: []
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}

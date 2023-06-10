@@ -2,9 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Mirror;
+using System.Collections;
+using System.Collections.Generic;
 public class SimpleControll : NetworkBehaviour
 {
-
     [SerializeField] Camera _PlayerCam;
 
     [Header("Attributes")]
@@ -13,18 +14,29 @@ public class SimpleControll : NetworkBehaviour
     [SerializeField] Material SlimeMat = null;
     static readonly int _SlimeHit = Shader.PropertyToID("_Collision");
     private MovementClass MovementFunctions;
-    private WallDissolve wallProperties;
+   
     public bool WallHug;
     public bool GravityApply = true;
   
     public event Action<Vector2> Look;
     public event Action<bool> Interact;
 
+    CharacterController character = null;
+    bool Respawing = false;
+
+   
+    public float radi;
+    public float dista;
     public override void OnStartAuthority()
     {
-        if (!isLocalPlayer) return;
+       
         enabled = true;
+       
         SetAttributes();
+        if (isServer)
+        {
+            HostingPlayer();
+        }
         if (SlimeMovement)
         {
             ObserverListener.Instance._Slime = GetComponent<SimpleControll>();
@@ -35,22 +47,29 @@ public class SimpleControll : NetworkBehaviour
         ObserverListener.Instance.WireUp();
     }
    
+    public void HostingPlayer()
+    {
+        MovementFunctions.Hosting = true;
+       
+    }
+    public override void OnStopAuthority()
+    {
+        this.enabled = false;        
+    }
     private void SetAttributes()
     {
-        wallProperties = GetComponent<WallDissolve>();
-        wallProperties.enabled = true;
-        wallProperties.WallSetup();
+       
         GetComponent<PlayerInput>().enabled = true;
         MovementFunctions = new MovementClass();
 
         SlimesCookBook playerInput = new SlimesCookBook();
-        CharacterController character = GetComponent<CharacterController>();
-        MovementFunctions._Player = transform;
+        character = GetComponentInChildren<CharacterController>();
+        MovementFunctions._Player = character.transform;
 
         SetInputs.playerInput = playerInput;
         SetInputs.playerChar = character;
         if (SetInputs.HasAnimation) { 
-            SetInputs._ControllerAnimator = GetComponent<Animator>();
+            SetInputs._ControllerAnimator = GetComponentInChildren<Animator>();
             SetInputs._ControllerAnimator.enabled = true;
             MovementFunctions.SetHashes("XAxis", "YAxis");           
         }
@@ -62,6 +81,7 @@ public class SimpleControll : NetworkBehaviour
    
     private void FixedUpdate()
     {
+       
         if (!isLocalPlayer) return;
         MovementFunctions.GroundChecker();
         if (SlimeMovement)
@@ -70,33 +90,58 @@ public class SimpleControll : NetworkBehaviour
         }
         
         MovementFunctions.Gravity();
-        //MovementFunctions.SlopeMatch();
 
-    }
-    
-    private void LateUpdate()
-    {
-        if (!isLocalPlayer) return;
-        wallProperties.WallDissolusion();
+        if (character.transform.position.y < -60)
+        {
+            RespawnPlayer();
+        }
         MovementFunctions.Rotation();
         MovementFunctions.ApplyMovement();
+
+        MovementFunctions.turnSmoothVel = dista;
+        MovementFunctions._TargetAngle = radi;
+       
+
+    }
+
+    private void LateUpdate()
+    {
+                
+        if (!isLocalPlayer) return;
+      
+        
        
     }
 
     private void OnEnable()
     {
-        if (!isLocalPlayer) return;
-        
-
+        StartCoroutine(PhysicsSetup());
+    }
+    IEnumerator PhysicsSetup()
+    {
+        while(MovementFunctions == null)
+        {
+            yield return null;
+        }
+        MovementFunctions._CurrentScene = gameObject.scene.GetPhysicsScene();
+    }
+    public void OnPlatform()
+    {
+        MovementFunctions.OnPlatform = !MovementFunctions.OnPlatform;
+    }
+    public void InjectDirection(Vector3 platform)
+    {       
+        MovementFunctions.VelocityInjection(platform);
+    }
+    public void InjectPosition(Transform platform)
+    {
+        MovementFunctions.PlatformInjection(platform);
     }
     private void OnDisable()
     {
-        if (!isLocalPlayer) return;
-        SetInputs.playerInput.Disable();
-        
+               
     }
 
-    
     public void OnMove(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) return;
@@ -112,16 +157,18 @@ public class SimpleControll : NetworkBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
-        Interact?.Invoke(true);
+        if (context.performed)
+        {
+            Interact?.Invoke(true);
+        }
+        
     }
     public void OnJump(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) return;
         if (!context.started) return;
         MovementFunctions.Jump();
-       // if (!grounded) return;       
-       //_Velocity += _JumpPower;
-       
+            
     }
     void JumpNow()
     {
@@ -132,6 +179,64 @@ public class SimpleControll : NetworkBehaviour
     {
         //ToDo
     }
-   
+    #region ServerRespawn
+      
+    void RespawnPlayer()
+    {
+        if (Respawing) return;      
+        StartCoroutine(RespawnTimer());
+    }
+    IEnumerator RespawnTimer()
+    {
+        Respawing = true;
+        float timer = AdditiveNetwork.singleton.fadeInOut.GetDuration();
+        if (isLocalPlayer)
+        {
+            yield return StartCoroutine(AdditiveNetwork.singleton.fadeInOut.FadeIn());
+        }
+        yield return new WaitForSeconds(timer);
+
+
+        Transform respawnPosition = null;//AdditiveNetwork.singleton.GetTeleportPosition(gameObject.scene.name).position;
+        float dist = 1000;
+
+        foreach (KeyValuePair<string, Transform> item in AdditiveNetwork.teleportRegistar)
+        {
+            float curDist = Vector3.Distance(character.transform.position, item.Value.position);
+           
+            if (curDist < dist)
+            {
+                dist = curDist;
+                respawnPosition = item.Value;
+            }
+        }
+
+        transform.SetParent(respawnPosition);
+
+        transform.localPosition = Vector3.zero;
+        if (isLocalPlayer)
+        {
+            MovementFunctions.ResetGravityVelocity();
+        }        
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(false);
+            child.localPosition = Vector3.zero;
+            child.gameObject.SetActive(true);
+
+        }
+
+        transform.SetParent(null);
+        if (isLocalPlayer)
+        {
+            yield return StartCoroutine(AdditiveNetwork.singleton.fadeInOut.FadeOut());
+        }       
+        yield return new WaitForSeconds(timer);
+
+        Respawing = false;
+    }
+    #endregion
+
+
 
 }

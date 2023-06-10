@@ -3,6 +3,7 @@ using Mirror;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using Steamworks;
+using System.Collections;
 
 /*
 	Documentation: https://mirror-networking.gitbook.io/docs/components/network-room-manager
@@ -22,12 +23,25 @@ using Steamworks;
 public class RoomManagment : NetworkRoomManager
 {
     public List<GameObject> GamePlayersPrefabs  = new List<GameObject>();
+    public List<NetworkConnectionToClient> pendingPlayersNext = new List<NetworkConnectionToClient>();
     public static new RoomManagment singleton { get; private set; }
 
+    [Header("Additive Scenes - First is start scene")]
+
+    [Scene, Tooltip("Add additive scenes here.\nFirst entry will be players' start scene")]
+    public string[] additiveScenes;
+    // This is set true after server loads all subscene instances
+    //bool subscenesLoaded;
+
+    // This is managed in LoadAdditive, UnloadAdditive, and checked in OnClientSceneChanged
+    //bool isInTransition;
+
+   
     #region Server Callbacks
 
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
         singleton = this;
     }
     /// <summary>
@@ -67,14 +81,9 @@ public class RoomManagment : NetworkRoomManager
     /// </summary>
     /// <param name="sceneName">Name of the new scene.</param>
     public override void OnRoomServerSceneChanged(string sceneName) {
-        //LobbyUi.GetReadyButton().onClick.RemoveAllListeners();
-        //LobbyUi.GetStartButton().onClick.RemoveAllListeners();
-        //LobbyUi.GetReadyButton().gameObject.SetActive(false);
-
-        //LobbyUi.SetActive(false);
        
     }
-
+  
     /// <summary>
     /// This allows customization of the creation of the room-player object on the server.
     /// <para>By default the roomPlayerPrefab is used to create the room-player, but this function allows that behaviour to be customized.</para>
@@ -96,19 +105,30 @@ public class RoomManagment : NetworkRoomManager
     /// <returns>A new GamePlayer object.</returns>
     public override GameObject OnRoomServerCreateGamePlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
     {
+               
         int prefab = roomPlayer.GetComponent<LobbyPlayer>().GetPrefabSpawn();
-       
+        //StartCoroutine(AddPlayerDelayed(prefab));
+        float duration = 5f;
+        float time = 0;
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+           
+        }
         GameObject prefabToSpawn = null;
         if (prefab == 0)
         {
             prefabToSpawn = Instantiate(GamePlayersPrefabs[0], Vector3.one, Quaternion.identity);
-        }else if(prefab == 2)
+        }
+        else if (prefab == 2)
         {
             prefabToSpawn = Instantiate(GamePlayersPrefabs[1], Vector3.zero, Quaternion.identity);
         }
+        pendingPlayersNext.Add(conn);
+
         return prefabToSpawn;
     }
-
+  
     /// <summary>
     /// This allows customization of the creation of the GamePlayer object on the server.
     /// <para>This is only called for subsequent GamePlay scenes after the first one.</para>
@@ -127,30 +147,18 @@ public class RoomManagment : NetworkRoomManager
         CSteamID steamId = SteamMatchmaking.GetLobbyMemberByIndex(
             SteamLobbyManagment.LobbyId,
             numPlayers - 1);
-        conn.identity.GetComponent<LobbyPlayer>().ResetPlayerNumbers(steamId.m_SteamID);
-
+        if (conn.identity.TryGetComponent(out LobbyPlayer lobbyPlayer))
+        {
+            lobbyPlayer.ResetPlayerNumbers(steamId.m_SteamID);
+        }
+      
         //LobbyPlayer.ResetPlayerNumbers();
         foreach (NetworkRoomPlayer player in roomSlots)
             if (player != null)
             {
                 player.gameObject.GetComponent<LobbyPlayer>().playerParent = 1;
             }
-        //// increment the index before adding the player, so first player starts at 1
-        //clientIndex++;
-
-        //if (Utils.IsSceneActive(RoomScene))
-        //{
-        //    allPlayersReady = false;
-
-        //    //Debug.Log("NetworkRoomManager.OnServerAddPlayer playerPrefab: {roomPlayerPrefab.name}");
-
-        //    GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
-        //    if (newRoomGameObject == null)
-        //        newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
-
-        //    NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
-        //    LobbyPlayer.ResetPlayerNumbers();
-        //}
+      
 
     }
     /// <summary>
@@ -186,39 +194,31 @@ public class RoomManagment : NetworkRoomManager
         
         if (SceneManager.GetActiveScene().name == "RoomScene")
         {
-            LobbyUi.GetStartButton().gameObject.SetActive(true);
-            LobbyUi.GetStartButton().onClick.AddListener(SceneChange);
+            NetworkConnectionToClient idLeader = roomSlots[0].GetComponent<NetworkIdentity>().connectionToClient;
+            idLeader.identity.transform.GetComponent<LobbyPlayer>().RpcStartButton(idLeader);
+
         }
         
     }
-    void SceneChange()
+   
+   
+    public void SceneChange()
     {
        
         base.ServerChangeScene(GameplayScene);
         
     }
-    void ServerChangeSceneGameScene(string newSceneName)
+    public void SceneChangeCommand(string SceneName)
     {
-       
-        if (newSceneName == GameplayScene)
-        {
-            autoCreatePlayer = false;
-            for (int i = roomSlots.Count - 1; i >= 0; i--)               
-            {
-                              
-                // find the game-player object for this connection, and destroy it
-                var id = roomSlots[i].GetComponent<NetworkIdentity>().connectionToClient;
-                GameObject gameplayerInstance = Instantiate(playerPrefab);
 
-                NetworkServer.Destroy(id.identity.gameObject);
-                NetworkServer.ReplacePlayerForConnection(id, gameplayerInstance);
-                               
-            }
-            
-        }
+        base.ServerChangeScene(SceneName);
 
-        base.ServerChangeScene(newSceneName);
     }
+    public void MovePlayers(NetworkIdentity networkIdentity)
+    {
+        
+    }
+   
     /// <summary>
     /// This is called on the server when CheckReadyToBegin finds that players are not ready
     /// <para>May be called multiple times while not ready players are joining</para>
@@ -230,7 +230,12 @@ public class RoomManagment : NetworkRoomManager
         }
         
     }
-
+    public override void OnServerSceneChanged(string sceneName)
+    {
+        base.OnServerSceneChanged(sceneName);
+        
+    }
+   
     #endregion
 
     #region Client Callbacks
@@ -269,7 +274,8 @@ public class RoomManagment : NetworkRoomManager
     /// This is called on the client when the client is finished loading a new networked scene.
     /// </summary>
     public override void OnRoomClientSceneChanged() { }
-
+   
+   
     #endregion
 
     #region Optional UI

@@ -9,9 +9,6 @@ public class CustomPhysics : MonoBehaviour
     public float springConstant = 0.1f;
   
     [SerializeField]
-    LayerMask colliders;
-
-    [SerializeField]
     Rigidbody body;
 
     Vector3 origin;

@@ -1159,6 +1159,7 @@ namespace Mirror
         /// <summary>Call this after loading/unloading a scene in the client after connection to register the spawnable objects</summary>
         public static void PrepareToSpawnSceneObjects()
         {
+           
             // remove existing items, they will be re-added below
             spawnableObjects.Clear();
 

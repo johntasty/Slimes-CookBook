@@ -6,7 +6,7 @@ using Mirror;
 public class SteamLobbyManagment : MonoBehaviour
 {
     [SerializeField] GameObject buttons = null;
-    private RoomManagment networkManager;
+    private AdditiveNetwork networkManager;
 
     private const string HostAddressKey = "HostAddress";
 
@@ -18,7 +18,7 @@ public class SteamLobbyManagment : MonoBehaviour
     public static CSteamID LobbyId { get; private set; }
     private void Start()
     {
-        networkManager = GetComponent<RoomManagment>();
+        networkManager = GetComponent<AdditiveNetwork>();
 
         if (!SteamManager.Initialized) { return; }
 

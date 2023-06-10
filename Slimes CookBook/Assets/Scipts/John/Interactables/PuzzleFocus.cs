@@ -3,15 +3,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using Cinemachine;
 using System;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class PuzzleFocus : NetworkBehaviour
 {
+    public enum LoadAction
+    {
+        Load,
+        Unload
+    }
+
     [SerializeField]
     Image PopUp;
     [SerializeField]
     string InteractionTag;
    
-
     [SerializeField]
     Button InteraactionCanvas = null;
     [SerializeField]
@@ -29,12 +36,23 @@ public class PuzzleFocus : NetworkBehaviour
     [Header("Check if you want the camera to switch, \n when you reach another point.")]
     [SerializeField]
     bool DoubleTrigger;
+    [Header("Check if you want the camera follow to switch, \n when you reach another point.")]
+    [SerializeField]
+    bool Follow;
+    [Header("Slime teleport")]
+    [SerializeField]
+    bool Teleport;
+    [SerializeField]
+    Transform TeleportPoint = null;
+    [SerializeField]
+    Transform TeleportPointBack = null;
     [Header("If second trigger is needed drag it into this \n field.")]
     [SerializeField]
     CustomTriggerListener SecondTrigger = null;
     //authority check
     bool check;
 
+    private Transform interactor;
     //interaciton phase check
     bool interacted = false;
     private void Start()
@@ -66,6 +84,7 @@ public class PuzzleFocus : NetworkBehaviour
 
     private void TriggerEvent()
     {
+        TeleportPlayer(TeleportPointBack.position);
         _Camera.SetActive(false);              
         if (Canvas == null) return;
         Canvas.SetActive(false);
@@ -91,6 +110,8 @@ public class PuzzleFocus : NetworkBehaviour
     void StartInteraction()
     {
         SetUpLookPoint();
+        if(TeleportPoint != null) TeleportPlayer(TeleportPoint.position);
+
         _Camera.SetActive(true);
         if (Canvas != null)
         {
@@ -109,25 +130,38 @@ public class PuzzleFocus : NetworkBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        check = other.GetComponent<NetworkIdentity>().isLocalPlayer;
+        
+        if (other.transform.parent != null)
+        {
+            if(other.transform.parent.TryGetComponent(out NetworkIdentity compomn))
+            {
+                check = compomn.isLocalPlayer;
+            }            
+            
+        }
+        else { check = false; }
+       
         if (other.CompareTag(InteractionTag))
         {            
             if (!check) return;
+            interactor = other.transform;
             SetFocusToPlayer(other.transform);
             PopUp.gameObject.SetActive(true);
         }
     }
    
     private void OnTriggerExit(Collider other)
-    {
-        check = other.GetComponent<NetworkIdentity>().isLocalPlayer;
+    {       
+       
         if (other.CompareTag(InteractionTag))
         {
+           
             //checks for local player
             if (!check) return;
+           
             //button pops up
             PopUp.gameObject.SetActive(false);
-            
+            interactor = null;
             if (DoubleTrigger) return;
             //resets camera to players
             _Camera.SetActive(false);   
@@ -135,15 +169,49 @@ public class PuzzleFocus : NetworkBehaviour
             Canvas.SetActive(false);
         }
     }
-  
+  void SetUpFollow()
+    {        
+        if (Follow)
+        {
+            _CinemaCamera.Follow = _ObjectToFocus;
+        }        
+    }
     void SetUpLookPoint()
     {
-        if(_CinemaCamera == null) { return; }
+       
+        if (_CinemaCamera == null) { return; }
+       
         _CinemaCamera.LookAt = _ObjectToFocus;
+        SetUpFollow();
+
+
+    }
+    void TeleportPlayer(Vector3 teleportPoint)
+    {
+        if (Teleport)
+        {
+            PopUp.gameObject.SetActive(false);
+            interactor.parent.gameObject.SetActive(false);
+            if(InteractionTag == "Slime")
+            {
+                Transform balls = interactor.parent.Find("ParentBall");
+                int len = balls.childCount;
+                for (int i = 0; i < len - 1; i++)
+                {
+                    balls.GetChild(i).position = teleportPoint;
+                }
+            }                
+            interactor.position = teleportPoint;           
+            interactor.parent.gameObject.SetActive(true);
+        }
     }
     void SetFocusToPlayer(Transform LookPoint)
     {
+       
         if (_ObjectToFocus != null) return;
+
         _ObjectToFocus = LookPoint;
+        
     }
+
 }

@@ -57,10 +57,10 @@ MonoBehaviour:
     debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7,
       type: 3}
   m_RendererFeatures:
-  - {fileID: -1878332245247344467}
   - {fileID: -623987007786374795}
+  - {fileID: -1878332245247344467}
   - {fileID: 4873653955199403704}
-  m_RendererFeatureMap: adc0de57c6d2eee575296f581f2757f7b886d65573b2a243
+  m_RendererFeatureMap: 75296f581f2757f7adc0de57c6d2eee5b886d65573b2a243
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -112,6 +112,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4d2d662c3bd9ea45b554fe03cd63e96, type: 3}
   m_Name: MArchingShader
   m_EditorClassIdentifier: 
-  m_Active: 0
-  Event: 450
+  m_Active: 1
+  Event: 500
   _Material: {fileID: 2100000, guid: 04f981121f194734e9161abac8846670, type: 2}
