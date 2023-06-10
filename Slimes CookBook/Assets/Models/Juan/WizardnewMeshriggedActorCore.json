@@ -40,7 +40,7 @@
                     },
                     "Plane": {
                         "Materials": {
-                            "Default_Pbr": {
+                            "Default_00_Pbr": {
                                 "Material Type": "Pbr",
                                 "MultiUV Index": 0,
                                 "Two Side": true,
@@ -121,7 +121,7 @@
                     },
                     "Plane_005": {
                         "Materials": {
-                            "Default_04_Pbr": {
+                            "Default_02_Pbr": {
                                 "Material Type": "Pbr",
                                 "MultiUV Index": 0,
                                 "Two Side": true,
@@ -148,7 +148,7 @@
                     },
                     "Plane_006": {
                         "Materials": {
-                            "Default_00_Pbr": {
+                            "Default_Pbr": {
                                 "Material Type": "Pbr",
                                 "MultiUV Index": 0,
                                 "Two Side": true,
@@ -175,7 +175,88 @@
                     },
                     "Sphere_005": {
                         "Materials": {
-                            "Default_02_Pbr": {
+                            "Default_06_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    255.0,
+                                    255.0,
+                                    255.0
+                                ],
+                                "Ambient Color": [
+                                    255.0,
+                                    255.0,
+                                    255.0
+                                ],
+                                "Specular Color": [
+                                    255.0,
+                                    255.0,
+                                    255.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {}
+                            }
+                        }
+                    },
+                    "mesh": {
+                        "Materials": {
+                            "Default_07_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    255.0,
+                                    255.0,
+                                    255.0
+                                ],
+                                "Ambient Color": [
+                                    255.0,
+                                    255.0,
+                                    255.0
+                                ],
+                                "Specular Color": [
+                                    255.0,
+                                    255.0,
+                                    255.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {}
+                            }
+                        }
+                    },
+                    "mesh_001": {
+                        "Materials": {
+                            "Default_04_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    255.0,
+                                    255.0,
+                                    255.0
+                                ],
+                                "Ambient Color": [
+                                    255.0,
+                                    255.0,
+                                    255.0
+                                ],
+                                "Specular Color": [
+                                    255.0,
+                                    255.0,
+                                    255.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {}
+                            }
+                        }
+                    },
+                    "mesh_002": {
+                        "Materials": {
+                            "Default_05_Pbr": {
                                 "Material Type": "Pbr",
                                 "MultiUV Index": 0,
                                 "Two Side": true,
