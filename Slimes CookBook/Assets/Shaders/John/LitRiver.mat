@@ -72,22 +72,22 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Density: 0.4
-    - _NoiseScale: 99.91
+    - _Density: 2
+    - _NoiseScale: 100
     - _NoiseScaleNormal: 0.3
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _depth: 0.87
+    - _depth: 0.84
     - _foamAMount: 0.05
-    - _normalStr: 0.2
+    - _normalStr: 0.3
     m_Colors:
-    - _BaseColor: {r: 0.31772873, g: 0.5445881, b: 0.7924528, a: 0.77254903}
-    - _Color1: {r: 1, g: 1, b: 1, a: 1}
-    - _Color2: {r: 1, g: 1, b: 1, a: 0.54509807}
+    - _BaseColor: {r: 0.10012461, g: 0.27823424, b: 0.4716981, a: 0.77254903}
+    - _Color1: {r: 0.8490566, g: 0.76495194, b: 0.76495194, a: 1}
+    - _Color2: {r: 0.8113208, g: 0.753916, b: 0.753916, a: 0.54509807}
     - _Direction1: {r: 0.2, g: 0, b: 0, a: 0}
     - _Direction2: {r: 0.02, g: 0, b: 0, a: 0}
-    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
+    - _FoamColor: {r: 0.7924528, g: 0.72890705, b: 0.72890705, a: 1}
     - _FoamDirection: {r: 0.1, g: 0, b: 0, a: 0}
-    - _Tilling: {r: 2, g: 2, b: 0, a: 0}
-    - _Tilling2: {r: 0.5, g: 1, b: 0, a: 0}
+    - _Tilling: {r: 0.8, g: 0.8, b: 0, a: 0}
+    - _Tilling2: {r: 0.8, g: 0.5, b: 0, a: 0}
   m_BuildTextureStacks: []

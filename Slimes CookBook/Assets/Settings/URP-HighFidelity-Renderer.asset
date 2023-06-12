@@ -23,24 +23,6 @@ MonoBehaviour:
     DirectLightingStrength: 0.25
     Radius: 0.25
     SampleCount: 12
---- !u!114 &-623987007786374795
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0761b952e39c7fa409aa3febbdc14924, type: 3}
-  m_Name: InvertColorsCompute
-  m_EditorClassIdentifier: 
-  m_Active: 0
-  _ComputeShader: {fileID: 7200000, guid: db8498ab65eae534fa2b59c37f0fb36f, type: 3}
-  Event: 450
-  _BufferNum: 300
-  _Smooth: 0.2
-  _Radius: 0.1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57,10 +39,9 @@ MonoBehaviour:
     debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7,
       type: 3}
   m_RendererFeatures:
-  - {fileID: -623987007786374795}
   - {fileID: -1878332245247344467}
   - {fileID: 4873653955199403704}
-  m_RendererFeatureMap: 75296f581f2757f7adc0de57c6d2eee5b886d65573b2a243
+  m_RendererFeatureMap: adc0de57c6d2eee5b886d65573b2a243
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}

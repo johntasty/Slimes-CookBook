@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ButtonTriggers : MonoBehaviour
 {
-    public static Action<Vector3> TriggerPosition;
+    public static Action<Vector3, String> TriggerPosition;
     bool interactingCollider = false;
     [SerializeField]
     ElevatorButtons sesawManager;
@@ -22,7 +22,7 @@ public class ButtonTriggers : MonoBehaviour
         if (!interactingCollider) return;
         if (!sesawManager.CheckLocal(player)) { return; }
         Vector3 position = transform.position;
-        TriggerPosition?.Invoke(position);
+        TriggerPosition?.Invoke(position, gameObject.name);
      
     }
 

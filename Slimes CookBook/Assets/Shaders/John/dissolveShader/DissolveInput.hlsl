@@ -16,9 +16,6 @@ CBUFFER_START(UnityPerMaterial)
 float4 _BaseMap_ST;
 float4 _DetailAlbedoMap_ST;
 
-float4 _CutoutMask1Map_ST;
-
-float4 _CutoutMask1MapWorldPos;
 float cutShape;
 half4 _BaseColor;
 half4 _SpecColor;
@@ -45,6 +42,8 @@ float3 _GlowColor;
 float _GlowRange;
 float _GlowFalloff;
 float4 _PlayerPos;
+float3 windows[6];
+float3 windowsBounds[6];
 CBUFFER_END
 
 // NOTE: Do not ifdef the properties for dots instancing, but ifdef the actual usage.

@@ -56,16 +56,16 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Blend: 0.495
-    - _BlendOut: 1
-    - _Clip: 0.773
+    - _Blend: 0.492
+    - _BlendOut: 2.42
+    - _Clip: 0.001
     - _Extrude: 0.1
-    - _Fluff: 0.99
+    - _Fluff: 1.9
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _SSize: 1.2
+    - _SSize: 1.14
     - _Wind: 0.04
-    - _smooth: 0.123
+    - _smooth: 0.126
     m_Colors:
     - _Color: {r: 0.49765843, g: 0.8301887, b: 0.41901034, a: 1}
     - _Color2: {r: 0.5305349, g: 0.18039216, b: 0.69803923, a: 1}

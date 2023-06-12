@@ -26,6 +26,8 @@ public class PuzzleFocus : NetworkBehaviour
 
     [SerializeField]
     GameObject _Camera;
+    [SerializeField]
+    Camera _MainCam;
 
     [SerializeField]
     CinemachineVirtualCamera _CinemaCamera = null;
@@ -84,6 +86,8 @@ public class PuzzleFocus : NetworkBehaviour
 
     private void TriggerEvent()
     {
+        _MainCam = Camera.main;
+        _MainCam.clearFlags = CameraClearFlags.Skybox;
         TeleportPlayer(TeleportPointBack.position);
         _Camera.SetActive(false);              
         if (Canvas == null) return;
@@ -110,7 +114,11 @@ public class PuzzleFocus : NetworkBehaviour
     void StartInteraction()
     {
         SetUpLookPoint();
-        if(TeleportPoint != null) TeleportPlayer(TeleportPoint.position);
+        if (TeleportPoint != null) {
+            _MainCam = Camera.main;
+            _MainCam.clearFlags = CameraClearFlags.SolidColor;
+            TeleportPlayer(TeleportPoint.position);
+        }
 
         _Camera.SetActive(true);
         if (Canvas != null)
@@ -190,6 +198,7 @@ public class PuzzleFocus : NetworkBehaviour
     {
         if (Teleport)
         {
+            //_CinemaCamera.clearFlags = CameraClearFlags.SolidColor;
             PopUp.gameObject.SetActive(false);
             interactor.parent.gameObject.SetActive(false);
             if(InteractionTag == "Slime")

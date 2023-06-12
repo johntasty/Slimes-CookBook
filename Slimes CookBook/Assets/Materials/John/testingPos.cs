@@ -11,6 +11,8 @@ public class testingPos : NetworkBehaviour
     LineRenderer segments;
     [SerializeField]
     Transform propeler;
+    [SerializeField]
+    Transform Rotor;
     bool propellerRotating = false;
     [SerializeField]
     float propellerSpeed = 1f;
@@ -51,7 +53,13 @@ public class testingPos : NetworkBehaviour
     [SerializeField]
     RopeIntegration ropeMaker;
 
-
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            StartCoroutine(AccelarateElevator());
+        }
+    }
     private void Awake()
     {
         RopeConstruct.setupComplete += StartElevator;       
@@ -126,9 +134,11 @@ public class testingPos : NetworkBehaviour
         while (speed > 0)
         {
             anglez = (anglez + 1) % 360;          
-            Quaternion RotateAngle = Quaternion.AngleAxis(anglez * propellerSpeed, Vector3.forward);
+            Quaternion RotateAngle = Quaternion.AngleAxis(anglez * propellerSpeed, Vector3.right);
+            Quaternion RotateAngleRotor = Quaternion.AngleAxis(anglez * speed, Vector3.forward);
             propeler.localRotation = RotateAngle;
-          
+
+            Rotor.localRotation = RotateAngleRotor;
             yield return new WaitForFixedUpdate();
         }        
     }

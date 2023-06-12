@@ -21,6 +21,18 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _CloudText:
+        m_Texture: {fileID: 2800000, guid: 9bacfb9b7cfc16043b36cbbb02b30ffe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskText:
+        m_Texture: {fileID: 2800000, guid: c19127936a65ed544bf893b027c92494, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_88a37301a8c84fe8a95a944ee393aa3a_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 9bacfb9b7cfc16043b36cbbb02b30ffe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -45,9 +57,11 @@ Material:
     - _QueueOffset: 0
     - _ScrollSpeed: 0.05
     - _Smoothness: 0.5
+    - _clip: 0
     m_Colors:
-    - _FirstColor: {r: 0.7411765, g: 0.77647066, b: 0.86666673, a: 1}
-    - _SecondaryColor: {r: 0.30588233, g: 0.5098039, b: 0.8509805, a: 1}
+    - _COlorVert: {r: 0.49056602, g: 0.42346027, b: 0.42346027, a: 0.8666667}
+    - _FirstColor: {r: 1, g: 0, b: 0, a: 0.54509807}
+    - _SecondaryColor: {r: 0.3058823, g: 0.5098038, b: 0.8509805, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &6605664466017425855
 MonoBehaviour:

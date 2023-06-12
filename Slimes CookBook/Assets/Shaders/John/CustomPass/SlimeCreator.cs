@@ -31,34 +31,7 @@ public class SlimeCreator : MonoBehaviour
         StartCoroutine(SetUp());
        
     }
-    Vector3[] PointsOnSphere(int n)
-    {
-        
-        List<Vector3> upts = new List<Vector3>();
-        float inc = Mathf.PI * (3 - Mathf.Sqrt(5));
-        float off = 2.0f / 18;
-        float x = 0;
-        float y = 0;
-        float z = 0;
-        float r = 0;
-        float phi = 0;
-      
-        for (var k = 0; k < 3; k++)
-        {
-
-            y = k * off - 1 + (off / 2);
-            r = Mathf.Sqrt(1 - y * y);
-
-            phi = k * inc;
-            x = Mathf.Cos(phi) * r;
-            z = Mathf.Sin(phi) * r;
-
-            upts.Add(new Vector3(x, Mathf.Cos(phi), z));
-        }
-        Vector3[] pts = upts.ToArray();
-        return pts;
-    }
-  
+    
     Vector3[] CreateSphericalGrid(int rows, int columns)
     {
         List<Vector3> spherePoints = new List<Vector3>();
@@ -114,29 +87,31 @@ public class SlimeCreator : MonoBehaviour
         int i = 0;
         foreach (Vector3 point in points)
         {
-            //ball = Instantiate(prefab, parent);
             GameObject ball = _Balls[i].gameObject;
             ball.name = i.ToString();
-            pos = point.normalized;
-            ball.GetComponent<CustomPhysics>().Origin = pos * range;
-            ball.GetComponent<CustomPhysics>().connections.Add(pos * range);
-            ball.GetComponent<CustomPhysics>().restLengths.Add(0f);
+            pos =  point.normalized * range;
+            ball.GetComponent<CustomPhysics>().Origin = pos;
+            ball.GetComponent<CustomPhysics>().connections.Add(pos);
+            ball.GetComponent<CustomPhysics>().restLengths.Add(0.1f);
 
             springs.Add(ball.GetComponent<CustomPhysics>());
-            ball.transform.position = transform.position + (pos * range);
+            ball.transform.position = transform.position + (pos);
            
             _BallsArray[i] = new Vector4(ball.transform.position.x, ball.transform.position.y, ball.transform.position.z, radius);
             ball.SetActive(true);
+            ball.GetComponent<Rigidbody>().useGravity = true;
             i++;
             yield return null;
         }
         for (int x = 0; x < 5; x++)
         {
             for (int j = 0; j < 3; j++)
-            {               
+            {
                 _Balls[j * (5) + x].GetComponent<CustomPhysics>().connections.Add(transform.InverseTransformPoint(_Balls[(j + 1) * (5) + x].position));
+                _Balls[j * (5) + x].GetComponent<CustomPhysics>().names.Add(_Balls[(j + 1) * (5) + x].name);
                 _Balls[j * (5) + x].GetComponent<CustomPhysics>().restLengths.Add(0.1f);
                 _Balls[(j + 1) * (5) + x].GetComponent<CustomPhysics>().connections.Add(transform.InverseTransformPoint(_Balls[j * (5) + x].position));
+                _Balls[(j + 1) * (5) + x].GetComponent<CustomPhysics>().names.Add(_Balls[j * (5) + x].name);
                 _Balls[(j + 1) * (5) + x].GetComponent<CustomPhysics>().restLengths.Add(0.1f);
             }
         }

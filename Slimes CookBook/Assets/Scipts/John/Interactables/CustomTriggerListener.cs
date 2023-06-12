@@ -17,37 +17,27 @@ public class CustomTriggerListener : NetworkBehaviour
     Transform tp;
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag(InteractionTag))
-        {
-            if (other.CompareTag("Slime"))
-            {
-                other.transform.parent.gameObject.SetActive(false);
+        //if (other.CompareTag(InteractionTag))
+        //{
+        //    if (other.CompareTag("Slime"))
+        //    {
+        //        other.transform.parent.gameObject.SetActive(false);
 
-                other.transform.parent.position = tp.position;
+        //        other.transform.parent.position = tp.position;
 
-                foreach (Transform child in other.transform.parent)
-                {
-                    child.position = tp.position;
-                }
-                other.transform.parent.gameObject.SetActive(true);
-            }
+        //        foreach (Transform child in other.transform.parent)
+        //        {
+        //            child.position = tp.position;
+        //        }
+        //        other.transform.parent.gameObject.SetActive(true);
+        //    }
             if (DontInvokeEvents)
             {
                 OnTriggerEntered?.Invoke();
             }
-            if(other.TryGetComponent(out NetworkIdentity networkidentity))
-            {
-                cmdChangeScene(networkidentity);
-            }
+           
             
         }       
-    }
-    [Command(requiresAuthority = false)]
-    void cmdChangeScene(NetworkIdentity networkidentity)
-    {
-        //NetworkConnectionToClient conn = networkidentity.connectionToClient;
-        //conn.Send(new SceneMessage { sceneName = "MainHubScene", sceneOperation = SceneOperation.LoadAdditive, customHandling = false });
-        //RoomManagment.singleton.SceneChangeCommand("MainHubScene");
-        //RoomManagment.singleton.MovePlayers(networkidentity);
-    }
 }
+   
+

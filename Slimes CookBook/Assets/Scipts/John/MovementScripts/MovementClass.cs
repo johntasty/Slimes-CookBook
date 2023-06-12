@@ -5,7 +5,7 @@ using UnityEngine;
  class MovementClass 
 {   
     private MovementAttributes MovementVariables;
-
+   
     private Transform player;
     public Transform _Player
     {
@@ -19,7 +19,7 @@ using UnityEngine;
 
     bool _OnPlatform = false;
     Vector3 platform;
-   
+    public float testingblend;
     public bool OnPlatform
     {
         get => _OnPlatform;
@@ -27,9 +27,7 @@ using UnityEngine;
     }
     Transform platCurrent;
     Vector3 platCurrentLastPos;
-    //turn variables
-    public float _TargetAngle;
-    public float turnSmoothVel;
+    
    
     //Input Variables
     private Vector2 inputMove;
@@ -79,7 +77,7 @@ using UnityEngine;
     {
         if (hosting)
         {
-            grounded = player.gameObject.scene.GetPhysicsScene().SphereCast(player.position + (Vector3.up * 0.4f), .2f, -player.up, out RaycastHit hits, .4f, MovementVariables.groundLayer);
+            grounded = player.gameObject.scene.GetPhysicsScene().SphereCast(player.position + (Vector3.up * .35f), .15f, -player.up, out RaycastHit hits, .4f, MovementVariables.groundLayer);
           
             return;
         }
@@ -166,7 +164,7 @@ using UnityEngine;
     public void Jump()
     {
         if (!grounded) return;
-       
+
         _Velocity += MovementVariables._JumpPower;
     }
     public void SlopeMatch()
@@ -191,7 +189,7 @@ using UnityEngine;
         }
         if (hosting)
         {
-            int num = CurrentScenePhysics.OverlapSphere(player.position, .4f, hits, MovementVariables.WallLayer, QueryTriggerInteraction.Ignore);
+            int num = CurrentScenePhysics.OverlapSphere(player.position + (Vector3.up * .2f), .3f, hits, MovementVariables.WallLayer, QueryTriggerInteraction.Ignore);
             WallHug = num.Equals(1);          
             return;
 
@@ -214,6 +212,7 @@ using UnityEngine;
         if (!MovementVariables.HasAnimation) return;
         if (!grounded) return;
         float spe = new Vector3(_VelocityVec.x, 0 , _VelocityVec.z).magnitude * VectorMagnitude;
+      
         MovementVariables._ControllerAnimator.SetFloat(_YAxis, spe, MovementVariables.AnimationBlendSpd, Time.fixedDeltaTime);
         MovementVariables._ControllerAnimator.SetFloat(_XAxis, inputMove.x, MovementVariables.AnimationBlendTurn, Time.fixedDeltaTime);
     }

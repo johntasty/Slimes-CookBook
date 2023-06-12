@@ -31,7 +31,7 @@ Material:
     m_Ints: []
     m_Floats:
     - TestParam: -0.6
-    - _Blend: 0.15
+    - _Blend: 0.12
     - _BlendFloor: 2.8
     - _DinstanceAccuracy: 0.01
     - _EmmisionSize: 0.13
@@ -44,7 +44,7 @@ Material:
     - _ShadowMax: 10
     - _ShadowMin: 0.2
     - _ShadowPenumbra: 1.5
-    - _Size: 0.2
+    - _Size: 0.09
     - _Smoothness: 0.91
     - _SpecColorSize: 11.42
     - _SpecPower: 0.1

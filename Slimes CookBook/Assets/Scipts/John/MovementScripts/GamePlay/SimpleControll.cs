@@ -97,9 +97,6 @@ public class SimpleControll : NetworkBehaviour
         }
         MovementFunctions.Rotation();
         MovementFunctions.ApplyMovement();
-
-        MovementFunctions.turnSmoothVel = dista;
-        MovementFunctions._TargetAngle = radi;
        
 
     }

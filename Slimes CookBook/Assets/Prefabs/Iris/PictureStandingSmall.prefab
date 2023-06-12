@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1078327956025201219}
   - component: {fileID: 4132375937420254694}
   - component: {fileID: 2215156719277746476}
+  - component: {fileID: 4774270334211705020}
   m_Layer: 0
   m_Name: PictureStandingSmall
   m_TagString: Untagged
@@ -83,3 +84,16 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &4774270334211705020
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 413536478806739193}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.27495536, y: 0.3298592, z: 0.08047676}
+  m_Center: {x: -0.13747768, y: 0.15456125, z: -0.06844044}

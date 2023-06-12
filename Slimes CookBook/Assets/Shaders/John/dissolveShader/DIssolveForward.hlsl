@@ -207,17 +207,29 @@ void Unity_Ellipse_float(float2 UV, float Width, float Height, out float Out)
     Out = saturate((1 - d) / fwidth(d));
 
 }
+
+
+float sdBox(float3 p, float3 bounds)
+{
+    float3 q = abs(p) - bounds;
+    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+}
+
 inline float CutoutMaskClipper(float3 posWorld) {
    
-    //float position = distance(_CutoutMask1MapWorldPos.xyz , posWorld);
-    float3 position = (_CutoutMask1MapWorldPos.xyz - posWorld) ;
-    float dis = length(position / _CutoutMask1Map_ST.xyz);
-   /* float dist = distance(position , _CutoutMask1Map_ST.xy);
-    float dist1 = distance(position , (_CutoutMask1Map_ST.xy * _CutoutMask1Map_ST.xy));*/
-
+   
+    float3 position = (windows[0].xyz - posWorld) ;
+    float dis = sdBox(position, windowsBounds[0]);
+   
+    for (int i = 1; i < 6; i++)
+    {
+              
+        float3 pos2 = (windows[i].xyz - posWorld);
+        float dis2 = sdBox(pos2, windowsBounds[i]);
+        dis = min(dis, dis2);
+    }
+  
     float circle = 1 - saturate(dis);
-
-    //circle = 1 - circle;
    
     return circle;
 }

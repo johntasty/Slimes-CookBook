@@ -12,14 +12,14 @@ Shader "Universal Render Pipeline/Lit"
         _DissolveAmount("Dissolve Amount", Range(0 , 1)) = 0
         
          _Cutoff("Dissolve _Cutoff", Float) = 1
+         cutShape("cutShape cutShape", Float) = 1
         _DistaceMultiplier("DistaceMultiplier", Float) = 1
         _DistanceToCamera("_DistanceToCamera", Float) = 1
         _Height("_Height", Float) = 1
         _Widht("_Widht", Float) = 1
      
         _PlayerPos("_PlayerPos", Vector) = (0,0,0)
-        _CutoutMask1MapWorldPos("_CutoutMask1MapWorldPos", Vector) = (0,0,0,0)
-        _CutoutMask1Map_ST("_CutoutMask1Map_ST", Vector) = (0,0,0,0)
+      
       
         [Header(Glow)]
         [HDR]_GlowColor("Color", Color) = (1, 1, 1, 1)
