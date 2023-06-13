@@ -290,10 +290,11 @@ Shader "Unlit/TestShader"
       
         float3 origin = mul(_CameraWorld, float4(0, 0, 0, 1)).xyz;
         origin += mul(_CameraWorld, float4(uv * _OrthoSize, 0, 0)).xyz;
+       
 
         float3 direction = mul(_CameraInverseProjection, float4(uv, 0, 1)).xyz;
-       
-        direction = mul(_CameraWorld, float4(direction, 0)).xyz;
+        float3 viewDirectionWS = -(UNITY_MATRIX_V[2].xyz);
+        direction = mul(_CameraWorld, float4(viewDirectionWS, 0)).xyz;
         
         return CreateRay(origin, direction);
     }
@@ -356,12 +357,12 @@ Shader "Unlit/TestShader"
 
     half4 frag(v2f i) : SV_Target
     {       
-        float2 uv = i.uv * 2.0 - 1.0;
+        float2 uv = (i.uv * 2.0 ) -  1.;
 
         Ray ray = CreateCameraRay(uv);
        /* o.rayDirection = ray.direction;
         o.rayOrigin = ray.origin;*/
-
+        
         half3 rDirection = normalize(ray.direction);
         half3 rOrigin = ray.origin;
         

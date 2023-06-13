@@ -57,8 +57,8 @@ Material:
     m_Ints: []
     m_Floats:
     - _Blend: 0.492
-    - _BlendOut: 2.42
-    - _Clip: 0.001
+    - _BlendOut: 0.93
+    - _Clip: 0.077
     - _Extrude: 0.1
     - _Fluff: 1.9
     - _QueueControl: 0

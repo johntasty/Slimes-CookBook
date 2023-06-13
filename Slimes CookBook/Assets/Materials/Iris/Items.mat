@@ -25,7 +25,6 @@ Material:
   m_ValidKeywords:
   - _NORMALMAP
   - _OCCLUSIONMAP
-  - _SPECULAR_SETUP
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
@@ -138,11 +137,11 @@ Material:
     - _Surface: 0
     - _UVSec: 0
     - _Widht: 1
-    - _WorkflowMode: 0
+    - _WorkflowMode: 1
     - _ZWrite: 1
     - cutShape: 1
     m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.8490566, g: 0.8490566, b: 0.8490566, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CutoutMask1MapWorldPos: {r: 0, g: 0, b: 0, a: 0}
     - _CutoutMask1Map_ST: {r: 0, g: 0, b: 0, a: 0}

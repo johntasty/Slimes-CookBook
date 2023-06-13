@@ -12,6 +12,8 @@ public class ButtonTriggers : MonoBehaviour
     [SerializeField]
     string TagToInteract;
     Transform player = null;
+    [SerializeField]
+    GameObject popUp;
     private void OnEnable()
     {
         ObserverListener.Instance.InteractWizard += InteractButton;       
@@ -36,6 +38,7 @@ public class ButtonTriggers : MonoBehaviour
         {
             interactingCollider = true;
             player = other.transform.parent;
+            popUp.SetActive(true);
         }
     }
     private void OnTriggerExit(Collider other)
@@ -44,6 +47,7 @@ public class ButtonTriggers : MonoBehaviour
         {
             interactingCollider = false;
             player = null;
+            popUp.SetActive(false);
         }
     }
 }

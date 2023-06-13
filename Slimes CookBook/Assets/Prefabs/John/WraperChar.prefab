@@ -505,7 +505,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 496215199194071197}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -517,7 +517,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8247460418779313666, guid: 392222d04a2ec364b820fd05ce34bb53, type: 3}
+  - {fileID: 2100000, guid: 8fcf3ecda231d6f45ad5e82c3e0c481a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1974,10 +1974,10 @@ MonoBehaviour:
   syncInterval: 0
   _PlayerCam: {fileID: 6631120769559815725}
   SetInputs:
-    speed: 6
+    speed: 4
     Maxspeed: 10
-    TurnSmoothing: 10
-    _JumpPower: 6
+    TurnSmoothing: 6
+    _JumpPower: 7
     _GravityMultiplier: 2
     _Gravity: -9.81
     groundLayer:
@@ -2974,7 +2974,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8247460418779313666, guid: 392222d04a2ec364b820fd05ce34bb53, type: 3}
+  - {fileID: 2100000, guid: 8fcf3ecda231d6f45ad5e82c3e0c481a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3663,7 +3663,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3167659070628028096}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -3675,7 +3675,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8247460418779313666, guid: 392222d04a2ec364b820fd05ce34bb53, type: 3}
+  - {fileID: 2100000, guid: 8fcf3ecda231d6f45ad5e82c3e0c481a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6411,7 +6411,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4336714718537592066}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -6423,7 +6423,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8247460418779313666, guid: 392222d04a2ec364b820fd05ce34bb53, type: 3}
+  - {fileID: 2100000, guid: 8fcf3ecda231d6f45ad5e82c3e0c481a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7683,7 +7683,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5556888232947564765}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -7695,7 +7695,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8247460418779313666, guid: 392222d04a2ec364b820fd05ce34bb53, type: 3}
+  - {fileID: 2100000, guid: 8fcf3ecda231d6f45ad5e82c3e0c481a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9519,7 +9519,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7024013115435820505}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -9531,7 +9531,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8247460418779313666, guid: 392222d04a2ec364b820fd05ce34bb53, type: 3}
+  - {fileID: 2100000, guid: 8fcf3ecda231d6f45ad5e82c3e0c481a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9950,7 +9950,7 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7343962423650731198}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -9962,7 +9962,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8247460418779313666, guid: 392222d04a2ec364b820fd05ce34bb53, type: 3}
+  - {fileID: 2100000, guid: 8fcf3ecda231d6f45ad5e82c3e0c481a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

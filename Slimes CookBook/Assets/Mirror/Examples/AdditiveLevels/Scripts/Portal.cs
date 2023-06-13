@@ -46,12 +46,7 @@ namespace Mirror.Examples.AdditiveLevels
             // tag check in case you didn't set up the layers and matrix as noted above
             if (!other.CompareTag("Player")) return;
 
-            // applies to host client on server and remote clients
-            //if (other.TryGetComponent(out PlayerController playerController))
-                //playerController.enabled = false;
-
-
-            Debug.Log(isServer);
+         
             if (isServer)
                 StartCoroutine(SendPlayerToNewScene(other.gameObject));
         }
