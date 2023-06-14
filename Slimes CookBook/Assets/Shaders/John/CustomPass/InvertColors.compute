@@ -1,0 +1,191 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel InvertColors
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+
+float4x4 _CameraToWorld;
+float4x4 _CameraInverseProjection;
+
+static const float maxDst = 25;
+static const float maxSteps = 40;
+static const float epsilon = 0.01;
+
+struct Shape {
+
+    float3 position;   
+};
+
+StructuredBuffer<Shape> shapes;
+int numShapes;
+float _radius;
+float _Smooth;
+float4 positionTest;
+struct Ray {
+    float3 origin;
+    float3 direction;
+};
+
+Ray CreateRay(float3 origin, float3 direction) {
+    Ray ray;
+    ray.origin = origin;
+    ray.direction = direction;
+    return ray;
+}
+
+Ray CreateCameraRay(float2 uv) {
+    float3 origin = mul(_CameraToWorld, float4(0, 0, 0, 1)).xyz;
+    float3 direction = mul(_CameraInverseProjection, float4(uv, 0, 1)).xyz;
+    direction = mul(_CameraToWorld, float4(direction, 0)).xyz;
+    direction = normalize(direction);
+    return CreateRay(origin, direction);
+}
+
+
+float unionSDF(float distA, float distB, float k) {
+    float h = max(k - abs(distA - distB), 0.0) / k;
+    return min(distA, distB) - h * h * k * (1.0 / 4.0);
+    
+}
+float sphereIntersect(float3 eye, float radius) {
+    float d = length(shapes[0].position - eye) - radius;
+    /*d = length(shapes[0].position - eye) - radius;
+    d = length(shapes[0].position - eye) - radius;*/
+     for (int i = 1; i < numShapes; i++)
+     {
+         float d2 = length(shapes[i].position - eye) - radius;
+         d = min(d, d2);
+     }
+    return d;//length(centre - eye) - radius;
+}
+float SphereDistance(float3 eye, float radius) {
+
+   
+   
+    float d = length(shapes[0].position - eye) - radius;
+     /*d = length(shapes[0].position - eye) - radius;
+     d = length(shapes[0].position - eye) - radius;*/
+   /* for (int i = 0; i < numShapes; i++)
+    {        
+        float d2 = length(shapes[i].position - eye) - radius;
+        d = unionSDF(d, d2, _Smooth);
+    }*/
+    return d;//length(centre - eye) - radius;
+}
+half GetDist(half3 p)
+{
+    float d = SphereDistance(p, _radius);
+   /* for (int i = 1; i < numShapes; i++)
+    {
+        float d2 = SphereDistance(p, shapes[i].position, _radius);
+        d = unionSDF(d, d2, _Smooth);
+    }*/
+    
+    return d;
+}
+
+half3 Get_Norm(half3 p)
+{
+    half2 e = half2(0.001, 0);
+    half3 n = half3(
+        GetDist(p + e.xyy) - GetDist(p - e.xyy),
+        GetDist(p + e.yxy) - GetDist(p - e.yxy),
+        GetDist(p + e.yyx) - GetDist(p - e.yyx));
+    return normalize(n);
+}
+
+float4 Raymacher(float3 rayOrigin, float3 rayDirection) {
+    float rayDst = 0;
+    float4 result = float4(0, 0, 0, 0);
+    //float dst = 0;
+    for (int i = 0; i < maxSteps; i++)
+    {
+       
+        float dst = sphereIntersect(rayOrigin, _radius);
+        if (rayDst > maxDst) {
+
+            float3 red = float3(1, 0, 0);
+            float3 blue = float3(0, 0, 1);
+            float perf = (float)i / maxSteps;
+
+            return result = float4(lerp(blue, red, perf), 0);
+            break;
+        }
+        if (dst <= epsilon) {
+            float3 pointOnSurface = rayOrigin + rayDirection * dst;
+            float3 norm = Get_Norm(pointOnSurface - rayDirection * epsilon);
+
+            float perf = (float)i / maxSteps;
+            float3 red = float3(1, 0, 0);
+            float3 blue = float3(0, 0, 1);
+            return result = float4(lerp(blue, red, perf), 0);
+            break;
+        }
+        rayOrigin += rayDirection * dst;
+        rayDst += dst;
+       
+        /*float dst = GetDist(rayOrigin);
+        
+        if (rayDst > maxDst) {
+
+            float3 red = float3(1, 0, 0);
+            float3 blue = float3(0, 0, 1);
+            float perf = (float)i / maxSteps;
+
+            return result = float4(lerp(blue, red, perf), 0);
+            break;
+        }
+        if (dst <= epsilon) {
+            float3 pointOnSurface = rayOrigin + rayDirection * dst;
+            float3 norm = Get_Norm(pointOnSurface - rayDirection * epsilon);
+
+            float perf = (float)i / maxSteps;
+            float3 red = float3(1, 0, 0);
+            float3 blue = float3(0, 0, 1);
+            return result = float4(lerp(blue, red, perf), 0);
+            break;
+        }
+        rayOrigin += rayDirection * dst;
+        rayDst += dst;*/
+    }
+   
+    return result;
+}
+
+[numthreads(8, 8,1)]
+void InvertColors(uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    Result.GetDimensions(width, height);
+
+    float2 uv = id.xy / float2(width, height);
+    float rayDst = 0;
+
+    Ray ray = CreateCameraRay(uv);
+    int marchSteps = 0;
+    for (int i = 0; i < maxSteps; i++)
+    {
+        float dst = GetDist(ray.origin);
+        ray.origin += ray.direction * dst;
+        rayDst += dst;
+        if (rayDst > maxDst) {
+            float3 red = float3(1, 0, 0);
+            float3 blue = float3(0, 0, 1);
+            float perf = (float)i / maxSteps;
+            Result[id.xy] = float4(lerp(blue, red, perf), 0);
+            break;
+        }
+        if (dst < epsilon) {
+            
+            float perf = (float)i / maxSteps;
+            float3 red = float3(1, 0, 0);
+            float3 blue = float3(0, 0, 1);
+            Result[id.xy] = float4(lerp(blue, red, perf), 0);
+            break;
+        }       
+        
+    }
+   
+   
+}
