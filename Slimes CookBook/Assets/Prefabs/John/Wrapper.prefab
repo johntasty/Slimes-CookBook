@@ -2799,7 +2799,7 @@ MonoBehaviour:
     speed: 4
     Maxspeed: 10
     TurnSmoothing: 720
-    _JumpPower: 9
+    _JumpPower: 10.5
     _GravityMultiplier: 2
     _Gravity: -9.81
     groundLayer:
