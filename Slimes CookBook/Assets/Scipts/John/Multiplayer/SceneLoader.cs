@@ -21,23 +21,24 @@ public class SceneLoader : NetworkBehaviour
     }
     IEnumerator PositionDelay()
     {
+        //gets teleports and checkpoints, delay is added as sometimes it went out of sync
         yield return new WaitForSeconds(1f);
         startPosition = AdditiveNetwork.singleton.GetTeleportPosition(destinationSceneName).position;
     }
-    // Note that I have created layers called Player(6) and Portal(7) and set them
-    // up in the Physics collision matrix so only Player collides with Portal.
+
     void OnTriggerEnter(Collider other)
     {
-        // tag check in case you didn't set up the layers and matrix as noted above
+       
         if (other.CompareTag("Wizard") || other.CompareTag("Slime"))
         {
+            //disabling controls so they dont run off
             other.GetComponent<CharacterController>().enabled = false;
             if (isServer)
                 StartCoroutine(SendPlayerToNewScene(other.transform.parent.gameObject));
            
         }
     }
-   
+   //this only happens on the server, the client remains on the buffer scene 
     [ServerCallback]
     IEnumerator SendPlayerToNewScene(GameObject parent)
     {

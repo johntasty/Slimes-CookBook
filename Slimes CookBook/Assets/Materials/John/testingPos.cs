@@ -55,6 +55,7 @@ public class testingPos : NetworkBehaviour
 
     private void Update()
     {
+        //this was used to speed things up and just start the elevator
         if (Input.GetKeyDown(KeyCode.M))
         {
             StartCoroutine(AccelarateElevator());
@@ -62,8 +63,12 @@ public class testingPos : NetworkBehaviour
     }
     private void Awake()
     {
+        //the event the rope construction calls, this is a networked object, so loading is handled differently
+        //thus needing a delay
         RopeConstruct.setupComplete += StartElevator;       
+        //elevator startup, events called from the player buttons
         ElevatorButtons.MoveElevatorSuccess += SuccessArray;
+        //end of line button, enables when you reach the end
         ElevatorButtons.ReturnJourney += Return;
     }
     private void OnDestroy()
@@ -83,6 +88,7 @@ public class testingPos : NetworkBehaviour
         SetUp();
         
     }
+    //a propeller is attached to the boat/elevator this handles its animation
   IEnumerator PropellerStart()
     {
         propellerRotating = true;
@@ -93,6 +99,7 @@ public class testingPos : NetworkBehaviour
         do
         {
             time += Time.deltaTime;
+            //normalized time is used for percentage based lerping instead of smoothed out
             float normalTime = time / duration;
             float angle = (360f * normalTime);
             Quaternion RotateAngle = Quaternion.AngleAxis(angle* propellerSpeed, Vector3.forward);
@@ -100,6 +107,7 @@ public class testingPos : NetworkBehaviour
             yield return null;
 
         } while (time < duration);
+        //the buttons successes system
         if(successHitsIndex >= 4)
         {
             StartCoroutine(AccelarateElevator());
@@ -111,13 +119,16 @@ public class testingPos : NetworkBehaviour
         propellerRotating = false;
         
     }
+    //elevator movement
     IEnumerator AccelarateElevator()
     {
         speed = .1f;
+        
         StartCoroutine(HitLoop());
         float time = 0;
         float duration = 5;
         float normalTime = 0;
+        //accelarates slowly towards max velocity
         do
         {
             time += Time.deltaTime;
@@ -130,7 +141,7 @@ public class testingPos : NetworkBehaviour
     {
         propellerRotating = true;
         int anglez = 0;
-      
+      //handles propeller animation and the gear at the top
         while (speed > 0)
         {
             anglez = (anglez + 1) % 360;          
@@ -152,6 +163,8 @@ public class testingPos : NetworkBehaviour
         if (propellerRotating) return;
         CmdReturnJourney();          
     }
+    //commands used for the server
+    //each succesfull use of the puzzle fires up the proppeler
     [Command(requiresAuthority = false)]
     void CmdSuccessHit()
     {
@@ -180,6 +193,9 @@ public class testingPos : NetworkBehaviour
         segmentPoints = new Vector3[segments.positionCount];
         segments.GetPositions(segmentPoints);
     }
+    //this is used in combination with the rope, since its in a constant movement if
+    //simulated in real time the target direction of the elevetor needs to be updated 
+    //to smoothly animate remaining on the rope and not floating
     void UpdatePositions()
     {
         if (segmentPoints.Length <= 0) return;
@@ -210,15 +226,19 @@ public class testingPos : NetworkBehaviour
         StartCoroutine(RotateToFirstPoint());
        
     }
+    //the elevator updater
     void Elevator()
     {
         float Vel = speed * forcePower;
+        //distance travelled is used for moving along the rope like a spline
         distancetraveled += Vel * Time.deltaTime;
+        //t is used to determine if we have passed the next point in order to update target
         t = distancetraveled / distance;        
          Vector3 dir = direction * Vel * Time.deltaTime;
         _Velocity = direction * Vel;
         vSpeed = Vel;
         transform.position += dir;
+        //was used to add weight to the rope to imitate slacking or stretching
         //SlopeRope(t);
         if (t < 1) return;
         SwitchTarget();
@@ -234,6 +254,7 @@ public class testingPos : NetworkBehaviour
             yield return new WaitForFixedUpdate();
         }
     }
+    //elevator rotation towards the point
     IEnumerator RotateToPoint()
     {
 
@@ -248,6 +269,7 @@ public class testingPos : NetworkBehaviour
             yield return new WaitForFixedUpdate();
         }
     }
+    //special case of end points since using the same rotator as the other was to jerky
     IEnumerator RotateToFirstPoint()
     {
 
@@ -266,28 +288,34 @@ public class testingPos : NetworkBehaviour
             yield return null;
         } while (time < duration);
     }
+
     void SwitchTarget()
     {
         index++;
+        //handles end of journey
         if (index > segmentPoints.Length - 1) { 
             endReached = true;
             speed = 0;           
             StopCoroutine(moveUpdate);
+            //loop back turns the elevator around
             if (LoopAround)
             {
                 LoopBack();
                 return;
             }
-            return; }       
+            return;
+        }       
         target = segmentPoints[index];
         direction = (target - transform.position).normalized;
         if(index != 0) {
+            //resets t after each point passed to calculate the enxt
             t = 0;
             RotatePoint = StartCoroutine(RotateToPoint());
             return;
         }
         StartCoroutine(RotateToFirstPoint());
     }
+    //limited use of distance since its  a heavy calculation to do every fram
     void GetDistance()
     {        
         distancetraveled = 0;
@@ -295,6 +323,7 @@ public class testingPos : NetworkBehaviour
     }
     void LoopBack()
     {
+        //swaps around the array for the positions
         Vector3[] reverseOrder = new Vector3[segmentPoints.Length];
         int loop = segmentPoints.Length - 1;
         for (int i = loop; i >= 0; i--)
@@ -309,6 +338,7 @@ public class testingPos : NetworkBehaviour
         ActivateReturnSwitch();
         SetUp();
     }
+    //only called on server, no need for client to have this, since animation is handled server side and just given to clients
     [Server]
     void CmdReverseOrder()
     {

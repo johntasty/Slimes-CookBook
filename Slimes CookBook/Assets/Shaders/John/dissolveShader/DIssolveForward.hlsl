@@ -208,16 +208,16 @@ void Unity_Ellipse_float(float2 UV, float Width, float Height, out float Out)
 
 }
 
-
+//distance function of a box
 float sdBox(float3 p, float3 bounds)
 {
     float3 q = abs(p) - bounds;
     return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
-
+//this is used for window cutouts on the walls, same logic as raymarching is used just without the marching
 inline float CutoutMaskClipper(float3 posWorld) {
    
-   
+  
     float3 position = (windows[0].xyz - posWorld) ;
     float dis = sdBox(position, windowsBounds[0]);
    
@@ -228,43 +228,41 @@ inline float CutoutMaskClipper(float3 posWorld) {
         float dis2 = sdBox(pos2, windowsBounds[i]);
         dis = min(dis, dis2);
     }
-  
+  //inverting the cutout, we want the box to be invinsible 
     float circle = 1 - saturate(dis);
    
     return circle;
 }
 inline void InitializeStandardLitSurfaceDataFor(float2 uv, out SurfaceData outSurfaceData, float4 view, float3 positionWs)
 {
+    //just a setting for enabling disabling cutouts
     if (cutShape == 1) {
         float uvs = CutoutMaskClipper(positionWs);
         clip(1 - uvs - _Cutoff);
     }  
 
-   
+   //centering uvs, and reducing stretching in different resolution screens
     float2 screenPos = (view.xy / view.w) * 2 - 1;
     float distanceScr = length(screenPos);
 
-   /* float2 offset = Unity_Remap_float2(_PlayerPos.xy, float2(0.0, 1.), float2(.5, -1.5));
-    screenPos += offset;
-    float2 screenPosAdded = Unity_TilingAndOffset_float(screenPos, float2(1, 1), screenPos);*/
+    //disolve noise, noise generator is from a noise fucntions library
+    //creates a noise at the specified position to be used as a mask
     float dissolveNoise = snoise(_DistanceToCamera * (positionWs.xyz * (_DistaceMultiplier)));
+    //setting it to one dissolves the entire thing
     dissolveNoise = dissolveNoise * 0.999;
     float dissolve = dissolveNoise - _DissolveAmount;
-
+    //a spherical cutout is made, looks better than a box
     half sphere = (dissolve - _Height) / _Widht;
+    //the distance between the middle of the screen and the spheres positions
     float temp = distanceScr - sphere;
 
-  /*  float temp = dissolveNoise + (_PlayerPos.w);
-
-    float d = length((screenPosAdded) / float2(_Widht, _Height));*/
-    //d = 1 - d;
-
-    //float x = d - (temp);
-    //float isVisible = x - _DissolveAmount;
+    //transforming to world coordinates
     float3 positionVs = mul(UNITY_MATRIX_V, float4(positionWs.xyz, 1.0)).xyz;
+    //clamp the value to 0,1, the position of where to clip is based on the near view plane of the camera
     float gradient = saturate(positionVs.z / _PlayerPos.w);
+    //the cliping
     float isVisible = temp - gradient;
-    //float isVisible = (dissolve);
+    
     clip(isVisible);
 
     half4 albedoAlpha = SampleAlbedoAlpha(uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap));

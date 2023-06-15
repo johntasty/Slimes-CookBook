@@ -29,7 +29,7 @@ public class LobbyUi : MonoBehaviour
     {
         instance.mainPanel.gameObject.SetActive(active);
     }
-
+    // All the functions for updating Ui positions for player selection
     public static RectTransform GetPlayersPanelDefault() => instance.playersPanel.GetChild(1).GetComponent<RectTransform>();
     public static RectTransform GetPlayersPanel(int index) => instance.playersPanel.GetChild(index).GetComponent<RectTransform>();
     public static Button GetStartButton() => instance.startButton;
