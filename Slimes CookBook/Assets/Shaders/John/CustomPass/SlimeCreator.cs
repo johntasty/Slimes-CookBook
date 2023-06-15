@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class SlimeCreator : MonoBehaviour
 {
-   
-    // Start is called before the first frame update
+   //physics object to spawn
     [SerializeField]
     GameObject prefab;
+    //objects holder to not clutter the scene hierarchy
     [SerializeField]
     Transform parent;
+    //rows for the sphere
     public int rows;
+    //size
     [SerializeField]
     float radius;
     [SerializeField]
@@ -18,24 +20,26 @@ public class SlimeCreator : MonoBehaviour
     [SerializeField]
     Material _Material;
     Vector4[] _BallsArray;
+    //the predetermined amount pf spheres to use, use to be procedural but saw no point to it
     [SerializeField]
     Transform[] _Balls;
+    //shader id that will sue the positions to render the raymarched spheres for the metaballs
     static readonly int _BallPosArray = Shader.PropertyToID("_positions");
-
+    //list of physics objects to be updated
     List<CustomPhysics> springs = new List<CustomPhysics>();
     void Start()
     {        
-        _BallsArray = new Vector4[20];
-        //_Balls = new Transform[20];
-        //parent = GameObject.FindGameObjectWithTag("BallsParent").transform;
+        //size is preset for the amount of physics objects
+        _BallsArray = new Vector4[20];      
+
         StartCoroutine(SetUp());
        
     }
-    
+    //creates positions in a sphere for the slims soft body physics
     Vector3[] CreateSphericalGrid(int rows, int columns)
     {
         List<Vector3> spherePoints = new List<Vector3>();
-
+        //expands like a bell shape at the equator
         float equatorRadius = 2f;
         float poleRadius = .05f;
 
@@ -67,6 +71,7 @@ public class SlimeCreator : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        //physics updater
         MoveObject();
     }
     void MoveObject()
@@ -82,14 +87,16 @@ public class SlimeCreator : MonoBehaviour
   IEnumerator SetUp()
     {
         Vector3[] points = CreateSphericalGrid(4,5);
-        //GameObject ball = null;
+        
         Vector3 pos;
         int i = 0;
         foreach (Vector3 point in points)
         {
+            //add the spring physics compoments to the spheres
             GameObject ball = _Balls[i].gameObject;
             ball.name = i.ToString();
             pos =  point.normalized * range;
+           //origin is for the springs initial position
             ball.GetComponent<CustomPhysics>().Origin = pos;
             ball.GetComponent<CustomPhysics>().connections.Add(pos);
             ball.GetComponent<CustomPhysics>().restLengths.Add(0.1f);
@@ -98,6 +105,7 @@ public class SlimeCreator : MonoBehaviour
             ball.transform.position = transform.position + (pos);
            
             _BallsArray[i] = new Vector4(ball.transform.position.x, ball.transform.position.y, ball.transform.position.z, radius);
+            //having them active from the beginning makes loading slower, and introduces drift from the positions, same for gravity
             ball.SetActive(true);
             ball.GetComponent<Rigidbody>().useGravity = true;
             i++;
@@ -107,6 +115,9 @@ public class SlimeCreator : MonoBehaviour
         {
             for (int j = 0; j < 3; j++)
             {
+                //connections added to each spring
+                //as the sphere is made in a spherical fashion, each point is connected to the previous and the next except the last and first
+                //forces will be acted on both ends to simulate a soft body physics
                 _Balls[j * (5) + x].GetComponent<CustomPhysics>().connections.Add(transform.InverseTransformPoint(_Balls[(j + 1) * (5) + x].position));
                 _Balls[j * (5) + x].GetComponent<CustomPhysics>().names.Add(_Balls[(j + 1) * (5) + x].name);
                 _Balls[j * (5) + x].GetComponent<CustomPhysics>().restLengths.Add(0.1f);

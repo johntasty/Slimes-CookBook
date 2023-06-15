@@ -12,7 +12,7 @@ public class SimpleControll : NetworkBehaviour
     [SerializeField] MovementAttributes SetInputs;
     [SerializeField] bool SlimeMovement;
     [SerializeField] Material SlimeMat = null;
-    static readonly int _SlimeHit = Shader.PropertyToID("_Collision");
+   
     private MovementClass MovementFunctions;
    
     public bool WallHug;
@@ -24,9 +24,6 @@ public class SimpleControll : NetworkBehaviour
     CharacterController character = null;
     bool Respawing = false;
 
-   
-    public float radi;
-    public float dista;
     public override void OnStartAuthority()
     {
        
@@ -196,7 +193,7 @@ public class SimpleControll : NetworkBehaviour
 
         Transform respawnPosition = null;//AdditiveNetwork.singleton.GetTeleportPosition(gameObject.scene.name).position;
         float dist = 1000;
-
+        // Check point positions from the server
         foreach (KeyValuePair<string, Transform> item in AdditiveNetwork.teleportRegistar)
         {
             float curDist = Vector3.Distance(character.transform.position, item.Value.position);
@@ -213,6 +210,7 @@ public class SimpleControll : NetworkBehaviour
         transform.localPosition = Vector3.zero;
         if (isLocalPlayer)
         {
+            // Reseting gravity to make the player smoothly drop into the scene instead of like a rock
             MovementFunctions.ResetGravityVelocity();
         }        
         foreach (Transform child in transform)

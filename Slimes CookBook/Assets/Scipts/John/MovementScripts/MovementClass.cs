@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+// Class is used to be able to modify it easier on all instances that use movement
  class MovementClass 
 {   
     private MovementAttributes MovementVariables;
@@ -50,18 +50,21 @@ using UnityEngine;
     //Isomateric Skew
     Matrix4x4 isoMatrix;
     Collider[] hits = new Collider[1];
+    // Since additive scenes are used the server uses different type of physics
     PhysicsScene CurrentScenePhysics;
     public PhysicsScene _CurrentScene
     {
         set => CurrentScenePhysics = value;
     }
     #region Setup
+    // Isometric matrix rotation is used, to correctly apply the directions
     public void Setup(MovementAttributes set)
     {
         this.MovementVariables = set;
         tempGrav = MovementVariables._Gravity;
         isoMatrix = Matrix4x4.Rotate(Quaternion.Euler(0, -45, 0));
     }
+    // Blend tree hashes, used for driving the animations
     public void SetHashes(string _XAxisName, string _YaxisName)
     {
         _XAxis = Animator.StringToHash(_XAxisName);
@@ -77,6 +80,7 @@ using UnityEngine;
     {
         if (hosting)
         {
+            // The server collision has a limited amount of functions for physics
             grounded = player.gameObject.scene.GetPhysicsScene().SphereCast(player.position + (Vector3.up * .35f), .15f, -player.up, out RaycastHit hits, .4f, MovementVariables.groundLayer);
           
             return;
@@ -97,6 +101,7 @@ using UnityEngine;
     {
         _Velocity = 0;
     }
+    // Input system vectors
     public void MovementInputs(Vector2 input)
     {
         inputMove = input;
@@ -114,16 +119,11 @@ using UnityEngine;
 
         Vector3 skewedMove = isoMatrix.MultiplyPoint3x4(inputMovement);
         inputRotateMove = (player.position + skewedMove) - player.position;
-        Quaternion rotation = Quaternion.LookRotation(inputRotateMove, Vector3.up);
-        //player.rotation = Quaternion.RotateTowards(player.rotation, rotation, MovementVariables.TurnSmoothing * Time.deltaTime);
+        Quaternion rotation = Quaternion.LookRotation(inputRotateMove, Vector3.up);       
         player.rotation = Quaternion.Slerp(player.rotation, rotation, MovementVariables.TurnSmoothing * Time.deltaTime);
 
-        //_TargetAngle = Mathf.Atan2(inputMove.x, inputMove.y) * Mathf.Rad2Deg ;
-        //float angle = Mathf.SmoothDampAngle(player.eulerAngles.y, _TargetAngle, ref turnSmoothVel, MovementVariables.turn);
-        //Vector3 playRot = player.rotation.eulerAngles;
-        //player.rotation = Quaternion.Euler(playRot.x, angle, playRot.z);
     }
-
+    // Handles the movement of the player
     public void MovementVector()
     {
         VectorMagnitude = inputMove.normalized.magnitude;
@@ -132,19 +132,22 @@ using UnityEngine;
         Vector3 temp_movement =  player.forward;
         
         _VelocityVec = temp_movement * accel;
-        
+        // Wallhug used for the slime
         if (!grounded && WallHug)
         {
             _VelocityVec = temp_movement * VectorMagnitude * 1f;
         }        
         _VelocityVec.y = _Velocity;        
         MovementVariables.playerChar.Move(_VelocityVec * Time.deltaTime);
+        // Injects platforms directions to the player movemnts to avoid parenting issues
         if (_OnPlatform) player.position += CalculateOffset();
     }
+    // This are called from the curently colliding platform
     public void VelocityInjection(Vector3 PlatformDirection)
     {
         platform = PlatformDirection;
     }
+    // This are called from the curently colliding platform
     public void PlatformInjection(Transform PlatformDirection)
     {
         platCurrent = PlatformDirection;
@@ -167,6 +170,7 @@ using UnityEngine;
 
         _Velocity += MovementVariables._JumpPower;
     }
+    // Slope matching is not used, since its not visible from an isometric perspective
     public void SlopeMatch()
     {
         RaycastHit hit;

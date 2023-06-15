@@ -30,6 +30,7 @@ public class LobbyPlayerUi : MonoBehaviour
     // This value can change as clients leave and join
     public void OnPlayerNumberChanged(ulong newPlayerNumber)
     {
+        // Steam Api used to grab the users name
         var cSteam = new CSteamID(newPlayerNumber);
         playerNameText.text = SteamFriends.GetFriendPersonaName(cSteam);
        
@@ -40,7 +41,7 @@ public class LobbyPlayerUi : MonoBehaviour
     {
         playerNameText.color = newPlayerColor;
     }
-
+    // Ready up text on ui visual
     public void OnPlayerReadyState(bool newPlayerState)
     {
         if (newPlayerState)

@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1
+  m_AmbientIntensity: 0.26
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.3985849, g: 0.42728725, b: 0.5, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: de01a290235f51b4c90141885cc8c3c6, type: 2}
@@ -873,6 +873,51 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3434487672506374257, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
+        type: 3}
+      propertyPath: color1.b
+      value: 0.4869879
+      objectReference: {fileID: 0}
+    - target: {fileID: 3434487672506374257, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
+        type: 3}
+      propertyPath: color1.g
+      value: 0.24150053
+      objectReference: {fileID: 0}
+    - target: {fileID: 3434487672506374257, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
+        type: 3}
+      propertyPath: color1.r
+      value: 0.764151
+      objectReference: {fileID: 0}
+    - target: {fileID: 3434487672506374257, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
+        type: 3}
+      propertyPath: color2.b
+      value: 0.28532004
+      objectReference: {fileID: 0}
+    - target: {fileID: 3434487672506374257, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
+        type: 3}
+      propertyPath: color2.g
+      value: 0.24510503
+      objectReference: {fileID: 0}
+    - target: {fileID: 3434487672506374257, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
+        type: 3}
+      propertyPath: color2.r
+      value: 0.6415094
+      objectReference: {fileID: 0}
+    - target: {fileID: 3434487672506374257, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
+        type: 3}
+      propertyPath: Outline.b
+      value: 0.32950333
+      objectReference: {fileID: 0}
+    - target: {fileID: 3434487672506374257, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
+        type: 3}
+      propertyPath: Outline.g
+      value: 0.1738163
+      objectReference: {fileID: 0}
+    - target: {fileID: 3434487672506374257, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
+        type: 3}
+      propertyPath: Outline.r
+      value: 0.3962264
       objectReference: {fileID: 0}
     - target: {fileID: 3434487672506374258, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
         type: 3}
@@ -2412,6 +2457,36 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5553860557561031664, guid: ab1c55deb0e56e94ebe114594ff01750,
+        type: 3}
+      propertyPath: color1.b
+      value: 0.21048418
+      objectReference: {fileID: 0}
+    - target: {fileID: 5553860557561031664, guid: ab1c55deb0e56e94ebe114594ff01750,
+        type: 3}
+      propertyPath: color1.g
+      value: 0.8113208
+      objectReference: {fileID: 0}
+    - target: {fileID: 5553860557561031664, guid: ab1c55deb0e56e94ebe114594ff01750,
+        type: 3}
+      propertyPath: color1.r
+      value: 0.3160679
+      objectReference: {fileID: 0}
+    - target: {fileID: 5553860557561031664, guid: ab1c55deb0e56e94ebe114594ff01750,
+        type: 3}
+      propertyPath: color2.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5553860557561031664, guid: ab1c55deb0e56e94ebe114594ff01750,
+        type: 3}
+      propertyPath: color2.g
+      value: 0.26900584
+      objectReference: {fileID: 0}
+    - target: {fileID: 5553860557561031664, guid: ab1c55deb0e56e94ebe114594ff01750,
+        type: 3}
+      propertyPath: color2.r
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ab1c55deb0e56e94ebe114594ff01750, type: 3}
@@ -4649,7 +4724,10 @@ VisualEffect:
     m_Vector3f:
       m_Array: []
     m_Vector4f:
-      m_Array: []
+      m_Array:
+      - m_Value: {x: 0.8497241, y: 0.8759562, z: 0.8962264, w: 1}
+        m_Name: Color
+        m_Overridden: 1
     m_Uint:
       m_Array: []
     m_Int:
@@ -5094,7 +5172,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 100, y: 20, z: 100}
+  m_Size: {x: 100, y: 120, z: 100}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &865831957
 GameObject:
@@ -9197,8 +9275,8 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 0.8773585, g: 0.8367812, b: 0.6000801, a: 1}
-  m_Intensity: 1.5
+  m_Color: {r: 0.9245283, g: 0.8890358, b: 0.78061587, a: 1}
+  m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -37311,7 +37389,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh139136
+  m_Name: pb_Mesh82852
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -37992,7 +38070,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh68606
+  m_Name: pb_Mesh83618
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -39002,7 +39080,10 @@ VisualEffect:
     m_Vector3f:
       m_Array: []
     m_Vector4f:
-      m_Array: []
+      m_Array:
+      - m_Value: {x: 0.7718939, y: 0.9245283, z: 0.9030448, w: 1}
+        m_Name: Color
+        m_Overridden: 1
     m_Uint:
       m_Array: []
     m_Int:
@@ -41727,7 +41808,7 @@ PrefabInstance:
     - target: {fileID: 2657705404410299080, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 62.25
+      value: 71.14
       objectReference: {fileID: 0}
     - target: {fileID: 2657705404410299080, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
         type: 3}
@@ -41737,7 +41818,7 @@ PrefabInstance:
     - target: {fileID: 2657705404410299080, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6.4
+      value: -9.13
       objectReference: {fileID: 0}
     - target: {fileID: 2657705404410299080, guid: d7ea6b2bc5d47c94b92078fff0133a8e,
         type: 3}

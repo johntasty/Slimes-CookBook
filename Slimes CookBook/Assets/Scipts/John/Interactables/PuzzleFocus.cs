@@ -57,6 +57,7 @@ public class PuzzleFocus : NetworkBehaviour
     private Transform interactor;
     //interaciton phase check
     bool interacted = false;
+    // Wires up the interactor from the input system
     private void Start()
     {
         ObserverListener.Instance.InteractWizard += InteractButton;
@@ -86,6 +87,8 @@ public class PuzzleFocus : NetworkBehaviour
 
     private void TriggerEvent()
     {
+        // If the slime Character, some places he goes he should not be able to see the enviroment
+        // thus the scene bakground changes
         _MainCam = Camera.main;
         _MainCam.clearFlags = CameraClearFlags.Skybox;
         TeleportPlayer(TeleportPointBack.position);
@@ -111,6 +114,8 @@ public class PuzzleFocus : NetworkBehaviour
             }
         }        
     }
+    // The functionallity is made in a way to be reused in all objects
+    // Each object that has some interaction and requiers some different cameras or focus uses this script
     void StartInteraction()
     {
         SetUpLookPoint();
@@ -141,6 +146,7 @@ public class PuzzleFocus : NetworkBehaviour
         
         if (other.transform.parent != null)
         {
+            // Check for local players as to not have the ui pop on both, only on local
             if(other.transform.parent.TryGetComponent(out NetworkIdentity compomn))
             {
                 check = compomn.isLocalPlayer;
@@ -179,6 +185,7 @@ public class PuzzleFocus : NetworkBehaviour
     }
   void SetUpFollow()
     {        
+        
         if (Follow)
         {
             _CinemaCamera.Follow = _ObjectToFocus;
@@ -198,11 +205,12 @@ public class PuzzleFocus : NetworkBehaviour
     {
         if (Teleport)
         {
-            //_CinemaCamera.clearFlags = CameraClearFlags.SolidColor;
             PopUp.gameObject.SetActive(false);
             interactor.parent.gameObject.SetActive(false);
             if(InteractionTag == "Slime")
             {
+                // Slime special case, he is a bunch of balls that use custom physics,
+                // Not moving them all individually displaces them to much
                 Transform balls = interactor.parent.Find("ParentBall");
                 int len = balls.childCount;
                 for (int i = 0; i < len - 1; i++)

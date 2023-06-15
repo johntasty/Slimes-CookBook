@@ -87,7 +87,7 @@ public class AdditiveNetwork : NetworkRoomManager
         isInTransition = true;
 
         // This will return immediately if already faded in
-        // e.g. by UnloadAdditive or by default startup state
+       
         yield return fadeInOut.FadeIn();
 
         // host client is on server...don't load the additive scene again
@@ -138,16 +138,12 @@ public class AdditiveNetwork : NetworkRoomManager
 
         OnClientSceneChanged();
 
-        // There is no call to FadeOut here on purpose.
-        // Expectation is that a LoadAdditive or full scene change
-        // will follow that will call FadeOut after that scene loads.
     }
 
     public override void OnClientSceneChanged()
     {
         // Only call the base method if not in a transition.
-        // This will be called from DoTransition after setting doingTransition to false
-        // but will also be called first by Mirror when the scene loading finishes.
+        
         if (!isInTransition)
             base.OnClientSceneChanged();
     }
@@ -200,6 +196,7 @@ public class AdditiveNetwork : NetworkRoomManager
         GameObject prefabToSpawn = null;
         // Instantiate player as child of start position - this will place it in the additive scene
         // This also lets player object "inherit" pos and rot from start position transform
+        // Prefab list is for the player selection
         if (prefab == 0)
         {
             prefabToSpawn = Instantiate(GamePlayersPrefabs[0], start);
@@ -214,7 +211,7 @@ public class AdditiveNetwork : NetworkRoomManager
         SceneManager.MoveGameObjectToScene(prefabToSpawn, SceneManager.GetSceneByPath(additiveScenes[0]));
         // Wait for end of frame before adding the player to ensure Scene Message goes first
         yield return new WaitForEndOfFrame();
-
+        // Destroy the previous net object to not interfere with controlls
         NetworkServer.Destroy(conn.identity.gameObject);
         NetworkServer.ReplacePlayerForConnection(conn, prefabToSpawn, true);
        
@@ -241,9 +238,9 @@ public class AdditiveNetwork : NetworkRoomManager
         pending.roomPlayer = player;
         pendingPlayers.Add(pending);
 
-        // Finally spawn the player object for this connection
+        // Spawn the player object for this connection
         NetworkServer.AddPlayerForConnection(conn, player);
-
+        // Get the steam id name and add it to the lobby
         CSteamID steamId = SteamMatchmaking.GetLobbyMemberByIndex(
             SteamLobbyManagment.LobbyId,
             numPlayers - 1);
@@ -255,7 +252,7 @@ public class AdditiveNetwork : NetworkRoomManager
     #endregion
 
     #region Server Callbacks
-   
+   // Registers all the possible checkpoints and teleports, same functionallity as Mirror start positions
     public static void RegisterTeleportPositions(Transform start, string SceneName)
     {       
         if (teleportRegistar.ContainsKey(SceneName)) return;

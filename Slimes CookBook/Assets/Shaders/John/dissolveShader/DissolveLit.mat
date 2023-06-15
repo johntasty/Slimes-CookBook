@@ -116,8 +116,8 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GlowFalloff: 0.037
-    - _GlowRange: 0.021
+    - _GlowFalloff: 0.033
+    - _GlowRange: 0.015
     - _Height: 2
     - _Metallic: 0
     - _OcclusionStrength: 1
@@ -141,7 +141,7 @@ Material:
     - _CutoutMask1MapWorldPos: {r: -17.224625, g: -44.07187, b: 108.33211, a: 0}
     - _CutoutMask1Map_ST: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-    - _GlowColor: {r: 0.5, g: 0.3305425, b: 0.24292454, a: 1}
-    - _PlayerPos: {r: 0, g: 0, b: 0, a: 3}
+    - _GlowColor: {r: 0.6627451, g: 0.29803923, b: 0.2, a: 1}
+    - _PlayerPos: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

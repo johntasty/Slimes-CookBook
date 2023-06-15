@@ -99,12 +99,15 @@ Shader "Unlit/TestShader"
     half _ShadowPenumbra;
 
 
-
+    //sphere distance function
     float sdSphere(float3 eye, float3 center, float s) {
         half d = distance(eye, center) - s;
 
         return d;
     }
+
+    //experiment for faster union calculations for the metaballs creation, works faster that a smoothed polynomial function
+    //based on Iniqo metaballs in shadertoy website
     float sdSphereUnion(float3 eye) {
         float m = 0.0;
         float p = 0.0;
@@ -139,10 +142,13 @@ Shader "Unlit/TestShader"
 
         return d;
     }
+
+    //smoothed polynomial union for merging objects, https://iquilezles.org/articles/distfunctions/
     float unionSDF(float distA, float distB, float k) {
         float h = max(k - abs(distA - distB), 0.0) / k;
         return min(distA, distB) - h * h * k * (1.0 / 4.0);
     }
+    //distance function wrapper
     float GetDist(float3 eye) {
         float d = sdSphere(eye, _positions[0], _Size);
 
@@ -153,6 +159,7 @@ Shader "Unlit/TestShader"
         }
         return d;
     }
+    //create normals for the raymarched object
     half3 Get_Norm(half3 p)
     {
         half2 e = half2(0.001, 0);
@@ -162,7 +169,7 @@ Shader "Unlit/TestShader"
             GetDist(p + e.yyx) - GetDist(p - e.yyx));
         return normalize(n);
     }
-
+    //light calculations based on CatLikeCoding brdf tutorials
     half3 brdf(half3 ro, half3 pos, half3 normal, half3 lightDir, inout half3 col) {
         half percepinalrough = 1.0 - _Smoothness;
         half roughness = percepinalrough * percepinalrough;
@@ -177,6 +184,7 @@ Shader "Unlit/TestShader"
 
         return col;
     }
+    //cube map sampling
     half3 SampleEnvironment(half3 pos, half3 normal) {
         half precRoug = 1.0 - _Smoothness;
         float3 reflectVector = reflect(-pos, normal);
@@ -212,6 +220,7 @@ Shader "Unlit/TestShader"
         enviroment /= roughness * roughness + 1.0;
         return  enviroment;
     }
+    //shadowing
     half _ShadowSoft(half3 ro, half3 rd, half mint, half maxt, half k) {
         half result = 1.0;
         for (half t = mint; t < maxt;) {
@@ -225,6 +234,7 @@ Shader "Unlit/TestShader"
         }
         return result;
     }
+    //light and shading of raymarched. simple specular light
     half3 _Shading(half3 p, half3 n, half3 ro) {
         Light lights = GetMainLight();
         half3 result;
@@ -244,15 +254,15 @@ Shader "Unlit/TestShader"
         half shadow = _ShadowSoft(p, lights.direction, _ShadowMin, _ShadowMax, _ShadowPenumbra) * 0.5 + 0.5;
         shadow = max(0.0, pow(shadow, _ShadowIntensity));
 
-        //half ao = AmbientOcclusion(p, n);
-
+       
         half3 test = brdf(ro, -ro, n, lights.direction, color);
         result = test * shadow;
         float relNorm = dot(-ro, n);
 
+        //Enviromental reflections, commented out since the view was so far they where not noticible
         //half3 reflections = SampleEnvironment(p, n);
         //half3 refraction = RefractEnvironment(p, n);
-        //      
+       
 
         //half3 reflection = ReflectEnviroment(reflections, n, -ro, specular, fresStrenght);
         //half3 refract = ReflectEnviroment(refraction, n, ro, specular, fresStrenght);
@@ -288,13 +298,14 @@ Shader "Unlit/TestShader"
 
     Ray CreateCameraRay(float2 uv) {
       
+        //origin of the ray, works fine for one camera, using it on multiplayer creates a graphical bug for the other viewers.
+        //adding to the origin mitigates the issua somewhat, have not mananged to fix the underlining issue TODO
         float3 origin = mul(_CameraWorld, float4(0, 0, 0, 1)).xyz;
         origin += mul(_CameraWorld, float4(uv * _OrthoSize, 0, 0)).xyz;
        
-
-        float3 direction = mul(_CameraInverseProjection, float4(uv, 0, 1)).xyz;
+        //inverse projection of the cameras view matrix
         float3 viewDirectionWS = -(UNITY_MATRIX_V[2].xyz);
-        direction = mul(_CameraWorld, float4(viewDirectionWS, 0)).xyz;
+        float3 direction = mul(_CameraWorld, float4(viewDirectionWS, 0)).xyz;
         
         return CreateRay(origin, direction);
     }
@@ -341,35 +352,26 @@ Shader "Unlit/TestShader"
        
         o.uv = TRANSFORM_TEX(v.uv, _MainTex);
         o.projParams = ComputeScreenPos(o.vertex);
+        //cameras view direction
         float3 viewVector = mul(unity_CameraInvProjection, float4(o.uv * 2 - 1, 0, -1));
         o.viewVector = mul(unity_CameraToWorld, float4(viewVector, 0));
-
-        /*float2 uv = o.uv * 2.0 - 1.0;
-       
-        Ray ray = CreateCameraRay(uv);
-        o.rayDirection = ray.direction;
-        o.rayOrigin = ray.origin;*/
         
-        
-       
         return o;
     }
 
     half4 frag(v2f i) : SV_Target
     {       
+        //centers coordinates to the middle of the screen
         float2 uv = (i.uv * 2.0 ) -  1.;
 
         Ray ray = CreateCameraRay(uv);
-       /* o.rayDirection = ray.direction;
-        o.rayOrigin = ray.origin;*/
-        
+              
         half3 rDirection = normalize(ray.direction);
         half3 rOrigin = ray.origin;
         
-        float viewDir = length(ray.direction);
-       
-        float nonLinear = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, i.uv).r;
-        
+        //sample the depth
+        float viewDir = length(ray.direction);       
+        float nonLinear = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, i.uv).r;        
         float sceneEyeDepthtest = LinearEyeDepth(nonLinear, _ZBufferParams) * viewDir;
 
         //comment this out for perspective depth

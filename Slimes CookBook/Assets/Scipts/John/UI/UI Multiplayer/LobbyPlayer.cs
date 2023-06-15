@@ -41,11 +41,13 @@ public class LobbyPlayer : NetworkRoomPlayer
 
 
     AdditiveNetwork room = NetworkManager.singleton as AdditiveNetwork;
-    // This is called by the hook of playerNumber SyncVar above
+   
     public int GetPrefabSpawn()
     {
         return playerParent;
     }
+    // This is called by the hook of playerNumber SyncVar above
+    // Stes up Steam name
     void PlayerNumberChanged(ulong _, ulong newPlayerNumber)
     {      
 
@@ -58,6 +60,7 @@ public class LobbyPlayer : NetworkRoomPlayer
         OnPlayerColorChanged?.Invoke(newPlayerColor);
     }
     // This is called by the hook of playerParent SyncVar above
+    // Updates the position in the Ui for the player Selection
     void PlayerParentChanged(int oldParent, int newParent)
     {
         if (playerUIObject == null) return;
@@ -66,7 +69,7 @@ public class LobbyPlayer : NetworkRoomPlayer
         playerUIObject.transform.SetParent(LobbyUi.GetPlayersPanel(newParent).transform);
         OnPlayerParentChanged?.Invoke(newParent);
     }
-       
+       // Mark players ready to play, enables the start game
     void ReadyState(bool oldReadyState, bool newReadyState)
     {        
         OnPlayerStateChanged?.Invoke(newReadyState);           
@@ -107,6 +110,7 @@ public class LobbyPlayer : NetworkRoomPlayer
     #endregion
 
     #region Client
+    // Sets up all events once at start up
     public override void OnStartClient()
     {
        
@@ -136,6 +140,7 @@ public class LobbyPlayer : NetworkRoomPlayer
     {
        
     }
+    // Adds delegates to buttons for reading up
     public override void OnStartLocalPlayer()
     {
         playerUI.SetLocalPlayer();
@@ -170,6 +175,7 @@ public class LobbyPlayer : NetworkRoomPlayer
     #endregion
 
     #region Commands
+    // As the host is determined with who entered first he gets the start button
     [TargetRpc]
     public void RpcStartButton(NetworkConnectionToClient target)
     {
@@ -197,7 +203,7 @@ public class LobbyPlayer : NetworkRoomPlayer
             room.ReadyStatusChanged();
         }
     }
-
+    // When start is pressed, tells the server to start loading scenes
     void ReadyUp()
     {
         if (!isLocalPlayer) { return; }
@@ -207,6 +213,8 @@ public class LobbyPlayer : NetworkRoomPlayer
         readyToBegin = !readyToBegin;       
         CmdChangeReady(readyToBegin);
     }
+    // Ui for player selection update
+    // Stops 2 players picking the same character
     [Command]
     void CmdMoveRight()
     {              
@@ -246,6 +254,7 @@ public class LobbyPlayer : NetworkRoomPlayer
         }
 
     }
+    // Wont allow sart without picking a character
  IEnumerator IssueWarning()
     {
         playerUI.SelectHCaracter("Select a Character.");

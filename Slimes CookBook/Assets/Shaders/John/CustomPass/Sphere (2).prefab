@@ -62,11 +62,10 @@ MonoBehaviour:
   length: 0
   damping: 3
   springConstant: 50
-  colliders:
-    serializedVersion: 2
-    m_Bits: 8
+  speed: 0
   body: {fileID: 6652870990586231036}
   connections: []
+  names: []
   restLengths: []
 --- !u!54 &6652870990586231036
 Rigidbody:
